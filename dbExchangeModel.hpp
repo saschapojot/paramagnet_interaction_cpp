@@ -16,6 +16,9 @@
 #include <thread>
 #include <future>
 #include <algorithm>
+#include <cmath>
+#include <numeric>
+#include <functional>
 
 using namespace std::complex_literals;
 using mat10c = Eigen::Matrix<std::complex<double>, 10, 10>;
@@ -24,6 +27,17 @@ using mat20c = Eigen::Matrix<std::complex<double>, 20, 20>;
 const auto PI=std::numbers::pi;
 using eigVal20=Eigen::SelfAdjointEigenSolver<mat20c>::RealVectorType;
 using vecVal20=Eigen::SelfAdjointEigenSolver<mat20c>::EigenvectorsType;
+
+class dataholder{
+public:
+    std::vector<double>EAvgAll;//to be stored
+    std::vector<std::vector<double>>sAll;//to be stored
+    std::vector<double>chemPotAll;//to be stored
+    std::vector<std::tuple<int,eigVal20 ,vecVal20>> eigRstAll;//to be stored
+
+
+};
+
 
 class dbExchangeModel {
 public:
@@ -58,13 +72,18 @@ public:
     double g = 0.01;// coupling coefficient
 
     double T = 1;// temperature
+    double beta=1/T;
     std::vector<double> KSupValsAll;//all the values in SBZ
     std::vector<int> KSupIndsAll;//[0,1,...,M-1]
     std::vector<mat20c> preComputedHamiltonianPart;//part of the SBZ Hamiltonian that can be precomputed
     mat20c I10upup; // electron spin interaction part
     mat20c I10downdown;// electron spin interaction part
-
+    int burnInEst=90000;
     Eigen::SelfAdjointEigenSolver<mat20c> eigSolution;// solver for hermitian matrices
+    std::vector<double>EAvgAll;//to be stored
+    std::vector<std::vector<double>>sAll;//to be stored
+    std::vector<double>chemPotAll;//to be stored
+    std::vector<std::tuple<int,eigVal20 ,vecVal20>> eigRstAll;//to be stored
 
 
 
@@ -99,6 +118,30 @@ public:
    /// @param s spin values in a MC step
    /// @return eigenvalues and eigenvectors for all values in SBZ
    std::vector<std::tuple<int,eigVal20 ,vecVal20>> s2EigSerial(const std::vector<double> &s);//serial version of s2Eig()
+
+   ///
+   /// @param eigResults eigenvalue results from s2EigSerial()
+   /// @return all eigenvalues placed in a vector
+   std::vector<double> combineFromEig(const std::vector<std::tuple<int,eigVal20 ,vecVal20>>& eigResults);
+
+   ///
+   /// @param func a monotonically increasing function
+   /// @return find root func=0
+   static double bisection_method(std::function<double(double)> func);
+
+   ///
+   /// @param EVec a vector of all eigenvalues given one s
+   /// @return chemical potential
+   double chemicalPotential(const std::vector<double>& EVec);
+
+   ///
+   /// @param EVec a vector of all eigenvalues given one s
+   /// @return
+   double avgEnergy(const std::vector<double>& EVec);
+
+   void executionMC();
+
+
 
 };
 
