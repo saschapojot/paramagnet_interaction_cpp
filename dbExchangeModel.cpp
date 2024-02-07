@@ -58,8 +58,11 @@ void dbExchangeModel::constructhPart(){
 
 
 
-
-mat20c dbExchangeModel::hEig(std::vector<double> &s, const int &j) {
+///
+/// @param s spin values for a MC step
+/// @param j index of one SBZ value
+/// @return j, eigenvals, eigenvects
+std::tuple<int,eigVal20 ,vecVal20 > dbExchangeModel::hEig(const std::vector<double> &s, const int &j) {
     mat20c part=this->preComputedHamiltonianPart[j];
     double sSum=0;
     for(int l=0;l<L;l++){
@@ -68,6 +71,30 @@ mat20c dbExchangeModel::hEig(std::vector<double> &s, const int &j) {
     }
 
     part+=this->I20*sSum;
+
+
+    mat20c I10upupCopy=this->I10upup;
+    for(int j=0;j<L;j++){
+        I10upupCopy(2*j,2*j)*=s[j];
+        I10upupCopy(2*j+1,2*j+1)*=s[j];
+    }
+
+    mat20c I10downdownCopy=this->I10downdown;
+    for (int j=0;j<L;j++){
+        I10downdownCopy(2*j,2*j)*=s[j];
+        I10downdownCopy(2*j+1,2*j+1)*=s[j];
+    }
+
+
+   mat20c wholeh=part+I10upupCopy-I10downdownCopy;// h(K,s)
+   this->eigSolution.compute(wholeh);
+   eigVal20 vals=eigSolution.eigenvalues();
+   vecVal20 vecs=eigSolution.eigenvectors();
+
+   return std::make_tuple(j,vals,vecs);
+
+
+
 
 
 
@@ -79,8 +106,46 @@ mat20c dbExchangeModel::hEig(std::vector<double> &s, const int &j) {
 
 
 
+///
+/// @param s spin values in a MC step
+/// @return eigenvalues and eigenvectors for all values in SBZ
+std::vector<std::tuple<int,eigVal20 ,vecVal20>> dbExchangeModel::s2Eig(const std::vector<double> &s) {
+//TODO: there are mistakes in this function
+    std::vector<std::tuple<int,eigVal20 ,vecVal20>> retVec;
+
+    std::vector<std::future<std::tuple<int,eigVal20 ,vecVal20>>> futAll(this->M);
+
+    for (auto j: this->KSupIndsAll){
+        futAll[j]=std::async(std::launch::async,[this,&s,j](){
+            return this->hEig(s, j);
+        });
+    }
+
+   for (auto i=0;i<futAll.size();i++){
+       std::tuple<int,eigVal20 ,vecVal20>  rst=futAll[i].get();
+       retVec.push_back(rst);
+   }
+
+    return retVec;
+}
 
 
+
+///
+/// @param s spin values in a MC step
+/// @return eigenvalues and eigenvectors for all values in SBZ
+std::vector<std::tuple<int,eigVal20 ,vecVal20>> dbExchangeModel::s2EigSerial(const std::vector<double> &s) {
+
+    std::vector<std::tuple<int,eigVal20 ,vecVal20>> retVec;
+
+    for(auto j: this->KSupIndsAll){
+        retVec.push_back(this->hEig(s,j));
+    }
+
+    return retVec;
+
+
+}
 
 
 
