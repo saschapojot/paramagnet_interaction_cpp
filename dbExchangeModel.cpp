@@ -261,3 +261,21 @@ double dbExchangeModel::avgEnergy(const std::vector<double> &EVec) {
 }
 
 
+void dbExchangeModel::executionMC() {
+    //init
+    dataholder record=dataholder();//records all data
+
+    std::random_device rd;
+    std::uniform_int_distribution<int> indsAll(0, 1);
+
+    std::vector<double>sCurr;//init s
+    for(int i=0;i<this->L;i++){
+        sCurr.push_back(this->sRange[indsAll(rd)]);
+    }
+
+
+
+
+
+}
+

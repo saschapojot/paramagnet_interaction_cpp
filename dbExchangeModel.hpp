@@ -19,6 +19,7 @@
 #include <cmath>
 #include <numeric>
 #include <functional>
+#include <random>
 
 using namespace std::complex_literals;
 using mat10c = Eigen::Matrix<std::complex<double>, 10, 10>;
@@ -78,6 +79,9 @@ public:
     std::vector<mat20c> preComputedHamiltonianPart;//part of the SBZ Hamiltonian that can be precomputed
     mat20c I10upup; // electron spin interaction part
     mat20c I10downdown;// electron spin interaction part
+
+
+    std::vector<double>sRange{-1,1};
     int burnInEst=90000;
     Eigen::SelfAdjointEigenSolver<mat20c> eigSolution;// solver for hermitian matrices
     std::vector<double>EAvgAll;//to be stored
