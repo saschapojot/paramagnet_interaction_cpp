@@ -246,7 +246,7 @@ double dbExchangeModel::chemicalPotential(const std::vector<double>& EVec) {
 }
 
 
-double dbExchangeModel::avgEnergy(const std::vector<double> &EVec) {
+std::vector<double> dbExchangeModel::avgEnergy(const std::vector<double> &EVec) {
     double muVal= this->chemicalPotential(EVec);
 
     double weightedE;
@@ -255,7 +255,8 @@ double dbExchangeModel::avgEnergy(const std::vector<double> &EVec) {
         weightedE+=tmp;
 
     }
-    return weightedE;
+    std::vector<double>retVec{weightedE,muVal};
+    return retVec;
 
 
 }
@@ -267,10 +268,29 @@ void dbExchangeModel::executionMC() {
 
     std::random_device rd;
     std::uniform_int_distribution<int> indsAll(0, 1);
+    std::uniform_int_distribution<int> flipInds(0,L-1);
+
 
     std::vector<double>sCurr;//init s
     for(int i=0;i<this->L;i++){
         sCurr.push_back(this->sRange[indsAll(rd)]);
+    }
+
+    auto triple=this->s2EigSerial(sCurr);//init eig result
+    std::vector<double>EVec=this->combineFromEig(triple);//init EVec
+    auto EAndMuCurr=this->avgEnergy(EVec);// init E and mu
+
+    int counter=20000;
+    for (int i=0;i<counter;i++){
+        auto sNext=sCurr;
+
+        int flipTmpInd=flipInds(rd);
+        sNext[flipTmpInd]*=-1;
+        auto tripleNext=this->s2EigSerial(sNext);
+
+
+
+
     }
 
 

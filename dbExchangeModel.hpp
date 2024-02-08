@@ -20,6 +20,7 @@
 #include <numeric>
 #include <functional>
 #include <random>
+#include <chrono>
 
 using namespace std::complex_literals;
 using mat10c = Eigen::Matrix<std::complex<double>, 10, 10>;
@@ -31,9 +32,9 @@ using vecVal20=Eigen::SelfAdjointEigenSolver<mat20c>::EigenvectorsType;
 
 class dataholder{
 public:
-    std::vector<double>EAvgAll;//to be stored
+
     std::vector<std::vector<double>>sAll;//to be stored
-    std::vector<double>chemPotAll;//to be stored
+    std::vector<std::vector<double>>EAndMuAll;//to be stored
     std::vector<std::tuple<int,eigVal20 ,vecVal20>> eigRstAll;//to be stored
 
 
@@ -141,7 +142,7 @@ public:
    ///
    /// @param EVec a vector of all eigenvalues given one s
    /// @return
-   double avgEnergy(const std::vector<double>& EVec);
+   std::vector<double> avgEnergy(const std::vector<double>& EVec);
 
    void executionMC();
 
