@@ -4,7 +4,7 @@
 
 #ifndef PARAMAGNET_INTERACTION_CPP_DBEXCHANGEMODEL_HPP
 #define PARAMAGNET_INTERACTION_CPP_DBEXCHANGEMODEL_HPP
-
+#include <iostream>
 #include <Eigen/Dense>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <Eigen/Eigenvalues>
@@ -21,6 +21,11 @@
 #include <functional>
 #include <random>
 #include <chrono>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <fstream>
+#include <boost/serialization/vector.hpp>
+#include "serialize_tuple.h"
 
 using namespace std::complex_literals;
 using mat10c = Eigen::Matrix<std::complex<double>, 10, 10>;
@@ -34,8 +39,18 @@ class dataholder{
 public:
 
     std::vector<std::vector<double>>sAll;//to be stored
-    std::vector<std::vector<double>>EAndMuAll;//to be stored
-    std::vector<std::tuple<int,eigVal20 ,vecVal20>> eigRstAll;//to be stored
+    std::vector<double>EAll;//to be stored
+    std::vector<double>muAll;//to be stored
+    std::vector<std::vector<std::tuple<int,eigVal20 ,vecVal20>>> eigRstAll;//to be stored
+
+public:
+    template<class Archive>
+    void serialize(Archive &ar,const unsigned int version){
+        ar & this->sAll;
+        ar & this->EAll;
+        ar & this->muAll;
+        ar & this->eigRstAll;
+    }
 
 
 };

@@ -186,7 +186,7 @@ double dbExchangeModel::bisection_method(std::function<double(double)> func) {
     while (counter <= maxiter) {
         double midpoint = (a + b) / 2.0;
         double midVal = func(midpoint);
-        if (std::abs(midVal) < 1e-11 or (b - a) / 2 < tol) {
+        if (std::abs(midVal) < 1e-9 or (b - a) / 2 < tol) {
 
             return midpoint;
         }
@@ -238,7 +238,7 @@ double dbExchangeModel::chemicalPotential(const std::vector<double>& EVec) {
 
    };
 
-   double muVal=this->bisection_method(muf);
+   double muVal=bisection_method(muf);
 
    return muVal;
 
@@ -275,23 +275,88 @@ void dbExchangeModel::executionMC() {
     for(int i=0;i<this->L;i++){
         sCurr.push_back(this->sRange[indsAll(rd)]);
     }
+    std::ranlux24_base e2(rd());
+    std::uniform_real_distribution<> distUnif01(0, 1);
 
-    auto triple=this->s2EigSerial(sCurr);//init eig result
-    std::vector<double>EVec=this->combineFromEig(triple);//init EVec
+
+    auto tripleCurr=this->s2EigSerial(sCurr);//init eig result
+    std::vector<double>EVec=this->combineFromEig(tripleCurr);//init EVec
     auto EAndMuCurr=this->avgEnergy(EVec);// init E and mu
+    double EAvgCurr=EAndMuCurr[0];
+    double muCurr=EAndMuCurr[1];
+    int flipNum=0;
+    int noFlipNum=0;
 
+
+    //start of MC
     int counter=20000;
-    for (int i=0;i<counter;i++){
-        auto sNext=sCurr;
+    const auto tMCStart{std::chrono::steady_clock::now()};
+    for (int i=0;i<counter;i++) {
 
-        int flipTmpInd=flipInds(rd);
-        sNext[flipTmpInd]*=-1;
-        auto tripleNext=this->s2EigSerial(sNext);
+        //perform a flip
+
+        auto sNext =std::vector<double>(sCurr);
+
+        int flipTmpInd = flipInds(rd);
+        sNext[flipTmpInd] *= -1;
+        auto tripleNext = this->s2EigSerial(sNext);
+        auto EVecNext = this->combineFromEig(tripleNext);
+
+        auto EAndMuNext = this->avgEnergy(EVecNext);
+        double EAvgNext = EAndMuNext[0];
+        double muNext = EAndMuCurr[1];
+        double DeltaE = (EAvgNext - EAvgCurr) / this->M;
+        //decide if flip is accepted
+        if (DeltaE <= 0) {
+            sCurr = std::vector<double>(sNext);
+            tripleCurr = std::vector<std::tuple<int, eigVal20, vecVal20>>(tripleNext);
+            EAvgCurr = EAvgNext;
+            muCurr = muNext;
+            flipNum++;
+
+        } else {
+            double r = distUnif01(e2);
+            if (r < std::exp(-this->beta * DeltaE)) {
+                sCurr = std::vector<double>(sNext);
+                tripleCurr = std::vector<std::tuple<int, eigVal20, vecVal20>>(tripleNext);
+                EAvgCurr = EAvgNext;
+                muCurr = muNext;
+                flipNum++;
+
+            } else {
+                noFlipNum++;
+            }
 
 
+        }
+        record.sAll.push_back(sCurr);
+        record.EAll.push_back(EAvgCurr);
+        record.muAll.push_back(muCurr);
+        record.eigRstAll.push_back(tripleCurr);
+
+        if (i%5000==0){
+            std::cout<<"flip "<<i<<std::endl;
+            const auto tMC5000{std::chrono::steady_clock::now()};
+            const std::chrono::duration<double> elapsed_seconds5000{tMC5000 - tMCStart};
+            std::cout<<elapsed_seconds5000.count()/3600.0<<" h"<<std::endl;
+        }
 
 
     }
+
+
+    const auto tMCEnd{std::chrono::steady_clock::now()};
+    const std::chrono::duration<double> elapsed_secondsAll{tMCEnd - tMCStart};
+    std::cout<<elapsed_secondsAll.count()/3600.0<<" h"<<std::endl;
+    std::cout<<"flip number: "<<flipNum<<std::endl;
+    std::cout<<"no flip number: "<<noFlipNum<<std::endl;
+
+
+    std::ofstream outF("record");
+    boost::archive::text_oarchive oa(outF);
+
+    oa<<record;
+
 
 
 
