@@ -96,25 +96,25 @@ std::tuple<int, eigVal20, vecVal20> dbExchangeModel::hEig(const std::vector<doub
 ///
 /// @param s spin values in a MC step
 /// @return eigenvalues and eigenvectors for all values in SBZ
-std::vector<std::tuple<int, eigVal20, vecVal20>> dbExchangeModel::s2Eig(const std::vector<double> &s) {
-//TODO: there are mistakes in this function
-    std::vector<std::tuple<int, eigVal20, vecVal20>> retVec;
-
-    std::vector<std::future<std::tuple<int, eigVal20, vecVal20>>> futAll(this->M);
-
-    for (auto j: this->KSupIndsAll) {
-        futAll[j] = std::async(std::launch::async, [this, &s, j]() {
-            return this->hEig(s, j);
-        });
-    }
-
-    for (auto i = 0; i < futAll.size(); i++) {
-        std::tuple<int, eigVal20, vecVal20> rst = futAll[i].get();
-        retVec.push_back(rst);
-    }
-
-    return retVec;
-}
+//std::vector<std::tuple<int, eigVal20, vecVal20>> dbExchangeModel::s2Eig(const std::vector<double> &s) {
+////TODO: there are mistakes in this function
+//    std::vector<std::tuple<int, eigVal20, vecVal20>> retVec;
+//
+//    std::vector<std::future<std::tuple<int, eigVal20, vecVal20>>> futAll(this->M);
+//
+//    for (auto j: this->KSupIndsAll) {
+//        futAll[j] = std::async(std::launch::async, [this, &s, j]() {
+//            return this->hEig(s, j);
+//        });
+//    }
+//
+//    for (auto i = 0; i < futAll.size(); i++) {
+//        std::tuple<int, eigVal20, vecVal20> rst = futAll[i].get();
+//        retVec.push_back(rst);
+//    }
+//
+//    return retVec;
+//}
 
 
 ///
@@ -352,10 +352,10 @@ void dbExchangeModel::executionMC() {
     std::cout<<"no flip number: "<<noFlipNum<<std::endl;
 
 
-    std::ofstream outF("record");
-    boost::archive::text_oarchive oa(outF);
-
-    oa<<record;
+//    std::ofstream outF("record");
+//    boost::archive::text_oarchive oa(outF);
+//
+//    oa<<record;
 
 
 

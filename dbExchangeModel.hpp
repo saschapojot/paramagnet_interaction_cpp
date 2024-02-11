@@ -10,10 +10,11 @@
 #include <Eigen/Eigenvalues>
 #include <numbers>
 #include<complex>
+
 #include <tuple>
-#include<thread>
+//#include<thread>
 #include <vector>
-#include <thread>
+//#include <thread>
 #include <future>
 #include <algorithm>
 #include <cmath>
@@ -21,11 +22,11 @@
 #include <functional>
 #include <random>
 #include <chrono>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <fstream>
-#include <boost/serialization/vector.hpp>
-#include "serialize_tuple.h"
+//#include <boost/archive/text_oarchive.hpp>
+//#include <boost/archive/text_iarchive.hpp>
+//#include <fstream>
+//#include <boost/serialization/vector.hpp>
+
 
 using namespace std::complex_literals;
 using mat10c = Eigen::Matrix<std::complex<double>, 10, 10>;
@@ -118,7 +119,7 @@ public:
 //    using mat20c=Eigen::Matrix< std::complex<double>, 20, 20 >;
 public:
     mat20c kron(const mat10c &, const mat2c &);// perform Kronecker product
-    void constructhPart();// construct the precomputable part of Hamiltonian
+    void constructhPart();// construct the precomputable part of Hamiltonian//executed in constructor
 
 
     ///
