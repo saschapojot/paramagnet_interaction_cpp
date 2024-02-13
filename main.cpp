@@ -1,19 +1,19 @@
 
 #include "dbExchangeModel.hpp"
-#include <fstream>
+
 
 
 
 int main(int argc, char **argv) {
+    if (argc != 2) {
+        std::cout << "wrong arguments" << std::endl;
+        std::exit(2);
+    }
 
-//   auto db=dbExchangeModel(2.1);
-//   db.executionMC();
-    std::vector<double> EAll{0.1,-10,9.1,4.3};
-    std::ofstream outF("EAll",std::ios::out| std::ios::binary);
-
-    msgpack::pack(outF,EAll);
-    outF.seekp(0);
-    outF.close();
+    double T = std::stod(argv[1]);
+    auto model = dbExchangeModel(T);
+    model.executionMC();
+    model.data2File(model.record);
 
 
     return 0;
