@@ -12,20 +12,17 @@
 #include<complex>
 
 #include <tuple>
-//#include<thread>
+
 #include <vector>
-//#include <thread>
-#include <future>
+
+
 #include <algorithm>
 #include <cmath>
 #include <numeric>
 #include <functional>
 #include <random>
 #include <chrono>
-//#include <boost/archive/text_oarchive.hpp>
-//#include <boost/archive/text_iarchive.hpp>
-//#include <fstream>
-//#include <boost/serialization/vector.hpp>
+#include <msgpack.hpp>
 
 
 using namespace std::complex_literals;
@@ -45,13 +42,7 @@ public:
     std::vector<std::vector<std::tuple<int,eigVal20 ,vecVal20>>> eigRstAll;//to be stored
 
 public:
-    template<class Archive>
-    void serialize(Archive &ar,const unsigned int version){
-        ar & this->sAll;
-        ar & this->EAll;
-        ar & this->muAll;
-        ar & this->eigRstAll;
-    }
+
 
 
 };

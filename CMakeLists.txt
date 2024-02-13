@@ -5,7 +5,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories("/home/cywanag/liuxi/local/include/eigen-3.4.0")
 include_directories("/home/cywanag/liuxi/gccNew/include")
+include_directories("/home/cywanag/liuxi/msgpack-c-cpp_master/include")
+set_source_files_properties(
+        dbExchangeModel.cpp
+        PROPERTIES
+        COMPILE_OPTIONS "-Ofast"
+)
 
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-add_executable(mc main.cpp dbExchangeModel.cpp dbExchangeModel.hpp cxx_std_20)
+add_executable(mc main.cpp dbExchangeModel.cpp dbExchangeModel.hpp)
 

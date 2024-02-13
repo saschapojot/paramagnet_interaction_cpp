@@ -1,15 +1,19 @@
-#include <iostream>
-#include "dbExchangeModel.hpp"
 
+#include "dbExchangeModel.hpp"
+#include <fstream>
 
 
 
 int main(int argc, char **argv) {
 
+//   auto db=dbExchangeModel(2.1);
+//   db.executionMC();
+    std::vector<double> EAll{0.1,-10,9.1,4.3};
+    std::ofstream outF("EAll",std::ios::out| std::ios::binary);
 
-    Eigen::MatrixXd X{{1.0,2.0,3.0},{4.0,5.0,6.0},{7.0,8.0,9,0}};
-    auto Y=X*1.2;
-
+    msgpack::pack(outF,EAll);
+    outF.seekp(0);
+    outF.close();
 
 
     return 0;
