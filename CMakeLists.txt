@@ -4,7 +4,7 @@ project(paramagnet_interaction_cpp)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/home/cywanag/liuxi/local/boost_1_84_0")
+SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/home/polya/boost_1_82_0")
 #SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/home/cywanag/liuxi/local/boost_1_84_0/libs")
 FIND_PACKAGE(Boost)
 
@@ -13,9 +13,8 @@ IF (Boost_FOUND)
     ADD_DEFINITIONS( "-DHAS_BOOST" )
 ENDIF()
 
-include_directories("/home/cywanag/liuxi/local/include/eigen-3.4.0")
-include_directories("/home/cywanag/liuxi/gccNew/include")
-include_directories("/home/cywanag/liuxi/msgpack-c-cpp_master/include")
+include_directories("/usr/local/include/eigen-3.4.0")
+include_directories("/home/polya/cppLocal/msgpack-c-cpp_master/include")
 set_source_files_properties(
         dbExchangeModel.cpp
         PROPERTIES
@@ -23,4 +22,5 @@ set_source_files_properties(
 )
 
 add_executable(mc main.cpp dbExchangeModel.cpp dbExchangeModel.hpp)
+add_executable(reader reader.cpp sAvg.hpp sAvg.cpp)
 
