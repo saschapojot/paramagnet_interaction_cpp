@@ -355,7 +355,7 @@ void dbExchangeModel::executionMC() {
     std::ofstream outF("record");
     boost::archive::text_oarchive oa(outF);
 
-    oa<<record;
+//    oa<<record;
 
 
 

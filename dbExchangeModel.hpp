@@ -42,15 +42,15 @@ public:
     std::vector<double>EAll;//to be stored
     std::vector<double>muAll;//to be stored
     std::vector<std::vector<std::tuple<int,eigVal20 ,vecVal20>>> eigRstAll;//to be stored
-
-public:
-    template<class Archive>
-    void serialize(Archive &ar,const unsigned int version){
-        ar & this->sAll;
-        ar & this->EAll;
-        ar & this->muAll;
-        ar & this->eigRstAll;
-    }
+//
+//public:
+//    template<class Archive>
+//    void serialize(Archive &ar,const unsigned int version){
+//        ar & this->sAll;
+//        ar & this->EAll;
+//        ar & this->muAll;
+//        ar & this->eigRstAll;
+//    }
 
 
 };
