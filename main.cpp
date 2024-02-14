@@ -4,6 +4,8 @@
 
 
 
+
+
 int main(int argc, char **argv) {
     if (argc != 2) {
         std::cout << "wrong arguments" << std::endl;
@@ -15,6 +17,8 @@ int main(int argc, char **argv) {
     model.executionMC();
     model.data2File(model.record);
 
+
+    // Display the loaded data
 
     return 0;
 }

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.26)
 project(paramagnet_interaction_cpp)
 
 set(CMAKE_CXX_STANDARD 20)
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/home/polya/boost_1_82_0")
@@ -23,4 +24,5 @@ set_source_files_properties(
 
 add_executable(mc main.cpp dbExchangeModel.cpp dbExchangeModel.hpp)
 add_executable(reader reader.cpp sAvg.hpp sAvg.cpp)
+
 

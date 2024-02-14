@@ -39,6 +39,7 @@ public:
     std::vector<std::vector<double>>sAll;//to be stored
     std::vector<double>EAll;//to be stored
     std::vector<double>muAll;//to be stored
+
     std::vector<std::vector<std::tuple<int,eigVal20 ,vecVal20>>> eigRstAll;//to be stored after converting to flattenedEigSolution
     std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>>flattenedEigSolution;
 
@@ -46,6 +47,7 @@ public:
     ///
 /// @return flattened value, Eigen datatypes to std for serialization
     void flattenEigData();
+
 
 
 

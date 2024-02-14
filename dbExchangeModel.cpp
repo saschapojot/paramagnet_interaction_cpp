@@ -289,7 +289,7 @@ void dbExchangeModel::executionMC() {
 
 
     //start of MC
-    int counter=20000;
+    int counter=200;
     const auto tMCStart{std::chrono::steady_clock::now()};
     for (int i=0;i<counter;i++) {
 
