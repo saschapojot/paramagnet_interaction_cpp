@@ -96,25 +96,25 @@ std::tuple<int, eigVal20, vecVal20> dbExchangeModel::hEig(const std::vector<doub
 ///
 /// @param s spin values in a MC step
 /// @return eigenvalues and eigenvectors for all values in SBZ
-std::vector<std::tuple<int, eigVal20, vecVal20>> dbExchangeModel::s2Eig(const std::vector<double> &s) {
-//TODO: there are mistakes in this function
-    std::vector<std::tuple<int, eigVal20, vecVal20>> retVec;
-
-    std::vector<std::future<std::tuple<int, eigVal20, vecVal20>>> futAll(this->M);
-
-    for (auto j: this->KSupIndsAll) {
-        futAll[j] = std::async(std::launch::async, [this, &s, j]() {
-            return this->hEig(s, j);
-        });
-    }
-
-    for (auto i = 0; i < futAll.size(); i++) {
-        std::tuple<int, eigVal20, vecVal20> rst = futAll[i].get();
-        retVec.push_back(rst);
-    }
-
-    return retVec;
-}
+//std::vector<std::tuple<int, eigVal20, vecVal20>> dbExchangeModel::s2Eig(const std::vector<double> &s) {
+////TODO: there are mistakes in this function
+//    std::vector<std::tuple<int, eigVal20, vecVal20>> retVec;
+//
+//    std::vector<std::future<std::tuple<int, eigVal20, vecVal20>>> futAll(this->M);
+//
+//    for (auto j: this->KSupIndsAll) {
+//        futAll[j] = std::async(std::launch::async, [this, &s, j]() {
+//            return this->hEig(s, j);
+//        });
+//    }
+//
+//    for (auto i = 0; i < futAll.size(); i++) {
+//        std::tuple<int, eigVal20, vecVal20> rst = futAll[i].get();
+//        retVec.push_back(rst);
+//    }
+//
+//    return retVec;
+//}
 
 
 ///
@@ -234,7 +234,7 @@ double dbExchangeModel::chemicalPotential(const std::vector<double>& EVec) {
        }
        double  sum_of_elems = std::accumulate(occ.begin(), occ.end(),
                                            decltype(occ)::value_type(0.0));
-       return sum_of_elems;
+       return sum_of_elems-this->Ne;
 
    };
 
@@ -264,7 +264,7 @@ std::vector<double> dbExchangeModel::avgEnergy(const std::vector<double> &EVec) 
 
 void dbExchangeModel::executionMC() {
     //init
-    dataholder record=dataholder();//records all data
+//    dataholder record=dataholder();//records all data
 
     std::random_device rd;
     std::uniform_int_distribution<int> indsAll(0, 1);
@@ -344,6 +344,9 @@ void dbExchangeModel::executionMC() {
 
     }
 
+    //end of mc
+    record.flattenEigData();
+
 
     const auto tMCEnd{std::chrono::steady_clock::now()};
     const std::chrono::duration<double> elapsed_secondsAll{tMCEnd - tMCStart};
@@ -352,10 +355,7 @@ void dbExchangeModel::executionMC() {
     std::cout<<"no flip number: "<<noFlipNum<<std::endl;
 
 
-    std::ofstream outF("record");
-    boost::archive::text_oarchive oa(outF);
 
-//    oa<<record;
 
 
 
@@ -364,3 +364,124 @@ void dbExchangeModel::executionMC() {
 
 }
 
+///
+/// @return flattened value, Eigen datatypes to std for serialization
+void dataholder::flattenEigData() {
+
+
+    std::vector<std::vector<std::tuple<int, std::vector<double>, std::vector<std::complex<double>> >>> retVal;//flattened value to be returned
+    for (auto const & vecAllForOneS: this->eigRstAll) {
+        std::vector<std::tuple<int, std::vector<double>, std::vector<std::complex<double>> >> flattenedVecAllForOneS;// eigensolutions for all j=0,1,...,M-1
+        for (auto const & tp: vecAllForOneS) {
+            int j = std::get<0>(tp);
+            eigVal20 eigValsTmp = std::get<1>(tp);
+            vecVal20 eigVecsTmp = std::get<2>(tp);//stored in column major format
+
+            std::vector<double> stdEigValsTmp;
+            std::vector<std::complex<double>> stdEigVecsTmp;
+
+            for (auto const &x: eigValsTmp) {
+                stdEigValsTmp.emplace_back(x);
+            }
+            for (auto const &x: eigVecsTmp.reshaped()) {
+                stdEigVecsTmp.emplace_back(x);
+            }
+            std::tuple<int, std::vector<double>, std::vector<std::complex<double>>> flattenedTuple = std::make_tuple(j,
+                                                                                                                     stdEigValsTmp,
+                                                                                                                     stdEigVecsTmp);
+
+
+            flattenedVecAllForOneS.emplace_back(flattenedTuple);
+
+        }
+        retVal.emplace_back(flattenedVecAllForOneS);
+
+
+    }
+
+   this->flattenedEigSolution=std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>>(retVal);
+
+
+}
+
+//template<typename T>
+//void dbExchangeModel::serializationViaFStream(const T &values, const std::string & fileName) {
+//    std::ofstream outFTmp(fileName, std::ios::out | std::ios::binary);
+//
+//    msgpack::pack(outFTmp, values);
+//    outFTmp.seekp(0);
+//    outFTmp.close();
+//
+//
+//}
+
+void dbExchangeModel::serializationViaFStream(const std::vector<std::vector<double>>& vecvec,const std::string & fileName){
+    std::ofstream outFTmp(fileName, std::ios::out | std::ios::binary);
+    msgpack::pack(outFTmp, vecvec);
+    outFTmp.seekp(0);
+    outFTmp.close();
+
+
+}
+
+
+void dbExchangeModel::serializationViaFStream(const std::vector<double>& vec,const std::string & fileName){
+    std::ofstream outFTmp(fileName, std::ios::out | std::ios::binary);
+    msgpack::pack(outFTmp, vec);
+    outFTmp.seekp(0);
+    outFTmp.close();
+
+
+}
+
+void dbExchangeModel::serializationViaFStream(const std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>>& vecvectuple,const std::string & fileName){
+    std::ofstream outFTmp(fileName, std::ios::out | std::ios::binary);
+    msgpack::pack(outFTmp, vecvectuple);
+    outFTmp.seekp(0);
+    outFTmp.close();
+
+
+}
+
+
+void dbExchangeModel::data2File(const dataholder &record) {
+    namespace fs = std::filesystem;
+
+    //output folder
+//    std::string outDir="./part"+std::to_string(this->part);
+//    if(! fs::is_directory(outDir)|| !fs::exists(outDir)){
+//        fs::create_directory(outDir);
+//    }
+
+    std::string outSubDir="./part"+std::to_string(this->part)+"/";
+
+    if(! fs::is_directory(outSubDir)|| !fs::exists(outSubDir)){
+        fs::create_directory(outSubDir);
+    }
+
+
+    std::string prefix="T"+std::to_string(this->T)+"t"+std::to_string(this->t)+"J"+std::to_string(this->J)+"g"+std::to_string(this->g)+"part"+std::to_string(this->part);
+    //output sAll
+    std::string outsAllName=outSubDir+prefix+".sAll";
+    serializationViaFStream(record.sAll,outsAllName);
+
+    //output EAll
+    std::string outEAllName=outSubDir+prefix+".EAll";
+    serializationViaFStream(record.EAll,outEAllName);
+
+    //output muAll
+    std::string outMuAllName=outSubDir+prefix+".muAll";
+    serializationViaFStream(record.muAll,outMuAllName);
+
+    //output flattened solution
+    std::string outFlEigSolName=outSubDir+prefix+".flattenedEigSolution";
+    serializationViaFStream(record.flattenedEigSolution,outFlEigSolName);
+
+
+}
+
+//template void dbExchangeModel::serializationViaFStream<std::vector<std::vector<double>>>(const std::vector<std::vector<double>> &values, const std::string &fileName);
+//
+//template void dbExchangeModel::serializationViaFStream<std::vector<double>>(const std::vector<double> &values, const std::string &fileName);
+//
+//template void dbExchangeModel::serializationViaFStream<std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>>>(const std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>> &values, const std::string &fileName);

@@ -10,23 +10,21 @@
 #include <Eigen/Eigenvalues>
 #include <numbers>
 #include<complex>
+
 #include <tuple>
-#include<thread>
+
 #include <vector>
-#include <thread>
-#include <future>
+
+
 #include <algorithm>
 #include <cmath>
 #include <numeric>
 #include <functional>
 #include <random>
 #include <chrono>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+#include <msgpack.hpp>
+#include <filesystem>
 #include <fstream>
-#include <boost/serialization/vector.hpp>
-#include "serialize_tuple.h"
-
 using namespace std::complex_literals;
 using mat10c = Eigen::Matrix<std::complex<double>, 10, 10>;
 using mat2c = Eigen::Matrix<std::complex<double>, 2, 2>;
@@ -41,16 +39,20 @@ public:
     std::vector<std::vector<double>>sAll;//to be stored
     std::vector<double>EAll;//to be stored
     std::vector<double>muAll;//to be stored
-    std::vector<std::vector<std::tuple<int,eigVal20 ,vecVal20>>> eigRstAll;//to be stored
-//
-//public:
-//    template<class Archive>
-//    void serialize(Archive &ar,const unsigned int version){
-//        ar & this->sAll;
-//        ar & this->EAll;
-//        ar & this->muAll;
-//        ar & this->eigRstAll;
-//    }
+
+    std::vector<std::vector<std::tuple<int,eigVal20 ,vecVal20>>> eigRstAll;//to be stored after converting to flattenedEigSolution
+    std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>>flattenedEigSolution;
+
+public:
+    ///
+/// @return flattened value, Eigen datatypes to std for serialization
+    void flattenEigData();
+
+
+
+
+
+
 
 
 };
@@ -77,6 +79,7 @@ public:
 
 
 public:
+    dataholder record;
     int part = 0; // a group of computations
     int L = 10;// length of a supercell
     int M = 20;// number of supercells
@@ -100,10 +103,10 @@ public:
     std::vector<double>sRange{-1,1};
     int burnInEst=90000;
     Eigen::SelfAdjointEigenSolver<mat20c> eigSolution;// solver for hermitian matrices
-    std::vector<double>EAvgAll;//to be stored
-    std::vector<std::vector<double>>sAll;//to be stored
-    std::vector<double>chemPotAll;//to be stored
-    std::vector<std::tuple<int,eigVal20 ,vecVal20>> eigRstAll;//to be stored
+//    std::vector<double>EAvgAll;//to be stored
+//    std::vector<std::vector<double>>sAll;//to be stored
+//    std::vector<double>chemPotAll;//to be stored
+//    std::vector<std::tuple<int,eigVal20 ,vecVal20>> eigRstAll;//to be stored
 
 
 
@@ -118,7 +121,7 @@ public:
 //    using mat20c=Eigen::Matrix< std::complex<double>, 20, 20 >;
 public:
     mat20c kron(const mat10c &, const mat2c &);// perform Kronecker product
-    void constructhPart();// construct the precomputable part of Hamiltonian
+    void constructhPart();// construct the precomputable part of Hamiltonian//executed in constructor
 
 
     ///
@@ -159,7 +162,20 @@ public:
    /// @return
    std::vector<double> avgEnergy(const std::vector<double>& EVec);
 
-   void executionMC();
+
+   void executionMC();// mc simulation
+
+   ///
+   /// @param record holding data
+   void data2File(const dataholder& record);//data serialization
+
+//    template<typename T>void serializationViaFStream(const T& values, const std::string & fileName);
+
+    void serializationViaFStream(const std::vector<std::vector<double>>& vecvec,const std::string & fileName);
+
+    void serializationViaFStream(const std::vector<double>& vec,const std::string & fileName);
+
+    void serializationViaFStream(const std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>>& vecvectuple,const std::string & fileName);
 
 
 
