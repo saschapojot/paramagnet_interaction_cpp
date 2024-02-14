@@ -19,7 +19,6 @@ int main(int argc, char **argv) {
 
 
     // Display the loaded data
-    std::cout << "Loaded data:\n" << loadedData.matrix << "\nName: " << loadedData.name << std::endl;
 
     return 0;
 }

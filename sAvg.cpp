@@ -8,6 +8,7 @@ void loaderAndComputer::searchFiles() {
         std::regex ptEAll("EAll");
         std::regex ptsAll("sAll");
         std::regex ptsmuAll("muAll");
+        std::regex ptEigAll("flattenedEigSolution");
 
         std::string fileTmp = entry.path().string();
         if (std::regex_search(fileTmp, ptEAll)) {
@@ -19,6 +20,10 @@ void loaderAndComputer::searchFiles() {
         }
         if (std::regex_search(fileTmp, ptsmuAll)) {
             this->muFilesAll.push_back(fileTmp);
+        }
+
+        if (std::regex_search(fileTmp,ptEigAll)){
+            this->eigFilesAll.push_back(fileTmp);
         }
 
 
@@ -87,7 +92,95 @@ void loaderAndComputer::filesAllSorted(){
     this->sortedsAllFilesAll=this->sortFiles(sAllFilesAll);
     this->sortedEFilesAll=this->sortFiles(EFilesAll);
     this->sortedmuFilesAll=this->sortFiles(muFilesAll);
+    this->sortedEigFilesAll=this->sortFiles(eigFilesAll);
+
+}
+
+///
+/// @param fileName a file that contains serialized vector<double>
+std::vector<double> loaderAndComputer::readVecDouble(const std::string &fileName) {
+    std::ifstream inF(fileName, std::ios::in | std::ios::binary);
+    std::stringstream ssTmp;
+    ssTmp << inF.rdbuf();
+    inF.close();
+
+    std::string contentAll = ssTmp.str();
+    msgpack::object_handle oh = msgpack::unpack(contentAll.data(), contentAll.size());
+    msgpack::object deserialized = oh.get();
+    auto vec = deserialized.as<std::vector<double>>();
+
+    return vec;
+
 
 }
 
 
+///
+/// @param fileName a file that contains serialized vector<vector<double>>
+std::vector<std::vector<double>> loaderAndComputer::readVecVecDouble(const std::string &fileName){
+    std::ifstream inF(fileName,std::ios::in|std::ios::binary);
+    std::stringstream ssTmp;
+    ssTmp << inF.rdbuf();
+    inF.close();
+
+    std::string contentAll = ssTmp.str();
+    msgpack::object_handle oh = msgpack::unpack(contentAll.data(), contentAll.size());
+    msgpack::object deserialized = oh.get();
+
+    auto vecvec=deserialized.as<std::vector<std::vector<double>>>();
+
+    return vecvec;
+
+
+
+
+}
+
+
+///
+/// @param fileName a file that contains serialized vector<vector<tuple>>
+std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>> loaderAndComputer::readVecVecTuple(const std::string &fileName){
+    std::ifstream inF(fileName,std::ios::in|std::ios::binary);
+    std::stringstream ssTmp;
+    ssTmp << inF.rdbuf();
+    inF.close();
+
+    std::string contentAll = ssTmp.str();
+    msgpack::object_handle oh = msgpack::unpack(contentAll.data(), contentAll.size());
+    msgpack::object deserialized = oh.get();
+    auto vecvectp=deserialized.as<std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>>>();
+
+    return vecvectp;
+
+
+}
+
+// fill  deserialized values into  storages
+void loaderAndComputer::fillIntodataStorage(){
+    size_t numEFiles=this->sortedEFilesAll.size();
+    size_t numMuFiles=this->sortedmuFilesAll.size();
+    size_t numsFiles=this->sortedsAllFilesAll.size();
+    size_t numEigFiles=this->sortedEigFilesAll.size();
+
+    int diff0=numEFiles-numMuFiles;
+    int diff1=numEFiles-numsFiles;
+    int diff2=numEFiles-numEigFiles;
+
+    int n2=diff0*diff0+diff1*diff1+diff2*diff2;
+    if (n2!=0){
+        std::cout<<"file numberd unmatch"<<std::endl;
+        std::exit(3);
+    }
+
+    for (size_t i=0;i<numEFiles;i++){
+        dataStorage stgTmp;
+        stgTmp.EAll=this->readVecDouble(this->sortedEFilesAll[i]);
+        stgTmp.muAll=this->readVecDouble(this->sortedmuFilesAll[i]);
+        stgTmp.sAll=this->readVecVecDouble(this->sortedsAllFilesAll[i]);
+        stgTmp.flattenedEigSolution=this->readVecVecTuple(this->sortedEigFilesAll[i]);
+        this->storages.push_back(stgTmp);
+
+
+    }
+
+};
