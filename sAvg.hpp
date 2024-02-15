@@ -10,7 +10,7 @@
 #include <numeric>
 #include <cstdlib>
 #include <sstream>
-
+#include <iterator>
 
 
 
@@ -109,6 +109,15 @@ public:
     /// @param oneRow a row of numbers to output
     /// @param outF
     void write1Line2Csv(const std::vector<double> &oneRow, std::ofstream& outF);
+
+    ///
+    /// @param vec a vector of double
+    /// @return cumulative average of elements in vec
+    std::vector<double> cumAvg(const std::vector<double>& vec);
+
+
+    ///run diagnostics of data
+    void diagostics(const size_t &ind);
 
 
 
