@@ -62,6 +62,7 @@ class dbExchangeModel {
 public:
     dbExchangeModel(double temperature) {
         this->T = temperature;
+        this->beta=1/temperature;
 
         //construct SBZ values
         for (int j = 0; j < this->M; j++) {
@@ -91,8 +92,8 @@ public:
 
     double g = 0.01;// coupling coefficient
 
-    double T = 1;// temperature
-    double beta=1/T;
+    double T;// temperature
+    double beta;
     std::vector<double> KSupValsAll;//all the values in SBZ
     std::vector<int> KSupIndsAll;//[0,1,...,M-1]
     std::vector<mat20c> preComputedHamiltonianPart;//part of the SBZ Hamiltonian that can be precomputed
