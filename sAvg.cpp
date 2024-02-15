@@ -175,6 +175,7 @@ void loaderAndComputer::fillIntodataStorage(){
     for (size_t i=0;i<numEFiles;i++){
         dataStorage stgTmp;
         stgTmp.EAll=this->readVecDouble(this->sortedEFilesAll[i]);
+
         stgTmp.muAll=this->readVecDouble(this->sortedmuFilesAll[i]);
         stgTmp.sAll=this->readVecVecDouble(this->sortedsAllFilesAll[i]);
         stgTmp.flattenedEigSolution=this->readVecVecTuple(this->sortedEigFilesAll[i]);
@@ -182,5 +183,6 @@ void loaderAndComputer::fillIntodataStorage(){
 
 
     }
+
 
 };
