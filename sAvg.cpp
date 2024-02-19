@@ -184,7 +184,9 @@ void loaderAndComputer::fillIntodataStorage(){
         dataStorage stgTmp;
 //        std::cout<<"reading file "<<this->sortedEFilesAll[i]<<std::endl;
         stgTmp.EAll=this->readVecDouble(this->sortedEFilesAll[i]);
+
 //        std::cout<<"reading file "<<this->sortedmuFilesAll[i]<<std::endl;
+
         stgTmp.muAll=this->readVecDouble(this->sortedmuFilesAll[i]);
 //        std::cout<<"reading file "<<this->sortedsAllFilesAll[i]<<std::endl;
         stgTmp.sAll=this->readVecVecDouble(this->sortedsAllFilesAll[i]);
@@ -194,6 +196,7 @@ void loaderAndComputer::fillIntodataStorage(){
 
 
     }
+
 
 };
 
@@ -334,5 +337,39 @@ void loaderAndComputer::write1Line2Csv(const std::vector<double> &oneRow, std::o
     outF<<oneRow[num-1]<<std::endl;
 
 
+
+}
+
+
+///
+/// @param vec a vector of double
+/// @return cumulative average of elements in vec
+std::vector<double> loaderAndComputer::cumAvg(const std::vector<double>& vec) {
+
+    std::vector<double> rst(vec.size(), 0);
+
+    std::partial_sum(vec.cbegin(), vec.cend(), rst.begin(), std::plus<double>());
+
+    for (size_t i = 0; i < rst.size(); i++) {
+
+        rst[i] /= static_cast<double>(i + 1);
+    }
+
+    return rst;
+
+
+}
+
+
+///run diagnostics of data
+void loaderAndComputer::diagostics(const size_t &ind){
+
+std::vector<double> cumAvgE=this->cumAvg(this->storages[ind].EAll);
+double T=this->TAll[ind];
+
+std::string outFileName=this->searchPath+"T"+std::to_string(T)+"diagnosticsE"+".csv";
+std::ofstream outF(outFileName);
+this->write1Line2Csv(cumAvgE,outF);
+outF.close();
 
 }

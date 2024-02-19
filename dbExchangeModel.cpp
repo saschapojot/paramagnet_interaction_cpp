@@ -289,7 +289,7 @@ void dbExchangeModel::executionMC() {
 
 
     //start of MC
-    int sweep=300000;
+    int sweep=20000;
     int counter=sweep*this->L;
     const auto tMCStart{std::chrono::steady_clock::now()};
     for (int i=0;i<counter;i++) {
@@ -333,7 +333,7 @@ void dbExchangeModel::executionMC() {
         record.sAll.push_back(sCurr);
         record.EAll.push_back(EAvgCurr);
         record.muAll.push_back(muCurr);
-        record.eigRstAll.push_back(tripleCurr);
+//        record.eigRstAll.push_back(tripleCurr);
 
         if (i%5000==0){
             std::cout<<"flip "<<i<<std::endl;
@@ -346,12 +346,12 @@ void dbExchangeModel::executionMC() {
     }
 
     //end of mc
-    record.flattenEigData();
+//    record.flattenEigData();
 
 
     const auto tMCEnd{std::chrono::steady_clock::now()};
     const std::chrono::duration<double> elapsed_secondsAll{tMCEnd - tMCStart};
-    std::cout<<elapsed_secondsAll.count()/3600.0<<" h"<<std::endl;
+    std::cout<<"total mc time: "<<elapsed_secondsAll.count()/3600.0<<" h"<<std::endl;
     std::cout<<"flip number: "<<flipNum<<std::endl;
     std::cout<<"no flip number: "<<noFlipNum<<std::endl;
 
@@ -367,43 +367,43 @@ void dbExchangeModel::executionMC() {
 
 ///
 /// @return flattened value, Eigen datatypes to std for serialization
-void dataholder::flattenEigData() {
-
-
-    std::vector<std::vector<std::tuple<int, std::vector<double>, std::vector<std::complex<double>> >>> retVal;//flattened value to be returned
-    for (auto const & vecAllForOneS: this->eigRstAll) {
-        std::vector<std::tuple<int, std::vector<double>, std::vector<std::complex<double>> >> flattenedVecAllForOneS;// eigensolutions for all j=0,1,...,M-1
-        for (auto const & tp: vecAllForOneS) {
-            int j = std::get<0>(tp);
-            eigVal20 eigValsTmp = std::get<1>(tp);
-            vecVal20 eigVecsTmp = std::get<2>(tp);//stored in column major format
-
-            std::vector<double> stdEigValsTmp;
-            std::vector<std::complex<double>> stdEigVecsTmp;
-
-            for (auto const &x: eigValsTmp) {
-                stdEigValsTmp.emplace_back(x);
-            }
-            for (auto const &x: eigVecsTmp.reshaped()) {
-                stdEigVecsTmp.emplace_back(x);
-            }
-            std::tuple<int, std::vector<double>, std::vector<std::complex<double>>> flattenedTuple = std::make_tuple(j,
-                                                                                                                     stdEigValsTmp,
-                                                                                                                     stdEigVecsTmp);
-
-
-            flattenedVecAllForOneS.emplace_back(flattenedTuple);
-
-        }
-        retVal.emplace_back(flattenedVecAllForOneS);
-
-
-    }
-
-   this->flattenedEigSolution=std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>>(retVal);
-
-
-}
+//void dataholder::flattenEigData() {
+//
+//
+//    std::vector<std::vector<std::tuple<int, std::vector<double>, std::vector<std::complex<double>> >>> retVal;//flattened value to be returned
+//    for (auto const & vecAllForOneS: this->eigRstAll) {
+//        std::vector<std::tuple<int, std::vector<double>, std::vector<std::complex<double>> >> flattenedVecAllForOneS;// eigensolutions for all j=0,1,...,M-1
+//        for (auto const & tp: vecAllForOneS) {
+//            int j = std::get<0>(tp);
+//            eigVal20 eigValsTmp = std::get<1>(tp);
+//            vecVal20 eigVecsTmp = std::get<2>(tp);//stored in column major format
+//
+//            std::vector<double> stdEigValsTmp;
+//            std::vector<std::complex<double>> stdEigVecsTmp;
+//
+//            for (auto const &x: eigValsTmp) {
+//                stdEigValsTmp.emplace_back(x);
+//            }
+//            for (auto const &x: eigVecsTmp.reshaped()) {
+//                stdEigVecsTmp.emplace_back(x);
+//            }
+//            std::tuple<int, std::vector<double>, std::vector<std::complex<double>>> flattenedTuple = std::make_tuple(j,
+//                                                                                                                     stdEigValsTmp,
+//                                                                                                                     stdEigVecsTmp);
+//
+//
+//            flattenedVecAllForOneS.emplace_back(flattenedTuple);
+//
+//        }
+//        retVal.emplace_back(flattenedVecAllForOneS);
+//
+//
+//    }
+//
+//   this->flattenedEigSolution=std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>>(retVal);
+//
+//
+//}
 
 //template<typename T>
 //void dbExchangeModel::serializationViaFStream(const T &values, const std::string & fileName) {
@@ -475,8 +475,8 @@ void dbExchangeModel::data2File(const dataholder &record) {
     serializationViaFStream(record.muAll,outMuAllName);
 
     //output flattened solution
-    std::string outFlEigSolName=outSubDir+prefix+".flattenedEigSolution";
-    serializationViaFStream(record.flattenedEigSolution,outFlEigSolName);
+//    std::string outFlEigSolName=outSubDir+prefix+".flattenedEigSolution";
+//    serializationViaFStream(record.flattenedEigSolution,outFlEigSolName);
 
 
 }
