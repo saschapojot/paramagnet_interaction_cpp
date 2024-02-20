@@ -63,11 +63,9 @@ target_include_directories(mc PRIVATE ${GSL_INCLUDE_DIR})
 
 # Link against GSL libraries
 target_link_directories(mc PRIVATE ${GSL_LIBRARY_DIR})
-target_link_libraries(mc PRIVATE gsl gslcblas m)
+target_link_libraries(mc PRIVATE gsl gslcblas m ${LIBS_A} ${LIBS_SO})
 
 file(GLOB LIBS_A "${Boost_LIBRARY_DIR}/*.a")
 file(GLOB LIBS_SO "${Boost_LIBRARY_DIR}/*.so")
 
 target_link_libraries(reader ${LIBS_A} ${LIBS_SO})
-
-target_link_libraries(mc ${LIBS_A} ${LIBS_SO})
