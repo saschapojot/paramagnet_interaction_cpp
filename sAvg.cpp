@@ -205,7 +205,7 @@ void loaderAndComputer::fillIntodataStorage(){
 /// @param T temperature of oneData
 /// @return mean s, chi, C
 void loaderAndComputer::computePhysicalQuantities(const dataStorage& oneData,const double&T) {
-    int startingPosition = 10000;
+    int startingPosition = 1000000;
     int sep = 20;
 
     //compute s
@@ -364,12 +364,28 @@ std::vector<double> loaderAndComputer::cumAvg(const std::vector<double>& vec) {
 ///run diagnostics of data
 void loaderAndComputer::diagostics(const size_t &ind){
 
-std::vector<double> cumAvgE=this->cumAvg(this->storages[ind].EAll);
-double T=this->TAll[ind];
+//std::vector<double> cumAvgE=this->cumAvg(this->storages[ind].EAll);
+//double T=this->TAll[ind];
+//
+//std::string outFileName=this->searchPath+"T"+std::to_string(T)+"diagnosticsE"+".csv";
+//std::ofstream outF(outFileName);
+//this->write1Line2Csv(cumAvgE,outF);
+//outF.close();
 
-std::string outFileName=this->searchPath+"T"+std::to_string(T)+"diagnosticsE"+".csv";
-std::ofstream outF(outFileName);
-this->write1Line2Csv(cumAvgE,outF);
-outF.close();
+std::ofstream ofs("./part"+std::to_string(this->part)+"EAllSerialized.xml");
+std::vector<double> EAll=this->storages[ind].EAll;
+
+
+    assert(ofs.good());
+
+    boost::archive::xml_oarchive oa(ofs);
+    oa& BOOST_SERIALIZATION_NVP(EAll);
+    oa.put("</boost_serialization>\r\n");
+    ofs.close();
+
+
+
+
+
 
 }

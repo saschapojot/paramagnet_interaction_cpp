@@ -11,8 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #SET( CMAKE_CXX_FLAGS "-ggdb")
 include_directories("/home/polya/cppLocal/eigen-3.4.0")
-set(GSL_INCLUDE_DIR "/home/polya/cppLocal/GSL/include")
-set(GSL_LIBRARY_DIR "/home/polya/cppLocal/GSL/lib")
+
 include_directories("/home/polya/cppLocal/msgpack-c-cpp_master/include")
 
 set(Boost_NO_SYSTEM_PATHS YES)
@@ -22,8 +21,8 @@ if (Boost_NO_SYSTEM_PATHS)
     set(Boost_LIBRARY_DIR "/home/polya/cppLocal/boostBuild/lib")
 endif (Boost_NO_SYSTEM_PATHS)
 
-find_package(Boost  REQUIRED COMPONENTS ALL)
-
+#find_package(Boost  REQUIRED COMPONENTS ALL)
+find_package(Boost  REQUIRED serialization)
 if(Boost_FOUND)
     message(STATUS "boost root is: ${Boost_ROOT}")
     message(STATUS "boost include path is : ${Boost_INCLUDE_DIR}")
@@ -58,14 +57,8 @@ add_executable(reader reader.cpp sAvg.cpp)
 
 
 
+file(GLOB LIBS_A "${Boost_LIBRARY_DIR}/*serialization.a")
+file(GLOB LIBS_SO "${Boost_LIBRARY_DIR}/*serialization.so")
 
-target_include_directories(mc PRIVATE ${GSL_INCLUDE_DIR})
-
-# Link against GSL libraries
-target_link_directories(mc PRIVATE ${GSL_LIBRARY_DIR})
-target_link_libraries(mc PRIVATE gsl gslcblas m ${LIBS_A} ${LIBS_SO})
-
-file(GLOB LIBS_A "${Boost_LIBRARY_DIR}/*.a")
-file(GLOB LIBS_SO "${Boost_LIBRARY_DIR}/*.so")
-
-target_link_libraries(reader ${LIBS_A} ${LIBS_SO})
+target_link_libraries(reader ${LIBS_A})
+target_link_libraries(mc ${LIBS_SO})
