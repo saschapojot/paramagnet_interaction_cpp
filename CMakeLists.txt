@@ -5,28 +5,35 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
-#SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/home/polya/cppLocal/boost_1_82_0/buildedLibs/include")
-#
-#SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/home/polya/cppLocal/boost_1_82_0/buildedLibs/lib")
-SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/home/polya/cppLocal/boost_1_82_0")
 
 
-FIND_PACKAGE(Boost)
 
-IF (Boost_FOUND)
-    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
-    ADD_DEFINITIONS( "-DHAS_BOOST" )
-ENDIF()
 
 #SET( CMAKE_CXX_FLAGS "-ggdb")
 include_directories("/home/polya/cppLocal/eigen-3.4.0")
 set(GSL_INCLUDE_DIR "/home/polya/cppLocal/GSL/include")
 set(GSL_LIBRARY_DIR "/home/polya/cppLocal/GSL/lib")
-
-
-
 include_directories("/home/polya/cppLocal/msgpack-c-cpp_master/include")
 
+set(Boost_NO_SYSTEM_PATHS YES)
+if (Boost_NO_SYSTEM_PATHS)
+    set(Boost_ROOT "/home/polya/cppLocal/boostBuild")
+    set(Boost_INCLUDE_DIR "/home/polya/cppLocal/boostBuild/include")
+    set(Boost_LIBRARY_DIR "/home/polya/cppLocal/boostBuild/lib")
+endif (Boost_NO_SYSTEM_PATHS)
+
+find_package(Boost  REQUIRED COMPONENTS ALL)
+
+if(Boost_FOUND)
+    message(STATUS "boost root is: ${Boost_ROOT}")
+    message(STATUS "boost include path is : ${Boost_INCLUDE_DIR}")
+    message(STATUS "boost library path is : ${Boost_LIBRARY_DIR}")
+    message(STATUS "boost libraries is : ${Boost_LIBRARIES}")
+    include_directories(${Boost_INCLUDE_DIR})
+    link_directories(${Boost_LIBRARY_DIR})
+else()
+    message(WARNING "boost not found.")
+endif()
 
 
 set_source_files_properties(
@@ -41,14 +48,14 @@ set_source_files_properties(
         COMPILE_OPTIONS "-Ofast"
 )
 
-link_directories("/home/polya/cppLocal/protobuf/lib")
-add_executable(mc main.cpp dbExchangeModel.cpp dbExchangeModel.hpp)
+
+add_executable(mc main.cpp dbExchangeModel.cpp)
 
 
 
-add_executable(reader reader.cpp sAvg.cpp sAvg.hpp dbExchangeModel.hpp)
+add_executable(reader reader.cpp sAvg.cpp)
 
-#add_executable(tut protoTut.cpp addressbook.pb.h addressbook.pb.cc)
+
 
 
 
@@ -58,22 +65,9 @@ target_include_directories(mc PRIVATE ${GSL_INCLUDE_DIR})
 target_link_directories(mc PRIVATE ${GSL_LIBRARY_DIR})
 target_link_libraries(mc PRIVATE gsl gslcblas m)
 
+file(GLOB LIBS_A "${Boost_LIBRARY_DIR}/*.a")
+file(GLOB LIBS_SO "${Boost_LIBRARY_DIR}/*.so")
 
-#file(GLOB LIB_FILES_A "/home/polya/cppLocal/protobuf/lib/*.a")
-#
-#foreach(LIB_FILE ${LIB_FILES_A})
-#    target_link_libraries(tut ${LIB_FILE})
-#endforeach()
-#
-#file(GLOB LIB_FILES_SO "/home/polya/cppLocal/protobuf/lib/*.so")
-#
-#foreach(LIB_FILE ${LIB_FILES_SO})
-#    target_link_libraries(tut ${LIB_FILE})
-#endforeach()
+target_link_libraries(reader ${LIBS_A} ${LIBS_SO})
 
-#file(GLOB LIB_FILES_LA "/home/polya/cppLocal/protobuf/lib/*.la")
-#
-#foreach(LIB_FILE ${LIB_FILES_LA})
-#    target_link_libraries(tut ${LIB_FILE})
-#endforeach()
-
+target_link_libraries(mc ${LIBS_A} ${LIBS_SO})
