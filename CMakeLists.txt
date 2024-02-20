@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.26)
 project(paramagnet_interaction_cpp)
 
 set(CMAKE_CXX_STANDARD 20)
-
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
@@ -27,7 +26,6 @@ set(GSL_LIBRARY_DIR "/home/polya/cppLocal/GSL/lib")
 
 
 include_directories("/home/polya/cppLocal/msgpack-c-cpp_master/include")
-#include_directories("/home/polya/cppLocal/protobuf/include")
 
 
 
@@ -47,9 +45,11 @@ link_directories("/home/polya/cppLocal/protobuf/lib")
 add_executable(mc main.cpp dbExchangeModel.cpp dbExchangeModel.hpp)
 
 
+
 add_executable(reader reader.cpp sAvg.cpp sAvg.hpp dbExchangeModel.hpp)
 
 #add_executable(tut protoTut.cpp addressbook.pb.h addressbook.pb.cc)
+
 
 
 target_include_directories(mc PRIVATE ${GSL_INCLUDE_DIR})
@@ -76,3 +76,4 @@ target_link_libraries(mc PRIVATE gsl gslcblas m)
 #foreach(LIB_FILE ${LIB_FILES_LA})
 #    target_link_libraries(tut ${LIB_FILE})
 #endforeach()
+
