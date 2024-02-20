@@ -15,7 +15,7 @@
 
 #include <vector>
 
-
+#include <memory>
 #include <algorithm>
 #include <cmath>
 #include <numeric>
@@ -25,6 +25,11 @@
 #include <msgpack.hpp>
 #include <filesystem>
 #include <fstream>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/complex.hpp>
+
 using namespace std::complex_literals;
 using mat10c = Eigen::Matrix<std::complex<double>, 10, 10>;
 using mat2c = Eigen::Matrix<std::complex<double>, 2, 2>;
@@ -32,6 +37,31 @@ using mat20c = Eigen::Matrix<std::complex<double>, 20, 20>;
 const auto PI=std::numbers::pi;
 using eigVal20=Eigen::SelfAdjointEigenSolver<mat20c>::RealVectorType;
 using vecVal20=Eigen::SelfAdjointEigenSolver<mat20c>::EigenvectorsType;
+class oneEigSolution{
+public:
+    oneEigSolution(const int&ind,const std::vector<double>& vals, const std::vector<std::complex<double>> &vecs){
+        this->j=ind;
+        this->eigVals=std::vector<double>(vals);
+        this->eigVecs=std::vector<std::complex<double>>(vecs);
+    }
+private:
+    friend class boost::serialization::access; // Allow serialization to access private members
+
+    template<class Archive>
+    void serialize(Archive& ar, const unsigned int version) {
+        ar & BOOST_SERIALIZATION_NVP(j);
+        ar & BOOST_SERIALIZATION_NVP(eigVals);
+        ar & BOOST_SERIALIZATION_NVP(eigVecs);
+    }
+
+public:
+    //the data structure holding eigenvalue solution for one mc step
+    int j;
+    std::vector<double > eigVals;
+    std::vector<std::complex<double>> eigVecs;
+
+};
+
 
 class dataholder{
 public:
@@ -40,13 +70,22 @@ public:
     std::vector<double>EAll;//to be stored
     std::vector<double>muAll;//to be stored
 
-//    std::vector<std::vector<std::tuple<int,eigVal20 ,vecVal20>>> eigRstAll;//to be stored after converting to flattenedEigSolution
+    std::vector<std::vector<std::tuple<int,eigVal20 ,vecVal20>>> eigRstAll;//to be stored after converting to flattenedEigSolution
 //    std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>>flattenedEigSolution;
+    std::vector<oneEigSolution> multipleSolutions;
 
 public:
     ///
 /// @return flattened value, Eigen datatypes to std for serialization
-//    void flattenEigData();
+    void flattenEigData();
+
+
+    void saveEigToXML(const std::string &filename) {
+        std::ofstream ofs(filename);
+        boost::archive::xml_oarchive oa(ofs);
+        oa & BOOST_SERIALIZATION_NVP(multipleSolutions);
+        oa.put("</boost_serialization>\n");
+    }
 
 
 
@@ -80,7 +119,7 @@ public:
 
 
 public:
-    dataholder record;
+//    dataholder record;
     int part = 0; // a group of computations
     int L = 10;// length of a supercell
     int M = 20;// number of supercells
@@ -102,7 +141,8 @@ public:
 
 
     std::vector<double>sRange{-1,1};
-    int burnInEst=90000;
+    int sweepNumInOneFlush=300;// flush the results to python every sweepNumInOneFlush*L iterations
+    int flushMaxNum=10;
     Eigen::SelfAdjointEigenSolver<mat20c> eigSolution;// solver for hermitian matrices
 //    std::vector<double>EAvgAll;//to be stored
 //    std::vector<std::vector<double>>sAll;//to be stored

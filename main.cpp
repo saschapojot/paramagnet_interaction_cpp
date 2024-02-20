@@ -3,7 +3,7 @@
 
 
 
-
+#include <boost/lambda/lambda.hpp>
 
 
 int main(int argc, char **argv) {
