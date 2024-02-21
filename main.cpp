@@ -1,7 +1,4 @@
-
 #include "dbExchangeModel.hpp"
-
-
 
 
 
