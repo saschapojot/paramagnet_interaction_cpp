@@ -37,24 +37,38 @@
 
 
 int main(int argc, char **argv){
-    const auto tStart{std::chrono::steady_clock::now()};
-    auto loader=loaderAndComputer();
-    loader.searchFiles();
-    loader.filesAllSorted();
-    loader.fillIntodataStorage();
-    loader.data2PhysicalQuantities();
+//    const auto tStart{std::chrono::steady_clock::now()};
+//    auto loader=loaderAndComputer();
+//    loader.searchFiles();
+//    loader.filesAllSorted();
+//    loader.fillIntodataStorage();
+//    loader.data2PhysicalQuantities();
+//
+//    loader.physicalQuantities2csv();
+//
+////    loader.diagostics(loader.storages.size()-1);
+//
+//    const auto tEnd{std::chrono::steady_clock::now()};
+//    const std::chrono::duration<double> elapsed_secondsAll{tEnd - tStart};
+//
+//    std::cout<<"total time: "<<elapsed_secondsAll.count()/3600.0<<" h"<<std::endl;
+//
 
-    loader.physicalQuantities2csv();
-
-//    loader.diagostics(loader.storages.size()-1);
-
-    const auto tEnd{std::chrono::steady_clock::now()};
-    const std::chrono::duration<double> elapsed_secondsAll{tEnd - tStart};
-
-    std::cout<<"total time: "<<elapsed_secondsAll.count()/3600.0<<" h"<<std::endl;
 
 
+    namespace fs = boost::filesystem;
+    int part=1;
+    //output directory
+    double T=1;
+    std::string outEAllSubDir = "./part" + std::to_string(part) + "/T"+std::to_string(T)+"/EAll/";
+    std::string outMuAllSubDir = "./part" + std::to_string(part) + "/T"+std::to_string(T)+"/muAll/";
+    std::string outSAllSubDir = "./part" + std::to_string(part) + "/T"+std::to_string(T)+"/sAll/";
+    std::string outEigAllSubDir = "./part" + std::to_string(part) + "/T"+std::to_string(T)+"/eigAll/";
 
+
+    if(!fs::is_directory(outEAllSubDir) || !fs::exists(outEAllSubDir)){
+        fs::create_directories(outEAllSubDir);
+    }
 
 
 
