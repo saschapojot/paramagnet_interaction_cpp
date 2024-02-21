@@ -25,12 +25,13 @@
 #include <msgpack.hpp>
 #include <filesystem>
 #include <fstream>
+#include <boost/filesystem.hpp>
 
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/complex.hpp>
-
+#include <cstdlib>
 
 using namespace std::complex_literals;
 using mat10c = Eigen::Matrix<std::complex<double>, 10, 10>;
@@ -50,12 +51,12 @@ public:
 private:
     friend class boost::serialization::access; // Allow serialization to access private members
 
-    template<class Archive>
-    void serialize(Archive& ar, const unsigned int version) {
-        ar & BOOST_SERIALIZATION_NVP(j);
-        ar & BOOST_SERIALIZATION_NVP(eigVals);
-        ar & BOOST_SERIALIZATION_NVP(eigVecs);
-    }
+//    template<class Archive>
+//    void serialize(Archive& ar, const unsigned int version) {
+//        ar & BOOST_SERIALIZATION_NVP(j);
+//        ar & BOOST_SERIALIZATION_NVP(eigVals);
+//        ar & BOOST_SERIALIZATION_NVP(eigVecs);
+//    }
 
 public:
     //the data structure holding eigenvalue solution for one mc step
@@ -75,22 +76,29 @@ public:
     std::vector<double>muAll;//to be stored
 
     std::vector<std::vector<std::tuple<int,eigVal20 ,vecVal20>>> eigRstAll;//to be stored after converting to flattenedEigSolution
-//    std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>>flattenedEigSolution;
-    std::vector<oneEigSolution> multipleSolutions;
+    std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>>flattenedEigSolution;
+//    std::vector<oneEigSolution> multipleSolutions;
 
 public:
     ///
 /// @return flattened value, Eigen datatypes to std for serialization
     void flattenEigData();
 
+    ///
+    /// @param filename xml file
+    /// name of eigen-solutions
+//     void saveEigToXML(const std::string &filename);
 
-    void saveEigToXML(const std::string &filename) {
-        std::ofstream ofs(filename);
-        boost::archive::xml_oarchive oa(ofs);
-        oa & BOOST_SERIALIZATION_NVP(multipleSolutions);
-        oa.put("</boost_serialization>\n");
-    }
 
+    ///
+    /// @param filename xml file name of vec
+    ///@param vec vector to be saved
+   static  void saveVecToXML(const std::string &filename,const std::vector<double> &vec);
+
+    ///
+    /// @param filename  xml file name of vecvec
+    /// @param vecvec vector<vector> to be saved
+    static void saveVecVecToXML(const std::string &filename,const std::vector<std::vector<double>> &vecvec);
 
 
 
@@ -124,7 +132,7 @@ public:
 
 public:
 //    dataholder record;
-    int part = 0; // a group of computations
+    int part = 1; // a group of computations
     int L = 10;// length of a supercell
     int M = 20;// number of supercells
 
@@ -146,7 +154,7 @@ public:
 
     std::vector<double>sRange{-1,1};
     int sweepNumInOneFlush=300;// flush the results to python every sweepNumInOneFlush*L iterations
-    int flushMaxNum=10;
+    int flushMaxNum=12;
     Eigen::SelfAdjointEigenSolver<mat20c> eigSolution;// solver for hermitian matrices
 //    std::vector<double>EAvgAll;//to be stored
 //    std::vector<std::vector<double>>sAll;//to be stored
@@ -212,14 +220,14 @@ public:
 
    ///
    /// @param record holding data
-   void data2File(const dataholder& record);//data serialization
+//   void data2File(const dataholder& record);//data serialization
 
 //    template<typename T>void serializationViaFStream(const T& values, const std::string & fileName);
-
-    void serializationViaFStream(const std::vector<std::vector<double>>& vecvec,const std::string & fileName);
-
-    void serializationViaFStream(const std::vector<double>& vec,const std::string & fileName);
-
+//
+//    void serializationViaFStream(const std::vector<std::vector<double>>& vecvec,const std::string & fileName);
+//
+//    void serializationViaFStream(const std::vector<double>& vec,const std::string & fileName);
+//
     void serializationViaFStream(const std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>>& vecvectuple,const std::string & fileName);
 
 

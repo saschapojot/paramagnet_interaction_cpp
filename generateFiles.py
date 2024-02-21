@@ -2,7 +2,7 @@ import numpy as np
 
 #this script generates MCMC computing scripts
 
-TAll=np.linspace(0.1,3.1,100)
+TAll=np.linspace(0.1,3.1,70)
 
 counter=0
 for T in TAll:

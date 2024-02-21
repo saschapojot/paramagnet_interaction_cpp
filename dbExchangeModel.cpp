@@ -274,6 +274,31 @@ void dbExchangeModel::executionMC() {
     double muCurr = EAndMuCurr[1];
     int flipNum = 0;
     int noFlipNum = 0;
+    namespace fs = boost::filesystem;
+
+    //output directory
+    std::string outDir = "./part" + std::to_string(this->part) + "/" + std::to_string(this->T) + "/";
+    std::string outEAllSubDir = outDir + "EAll/";
+    std::string outMuAllSubDir = outDir + "muAll/";
+    std::string outSAllSubDir = outDir + "sAll/";
+    std::string outEigAllSubDir = outDir + "eigAll/";
+
+
+    if (!fs::is_directory(outEAllSubDir) || !fs::exists(outEAllSubDir)) {
+        fs::create_directories(outEAllSubDir);
+    }
+
+    if (!fs::is_directory(outMuAllSubDir) || !fs::exists(outMuAllSubDir)) {
+        fs::create_directories(outMuAllSubDir);
+    }
+    if (!fs::is_directory(outSAllSubDir) || !fs::exists(outSAllSubDir)) {
+        fs::create_directories(outSAllSubDir);
+    }
+
+    if (!fs::is_directory(outEigAllSubDir) || !fs::exists(outEigAllSubDir)) {
+        fs::create_directories(outEigAllSubDir);
+    }
+
 
 
     //start of MC
@@ -283,11 +308,12 @@ void dbExchangeModel::executionMC() {
 
 
     const auto tMCStart{std::chrono::steady_clock::now()};
+//    int counter = 0;
 
-    int maxSweepIter = this->sweepNumInOneFlush * this->flushMaxNum;
-    for (int swp = 0; swp < maxSweepIter; swp++) {
-        std::unique_ptr<dataholder> record_ptr;
-        int loopStart = swp * L;
+
+    for (int fls = 0; fls < this->flushMaxNum; fls++) {
+        std::unique_ptr<dataholder> record_ptr=std::make_unique<dataholder>();
+        int loopStart = fls * this->sweepNumInOneFlush * this->L;
 
         for (int i = 0; i < this->sweepNumInOneFlush * this->L; i++) {
             //perform a flip
@@ -299,7 +325,7 @@ void dbExchangeModel::executionMC() {
             auto EAndMuNext = this->avgEnergy(EVecNext);
             double EAvgNext = EAndMuNext[0];
             double muNext = EAndMuCurr[1];
-            double DeltaE = (EAvgNext - EAvgCurr) / this->M;
+            double DeltaE = (EAvgNext - EAvgCurr) / static_cast<double>(this->M);
             //decide if flip is accepted
             if (DeltaE <= 0) {
                 sCurr = std::vector<double>(sNext);
@@ -310,7 +336,7 @@ void dbExchangeModel::executionMC() {
 
             } else {
                 double r = distUnif01(e2);
-                if (r < std::exp(-this->beta * DeltaE)) {
+                if (r <= std::exp(-this->beta * DeltaE)) {
                     sCurr = std::vector<double>(sNext);
                     tripleCurr = std::vector<std::tuple<int, eigVal20, vecVal20>>(tripleNext);
                     EAvgCurr = EAvgNext;
@@ -328,77 +354,54 @@ void dbExchangeModel::executionMC() {
             record_ptr->EAll.push_back(EAvgCurr);
             record_ptr->muAll.push_back(muCurr);
             record_ptr->eigRstAll.push_back(tripleCurr);
+//            counter += 1;
 
 
         }
         int loopEnd = loopStart + this->sweepNumInOneFlush * this->L - 1;
 
         record_ptr->flattenEigData();
+        std::string filenameMiddle="loopStart" + std::to_string(loopStart) +
+                            "loopEnd" + std::to_string(loopEnd) + "T" + std::to_string(this->T) + "t" +
+                            std::to_string(this->t) + "J" + std::to_string(this->J) + "g" +
+                            std::to_string(this->g) + "part" + std::to_string(this->part)+"L"+std::to_string(this->L)+"M"+std::to_string(this->M);
+
+        std::string outEFileTmp = outEAllSubDir + filenameMiddle + ".EAll.xml";
+
+        record_ptr->saveVecToXML(outEFileTmp, record_ptr->EAll);
+
+        std::string outMuFileTmp = outMuAllSubDir +filenameMiddle + ".muAll.xml";
+
+        record_ptr->saveVecToXML(outMuFileTmp, record_ptr->muAll);
+
+        std::string outSFileTmp = outSAllSubDir + filenameMiddle + ".sAll.xml";
+
+        record_ptr->saveVecVecToXML(outSFileTmp, record_ptr->sAll);
+
+
+        std::string outEigFileTmp = outEigAllSubDir + filenameMiddle + ".eigAll.bin";
+
+        this->serializationViaFStream(record_ptr->flattenedEigSolution,outEigFileTmp);
+
+//        record_ptr->saveEigToXML(outEigFileTmp);
+
+        const auto tflushEnd{std::chrono::steady_clock::now()};
+        const std::chrono::duration<double> elapsed_seconds{tflushEnd - tMCStart};
+        std::cout << "flush " << fls << std::endl;
+        std::cout << "time elapsed: " << elapsed_seconds.count() / 3600.0 << " h" << std::endl;
 
 
     }
-//    for (int i=0;i<counter;i++) {
-//
-//        //perform a flip
-//
-//        auto sNext =std::vector<double>(sCurr);
-//
-//        int flipTmpInd = flipInds(rd);
-//        sNext[flipTmpInd] *= -1;
-//        auto tripleNext = this->s2EigSerial(sNext);
-//        auto EVecNext = this->combineFromEig(tripleNext);
-//
-//        auto EAndMuNext = this->avgEnergy(EVecNext);
-//        double EAvgNext = EAndMuNext[0];
-//        double muNext = EAndMuCurr[1];
-//        double DeltaE = (EAvgNext - EAvgCurr) / this->M;
-//        //decide if flip is accepted
-//        if (DeltaE <= 0) {
-//            sCurr = std::vector<double>(sNext);
-//            tripleCurr = std::vector<std::tuple<int, eigVal20, vecVal20>>(tripleNext);
-//            EAvgCurr = EAvgNext;
-//            muCurr = muNext;
-//            flipNum++;
-//
-//        } else {
-//            double r = distUnif01(e2);
-//            if (r < std::exp(-this->beta * DeltaE)) {
-//                sCurr = std::vector<double>(sNext);
-//                tripleCurr = std::vector<std::tuple<int, eigVal20, vecVal20>>(tripleNext);
-//                EAvgCurr = EAvgNext;
-//                muCurr = muNext;
-//                flipNum++;
-//
-//            } else {
-//                noFlipNum++;
-//            }
-//
-//
-//        }
-//        record_ptr->sAll.push_back(sCurr);
-//        record_ptr->EAll.push_back(EAvgCurr);
-//        record_ptr->muAll.push_back(muCurr);
-//        record_ptr->eigRstAll.push_back(tripleCurr);
-//
-//        if (i%5000==0){
-//            std::cout<<"flip "<<i<<std::endl;
-//            const auto tMC5000{std::chrono::steady_clock::now()};
-//            const std::chrono::duration<double> elapsed_seconds5000{tMC5000 - tMCStart};
-//            std::cout<<elapsed_seconds5000.count()/3600.0<<" h"<<std::endl;
-//        }
-//
-//
-//    }
 
-    //end of mc
-//    record.flattenEigData();
+    std::ofstream outSummary(outDir + "summary.txt");
 
 
     const auto tMCEnd{std::chrono::steady_clock::now()};
     const std::chrono::duration<double> elapsed_secondsAll{tMCEnd - tMCStart};
-    std::cout << "total mc time: " << elapsed_secondsAll.count() / 3600.0 << " h" << std::endl;
-    std::cout << "flip number: " << flipNum << std::endl;
-    std::cout << "no flip number: " << noFlipNum << std::endl;
+    outSummary << "total mc time: " << elapsed_secondsAll.count() / 3600.0 << " h" << std::endl;
+    outSummary << "flip number: " << flipNum << std::endl;
+    outSummary << "no flip number: " << noFlipNum << std::endl;
+    outSummary.close();
 
 
 }
@@ -409,8 +412,7 @@ void dataholder::flattenEigData() {
 
 
     for (auto const &vecAllForOneS: this->eigRstAll) {
-//        std::vector<std::tuple<int, std::vector<double>, std::vector<std::complex<double>> >> flattenedVecAllForOneS;// eigensolutions for all j=0,1,...,M-1
-
+        std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >> eigFor1s;
 
         for (auto const &tp: vecAllForOneS) {
             int j = std::get<0>(tp);
@@ -426,14 +428,14 @@ void dataholder::flattenEigData() {
             for (auto const &x: eigVecsTmp.reshaped()) {
                 stdEigVecsTmp.emplace_back(x);
             }
-//            std::tuple<int, std::vector<double>, std::vector<std::complex<double>>> flattenedTuple = std::make_tuple(j,
-//            stdEigValsTmp,
-//                    stdEigVecsTmp);
-            this->multipleSolutions.push_back(oneEigSolution(j, stdEigValsTmp, stdEigVecsTmp));
+            eigFor1s.push_back(std::make_tuple(j,stdEigValsTmp,stdEigVecsTmp));
 
+//            this->multipleSolutions.push_back(oneEigSolution(j, stdEigValsTmp, stdEigVecsTmp));
+//              this->flattenedEigSolution.push_back(std::make_tuple(j,))
 
         }
 
+this->flattenedEigSolution.push_back(eigFor1s);
 
     }
 
@@ -451,25 +453,25 @@ void dataholder::flattenEigData() {
 //
 //}
 
-void
-dbExchangeModel::serializationViaFStream(const std::vector<std::vector<double>> &vecvec, const std::string &fileName) {
-    std::ofstream outFTmp(fileName, std::ios::out | std::ios::binary);
-    msgpack::pack(outFTmp, vecvec);
-    outFTmp.seekp(0);
-    outFTmp.close();
+//void
+//dbExchangeModel::serializationViaFStream(const std::vector<std::vector<double>> &vecvec, const std::string &fileName) {
+//    std::ofstream outFTmp(fileName, std::ios::out | std::ios::binary);
+//    msgpack::pack(outFTmp, vecvec);
+//    outFTmp.seekp(0);
+//    outFTmp.close();
+//
+//
+//}
 
 
-}
-
-
-void dbExchangeModel::serializationViaFStream(const std::vector<double> &vec, const std::string &fileName) {
-    std::ofstream outFTmp(fileName, std::ios::out | std::ios::binary);
-    msgpack::pack(outFTmp, vec);
-    outFTmp.seekp(0);
-    outFTmp.close();
-
-
-}
+//void dbExchangeModel::serializationViaFStream(const std::vector<double> &vec, const std::string &fileName) {
+//    std::ofstream outFTmp(fileName, std::ios::out | std::ios::binary);
+//    msgpack::pack(outFTmp, vec);
+//    outFTmp.seekp(0);
+//    outFTmp.close();
+//
+//
+//}
 
 void dbExchangeModel::serializationViaFStream(
         const std::vector<std::vector<std::tuple<int, std::vector<double>, std::vector<std::complex<double>> >>> &vecvectuple,
@@ -483,46 +485,84 @@ void dbExchangeModel::serializationViaFStream(
 }
 
 
-void dbExchangeModel::data2File(const dataholder &record) {
-    namespace fs = std::filesystem;
-
-    //output folder
-//    std::string outDir="./part"+std::to_string(this->part);
-//    if(! fs::is_directory(outDir)|| !fs::exists(outDir)){
-//        fs::create_directory(outDir);
+//void dbExchangeModel::data2File(const dataholder &record) {
+//    namespace fs = std::filesystem;
+//
+//    //output folder
+////    std::string outDir="./part"+std::to_string(this->part);
+////    if(! fs::is_directory(outDir)|| !fs::exists(outDir)){
+////        fs::create_directory(outDir);
+////    }
+//
+//    std::string outSubDir = "./part" + std::to_string(this->part) + "/";
+//
+//    if (!fs::is_directory(outSubDir) || !fs::exists(outSubDir)) {
+//        fs::create_directory(outSubDir);
 //    }
+//
+//
+//    std::string prefix =
+//            "T" + std::to_string(this->T) + "t" + std::to_string(this->t) + "J" + std::to_string(this->J) + "g" +
+//            std::to_string(this->g) + "part" + std::to_string(this->part);
+//    //output sAll
+//    std::string outsAllName = outSubDir + prefix + ".sAll";
+//    serializationViaFStream(record.sAll, outsAllName);
+//
+//    //output EAll
+//    std::string outEAllName = outSubDir + prefix + ".EAll";
+//    serializationViaFStream(record.EAll, outEAllName);
+//
+//    //output muAll
+//    std::string outMuAllName = outSubDir + prefix + ".muAll";
+//    serializationViaFStream(record.muAll, outMuAllName);
+//
+//    //output flattened solution
+////    std::string outFlEigSolName=outSubDir+prefix+".flattenedEigSolution";
+////    serializationViaFStream(record.flattenedEigSolution,outFlEigSolName);
+//
+//
+//}
+//
+/////
+///// @param filename xml file name of eigen-solutions
+//void dataholder::saveEigToXML(const std::string &filename) {
+//    std::ofstream ofs(filename);
+//    boost::archive::xml_oarchive oa(ofs);
+////    oa & BOOST_SERIALIZATION_NVP(this->multipleSolutions);
+//      for (size_t j=0;j<this->multipleSolutions.size();j++){
+//          auto eig=multipleSolutions[j];
+//          oa &BOOST_SERIALIZATION_NVP(eig);
+//      }
+////    oa.put("<\\boost_serialization>\r\n");
+//}
+//
+//
+///
+/// @param filename xml file name of vec
+///@param vec vector to be saved
+void dataholder::saveVecToXML(const std::string &filename,const std::vector<double> &vec) {
 
-    std::string outSubDir = "./part" + std::to_string(this->part) + "/";
-
-    if (!fs::is_directory(outSubDir) || !fs::exists(outSubDir)) {
-        fs::create_directory(outSubDir);
-    }
-
-
-    std::string prefix =
-            "T" + std::to_string(this->T) + "t" + std::to_string(this->t) + "J" + std::to_string(this->J) + "g" +
-            std::to_string(this->g) + "part" + std::to_string(this->part);
-    //output sAll
-    std::string outsAllName = outSubDir + prefix + ".sAll";
-    serializationViaFStream(record.sAll, outsAllName);
-
-    //output EAll
-    std::string outEAllName = outSubDir + prefix + ".EAll";
-    serializationViaFStream(record.EAll, outEAllName);
-
-    //output muAll
-    std::string outMuAllName = outSubDir + prefix + ".muAll";
-    serializationViaFStream(record.muAll, outMuAllName);
-
-    //output flattened solution
-//    std::string outFlEigSolName=outSubDir+prefix+".flattenedEigSolution";
-//    serializationViaFStream(record.flattenedEigSolution,outFlEigSolName);
+    std::ofstream ofs(filename);
+    boost::archive::xml_oarchive oa(ofs);
+    oa & BOOST_SERIALIZATION_NVP(vec);
+//    oa.put("<\\boost_serialization>\r\n");
 
 
 }
 
-//template void dbExchangeModel::serializationViaFStream<std::vector<std::vector<double>>>(const std::vector<std::vector<double>> &values, const std::string &fileName);
-//
-//template void dbExchangeModel::serializationViaFStream<std::vector<double>>(const std::vector<double> &values, const std::string &fileName);
-//
-//template void dbExchangeModel::serializationViaFStream<std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>>>(const std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>> &values, const std::string &fileName);
+
+///
+/// @param filename  xml file name of vecvec
+/// @param vecvec vector<vector> to be saved
+void dataholder::saveVecVecToXML(const std::string &filename, const std::vector<std::vector<double>> &vecvec) {
+
+
+
+    std::ofstream ofs(filename);
+    boost::archive::xml_oarchive oa(ofs);
+    oa & BOOST_SERIALIZATION_NVP(vecvec);
+//    oa.put("<\\boost_serialization>\r\n");
+
+
+
+}

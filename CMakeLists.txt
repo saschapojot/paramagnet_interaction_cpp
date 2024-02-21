@@ -14,6 +14,8 @@ include_directories("/home/polya/cppLocal/eigen-3.4.0")
 
 include_directories("/home/polya/cppLocal/msgpack-c-cpp_master/include")
 
+#include_directories("/home/polya/cppLocal/capnproto/include")
+
 set(Boost_NO_SYSTEM_PATHS YES)
 if (Boost_NO_SYSTEM_PATHS)
     set(Boost_ROOT "/home/polya/cppLocal/boostBuild")
@@ -22,7 +24,7 @@ if (Boost_NO_SYSTEM_PATHS)
 endif (Boost_NO_SYSTEM_PATHS)
 
 #find_package(Boost  REQUIRED COMPONENTS ALL)
-find_package(Boost  REQUIRED serialization)
+find_package(Boost  REQUIRED serialization filesystem)
 if(Boost_FOUND)
     message(STATUS "boost root is: ${Boost_ROOT}")
     message(STATUS "boost include path is : ${Boost_INCLUDE_DIR}")
@@ -62,3 +64,18 @@ file(GLOB LIBS_SO "${Boost_LIBRARY_DIR}/*serialization.so")
 
 target_link_libraries(reader ${LIBS_A})
 target_link_libraries(mc ${LIBS_SO})
+
+
+file(GLOB LIBS_A "${Boost_LIBRARY_DIR}/*filesystem.a")
+file(GLOB LIBS_SO "${Boost_LIBRARY_DIR}/*filesystem.so")
+
+target_link_libraries(reader ${LIBS_A})
+target_link_libraries(mc ${LIBS_SO})
+
+
+#
+#file(GLOB LIBS_A "/home/polya/cppLocal/capnproto/lib/*.a")
+#file(GLOB LIBS_SO "/home/polya/cppLocal/capnproto/lib/*.so")
+#
+#target_link_libraries(reader ${LIBS_A})
+#target_link_libraries(mc ${LIBS_SO})

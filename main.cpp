@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
     double T = std::stod(argv[1]);
     auto model = dbExchangeModel(T);
     model.executionMC();
-    model.data2File(model.record);
+//    model.data2File(model.record);
 
 
     // Display the loaded data
