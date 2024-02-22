@@ -9,7 +9,10 @@ import re
 from copy import deepcopy
 import warnings
 
-#This script checks if a vector reaches equilibrium
+
+
+#This script checks if a vector<vector> reaches equilibrium
+#applicable to s values
 
 sigWrongArg="wrong number of arguments"
 sigEq="equilibrium"
@@ -19,6 +22,7 @@ sigStop="stop"
 if (len(sys.argv)!=2):
     print(sigWrongArg)
     exit()
+
 
 xmlFilesPath=str(sys.argv[1])
 
@@ -55,33 +59,39 @@ else:
 
 xmlFileToBeParsed=xmlFileToBeParsed[int(len(xmlFileToBeParsed)/3):]
 
-# print("xml file number: "+str(len(xmlFileToBeParsed)))
+
 def parse1File(fileName):
     """
 
     :param fileName: xml file name
-    :return: the values in the vector
+    :return: all vectors in the xml file
     """
-
     tree=ET.parse(fileName)
     root = tree.getroot()
-    vec=root.find("vec")
-    vec_items=vec.findall('item')
-    vecValsAll=[float(item.text) for item in vec_items]
-    # vecValsAll=np.array(vecValsAll)
-    return vecValsAll
+    first_level_items = root.find('vecvec').findall('item')
+    vectors=[]
+    for item in first_level_items:
+        oneVec=[float(value.text) for value in item.findall('item')]
+        vectors.append(oneVec)
+    return np.array(vectors)
 
-#combine all vectors
-vecValsCombined=parse1File(xmlFileToBeParsed[0])
+
+def sAbsAvg(sVecVec):
+    """
+
+    :param sVecVec: an array of s values from mc steps
+    :return: abs of avg of each row
+    """
+    sMeanTmp=np.mean(sVecVec,axis=1)
+    sAbs=np.abs(sMeanTmp)
+    return sAbs
+
+vecValsCombined=sAbsAvg(parse1File(xmlFileToBeParsed[0]))
 
 for file in xmlFileToBeParsed[1:]:
-    vecValsCombined+=parse1File(file)
-
-
-
-vecValsCombined=np.array(vecValsCombined)
+    sAbsNext=sAbsAvg(parse1File(file))
+    vecValsCombined=np.r_[vecValsCombined,sAbsNext]
 # print(len(vecValsCombined))
-#ferromagnetic case: all values equal
 #check if the whole vector has the same value
 with warnings.catch_warnings():
     warnings.filterwarnings("error")
@@ -90,9 +100,6 @@ with warnings.catch_warnings():
     except Warning as w:
         print(sigStop+" ferro")
         exit()
-
-
-
 halfLength=int(len(vecValsCombined)/2)
 
 part0=vecValsCombined[:halfLength]
@@ -100,6 +107,7 @@ part1=vecValsCombined[halfLength:]
 
 ferro0=False
 ferro1=False
+
 #check if the part0 has the same value
 with warnings.catch_warnings():
     warnings.filterwarnings("error")
@@ -127,15 +135,11 @@ elif ferro0==False and ferro1==True:
     print(sigContinue)
     exit()
 
-
-
 #computation of auto-correlation
 
 
 
 acfOfVec=sm.tsa.acf(vecValsCombined)
-
-# print("total elem number = "+str(len(vecValsCombined)))
 eps=(1e-3)*5
 pThreshHold=0.05
 lagVal=0

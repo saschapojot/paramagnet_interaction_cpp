@@ -156,7 +156,7 @@ public:
 
     std::vector<double>sRange{-1,1};
     int sweepNumInOneFlush=3000;// flush the results to python every sweepNumInOneFlush*L iterations
-    int flushMaxNum=12;
+    int flushMaxNum=15;
     int dataNumTotal=15000;
     Eigen::SelfAdjointEigenSolver<mat20c> eigSolution;// solver for hermitian matrices
 //    std::vector<double>EAvgAll;//to be stored
@@ -228,7 +228,10 @@ public:
    /// @param loopEq total loop numbers in reaching equilibrium
    void executionMC(const int& lag,const int & loopEq);// mc simulation without inquiring equilibrium after reaching equilibrium
 
-
+   ///
+   /// @param ferro is ferromagnetic
+   /// @param lag decorrelation length
+   /// @param loopTotal total mc steps
    void reachEqMC(bool& ferro, int &lag, int&loopTotal);// mc simulation while communicating with python to inquire equilibrium
 
    ///

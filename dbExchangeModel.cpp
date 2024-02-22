@@ -249,8 +249,11 @@ std::vector<double> dbExchangeModel::avgEnergy(const std::vector<double> &EVec) 
 
 }
 
-
-void dbExchangeModel::reachEqMC(bool& ferro, int &lag, int&loopTotal) {
+///
+/// @param ferro is ferromagnetic
+/// @param lag decorrelation length
+/// @param loopTotal total mc steps
+void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
     //init
 //    dataholder record=dataholder();//records all data
 
@@ -309,8 +312,8 @@ void dbExchangeModel::reachEqMC(bool& ferro, int &lag, int&loopTotal) {
 
     const auto tMCStart{std::chrono::steady_clock::now()};
 //    int counter = 0;
-    int fls=0;
-    bool active= true;
+    int fls = 0;
+    bool active = true;
 //    std::regex continueRegex("continue");
     std::regex stopRegex("stop");
     std::regex wrongRegex("wrong");
@@ -324,12 +327,12 @@ void dbExchangeModel::reachEqMC(bool& ferro, int &lag, int&loopTotal) {
     std::smatch matchWrong;
     std::smatch matchErr;
     std::smatch matchLag;
-    std::smatch  matchFerro;
+    std::smatch matchFerro;
     std::smatch matchEq;
 
 
-    while (fls<this->flushMaxNum and active==true) {
-        std::unique_ptr<dataholder> record_ptr=std::make_unique<dataholder>();
+    while (fls < this->flushMaxNum and active == true) {
+        std::unique_ptr<dataholder> record_ptr = std::make_unique<dataholder>();
         int loopStart = fls * this->sweepNumInOneFlush * this->L;
 
         for (int i = 0; i < this->sweepNumInOneFlush * this->L; i++) {
@@ -375,19 +378,20 @@ void dbExchangeModel::reachEqMC(bool& ferro, int &lag, int&loopTotal) {
 
 
         }
-        loopEnd = loopStart + this->sweepNumInOneFlush * this->L - 1;
+        int loopEnd = loopStart + this->sweepNumInOneFlush * this->L - 1;
 
         record_ptr->flattenEigData();
-        std::string filenameMiddle="loopStart" + std::to_string(loopStart) +
-                            "loopEnd" + std::to_string(loopEnd) + "T" + std::to_string(this->T) + "t" +
-                            std::to_string(this->t) + "J" + std::to_string(this->J) + "g" +
-                            std::to_string(this->g) + "part" + std::to_string(this->part)+"L"+std::to_string(this->L)+"M"+std::to_string(this->M);
+        std::string filenameMiddle = "loopStart" + std::to_string(loopStart) +
+                                     "loopEnd" + std::to_string(loopEnd) + "T" + std::to_string(this->T) + "t" +
+                                     std::to_string(this->t) + "J" + std::to_string(this->J) + "g" +
+                                     std::to_string(this->g) + "part" + std::to_string(this->part) + "L" +
+                                     std::to_string(this->L) + "M" + std::to_string(this->M);
 
         std::string outEFileTmp = outEAllSubDir + filenameMiddle + ".EAll.xml";
 
         record_ptr->saveVecToXML(outEFileTmp, record_ptr->EAll);
 
-        std::string outMuFileTmp = outMuAllSubDir +filenameMiddle + ".muAll.xml";
+        std::string outMuFileTmp = outMuAllSubDir + filenameMiddle + ".muAll.xml";
 
         record_ptr->saveVecToXML(outMuFileTmp, record_ptr->muAll);
 
@@ -398,7 +402,7 @@ void dbExchangeModel::reachEqMC(bool& ferro, int &lag, int&loopTotal) {
 
         std::string outEigFileTmp = outEigAllSubDir + filenameMiddle + ".eigAll.bin";
 
-        this->serializationViaFStream(record_ptr->flattenedEigSolution,outEigFileTmp);
+        this->serializationViaFStream(record_ptr->flattenedEigSolution, outEigFileTmp);
 
 //        record_ptr->saveEigToXML(outEigFileTmp);
 
@@ -410,9 +414,11 @@ void dbExchangeModel::reachEqMC(bool& ferro, int &lag, int&loopTotal) {
         //communicate with python to inquire equilibrium
 
         //inquire equilibrium of EAvg
-        std::string commandEAvg="python3 checkVec.py "+outEAllSubDir;
-        std::string  result;
-        if (fls%3==2) {
+        std::string commandEAvg = "python3 checkVec.py " + outEAllSubDir;
+        //inquire equilibrium of s
+        std::string commandsAvg="python3 checksVecVec.py"+outSAllSubDir;
+        std::string result;
+        if (fls % 3 == 2) {
             try {
                 result = this->execPython(commandEAvg.c_str());
                 std::cout << "message from python: " << result << std::endl;
@@ -460,52 +466,57 @@ void dbExchangeModel::reachEqMC(bool& ferro, int &lag, int&loopTotal) {
         }
 
 
-
-
-
-
         fls++;
 
 
     }//end of while loop
 
     std::ofstream outSummary(outDir + "summary.txt");
-    loopTotal=flipNum+noFlipNum;
+    loopTotal = flipNum + noFlipNum;
 
 
     const auto tMCEnd{std::chrono::steady_clock::now()};
     const std::chrono::duration<double> elapsed_secondsAll{tMCEnd - tMCStart};
     outSummary << "total mc time: " << elapsed_secondsAll.count() / 3600.0 << " h" << std::endl;
-    outSummary<<"total sweep number: "<<static_cast<int>(loopTotal/this->L)<<std::endl;
-    outSummary<<"total loop number: "<<loopTotal<<std::endl;
+    outSummary << "total sweep number: " << static_cast<int>(loopTotal / this->L) << std::endl;
+    outSummary << "total loop number: " << loopTotal << std::endl;
 
     outSummary << "flip number: " << flipNum << std::endl;
     outSummary << "no flip number: " << noFlipNum << std::endl;
 
-    outSummary<<"equilibrium reached: "<<!active<<std::endl;
-    outSummary<<"lag="<<lag<<std::endl;
+    outSummary << "equilibrium reached: " << !active << std::endl;
+    outSummary<<"ferro: "<<ferro<<std::endl;
+    outSummary << "lag=" << lag << std::endl;
     outSummary.close();
 
 
 }
+
 ///
 /// @param lag decorrelation length
 /// @param loopEq total loop numbers in reaching equilibrium
-void dbExchangeModel::executionMC(const int &lag,const int & loopEq) {
-   double lagDB=static_cast<double>(lag);
-   double loopEqDB=static_cast<double >(loopEq);
+void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
+    double lagDB = static_cast<double>(lag);
+    double loopEqDB = static_cast<double >(loopEq);
 
-   int remainingDataNum=this->dataNumTotal-static_cast<int>(std::floor(loopEqDB/lagDB*2/3));
+    int remainingDataNum = this->dataNumTotal - static_cast<int>(std::floor(loopEqDB / lagDB * 2 / 3));
 
-   int remainingLoopNum=remainingDataNum*lag;
+    int remainingLoopNum = remainingDataNum * lag;
 
-   if(remainingLoopNum<=0){
-       return;
-   }
-   double remainingLoopNumDB=static_cast<double>(remainingLoopNum);
-   double LDB=static_cast<double>(this->L);
+    if (remainingLoopNum <= 0) {
+        return;
+    }
+    double remainingLoopNumDB = static_cast<double>(remainingLoopNum);
+    double LDB = static_cast<double>(this->L);
 
-   int remainingSweepNum=std::floor(remainingLoopNumDB/LDB);
+    int remainingSweepNum = std::ceil(remainingLoopNumDB / LDB);
+    double remainingSweepNumDB = static_cast<double >(remainingSweepNum);
+
+    double sweepNumInOneFlushDB = static_cast<double >(sweepNumInOneFlush);
+
+    double remainingFlushNumDB = std::ceil(remainingSweepNumDB / sweepNumInOneFlushDB);
+    int remainingFlushNum = static_cast<int>(remainingFlushNumDB);
+
     //init
     std::random_device rd;
     std::uniform_int_distribution<int> indsAll(0, 1);
@@ -533,6 +544,108 @@ void dbExchangeModel::executionMC(const int &lag,const int & loopEq) {
     std::string outEigAllSubDir = outDir + "eigAll/";
     const auto tMCStart{std::chrono::steady_clock::now()};
 
+    std::cout<<"remaining flush number: "<<remainingFlushNum<<std::endl;
+
+    for (int fls = 0; fls < remainingFlushNum; fls++) {
+        std::unique_ptr<dataholder> record_ptr = std::make_unique<dataholder>();
+        int loopStart =loopEq+ fls * this->sweepNumInOneFlush * this->L;
+        for (int i = 0; i < this->sweepNumInOneFlush * this->L; i++) {
+            //perform a flip
+            auto sNext = std::vector<double>(sCurr);
+            int flipTmpInd = flipInds(rd);
+            sNext[flipTmpInd] *= -1;
+            auto tripleNext = this->s2EigSerial(sNext);
+            auto EVecNext = this->combineFromEig(tripleNext);
+            auto EAndMuNext = this->avgEnergy(EVecNext);
+            double EAvgNext = EAndMuNext[0];
+            double muNext = EAndMuCurr[1];
+            double DeltaE = (EAvgNext - EAvgCurr) / static_cast<double>(this->M);
+            //decide if flip is accepted
+            if (DeltaE <= 0) {
+                sCurr = std::vector<double>(sNext);
+                tripleCurr = std::vector<std::tuple<int, eigVal20, vecVal20>>(tripleNext);
+                EAvgCurr = EAvgNext;
+                muCurr = muNext;
+                flipNum++;
+
+            } else {
+                double r = distUnif01(e2);
+                if (r <= std::exp(-this->beta * DeltaE)) {
+                    sCurr = std::vector<double>(sNext);
+                    tripleCurr = std::vector<std::tuple<int, eigVal20, vecVal20>>(tripleNext);
+                    EAvgCurr = EAvgNext;
+                    muCurr = muNext;
+                    flipNum++;
+
+                } else {
+                    noFlipNum++;
+                }
+
+
+            }
+
+            record_ptr->sAll.push_back(sCurr);
+            record_ptr->EAll.push_back(EAvgCurr);
+            record_ptr->muAll.push_back(muCurr);
+            record_ptr->eigRstAll.push_back(tripleCurr);
+//            counter += 1;
+
+
+        }//end of sweeps in 1 flush
+
+
+        int loopEnd = loopStart + this->sweepNumInOneFlush * this->L - 1;
+        record_ptr->flattenEigData();
+        std::string filenameMiddle = "loopStart" + std::to_string(loopStart) +
+                                     "loopEnd" + std::to_string(loopEnd) + "T" + std::to_string(this->T) + "t" +
+                                     std::to_string(this->t) + "J" + std::to_string(this->J) + "g" +
+                                     std::to_string(this->g) + "part" + std::to_string(this->part)
+                                     + "L" + std::to_string(this->L) + "M" + std::to_string(this->M) + "Eq";
+
+        std::string outEFileTmp = outEAllSubDir + filenameMiddle + ".EAll.xml";
+
+        record_ptr->saveVecToXML(outEFileTmp, record_ptr->EAll);
+
+        std::string outMuFileTmp = outMuAllSubDir + filenameMiddle + ".muAll.xml";
+
+        record_ptr->saveVecToXML(outMuFileTmp, record_ptr->muAll);
+
+        std::string outSFileTmp = outSAllSubDir + filenameMiddle + ".sAll.xml";
+
+        record_ptr->saveVecVecToXML(outSFileTmp, record_ptr->sAll);
+
+
+        std::string outEigFileTmp = outEigAllSubDir + filenameMiddle + ".eigAll.bin";
+
+        this->serializationViaFStream(record_ptr->flattenedEigSolution, outEigFileTmp);
+
+//        record_ptr->saveEigToXML(outEigFileTmp);
+
+        const auto tflushEnd{std::chrono::steady_clock::now()};
+        const std::chrono::duration<double> elapsed_seconds{tflushEnd - tMCStart};
+        std::cout << "flush " << fls << std::endl;
+        std::cout << "time elapsed: " << elapsed_seconds.count() / 3600.0 << " h" << std::endl;
+
+
+    }//end of flush loop
+    std::ofstream outSummary(outDir + "summaryEq.txt");
+    int loopTotal = flipNum + noFlipNum;
+
+
+    const auto tMCEnd{std::chrono::steady_clock::now()};
+    const std::chrono::duration<double> elapsed_secondsAll{tMCEnd - tMCStart};
+    outSummary << "total mc time: " << elapsed_secondsAll.count() / 3600.0 << " h" << std::endl;
+    outSummary << "total sweep number: " << static_cast<int>(loopTotal / this->L) << std::endl;
+    outSummary << "total loop number: " << loopTotal << std::endl;
+
+    outSummary << "flip number: " << flipNum << std::endl;
+    outSummary << "no flip number: " << noFlipNum << std::endl;
+
+
+    outSummary.close();
+
+
+}//end of function executionMC()
 
 
 
@@ -544,13 +657,13 @@ void dbExchangeModel::executionMC(const int &lag,const int & loopEq) {
 
 
 
-}
+
 
 
 
 
 std::string dbExchangeModel::execPython(const char *cmd) {
-        std::array<char, 512> buffer; // Buffer to store command output
+    std::array<char, 512> buffer; // Buffer to store command output
     std::string result; // String to accumulate output
 
     // Open a pipe to read the output of the executed command
@@ -576,7 +689,7 @@ void dataholder::flattenEigData() {
 
 
     for (auto const &vecAllForOneS: this->eigRstAll) {
-        std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >> eigFor1s;
+        std::vector<std::tuple<int, std::vector<double>, std::vector<std::complex<double>> >> eigFor1s;
 
         for (auto const &tp: vecAllForOneS) {
             int j = std::get<0>(tp);
@@ -592,14 +705,14 @@ void dataholder::flattenEigData() {
             for (auto const &x: eigVecsTmp.reshaped()) {
                 stdEigVecsTmp.emplace_back(x);
             }
-            eigFor1s.push_back(std::make_tuple(j,stdEigValsTmp,stdEigVecsTmp));
+            eigFor1s.push_back(std::make_tuple(j, stdEigValsTmp, stdEigVecsTmp));
 
 //            this->multipleSolutions.push_back(oneEigSolution(j, stdEigValsTmp, stdEigVecsTmp));
 //              this->flattenedEigSolution.push_back(std::make_tuple(j,))
 
         }
 
-this->flattenedEigSolution.push_back(eigFor1s);
+        this->flattenedEigSolution.push_back(eigFor1s);
 
     }
 
@@ -704,7 +817,7 @@ void dbExchangeModel::serializationViaFStream(
 ///
 /// @param filename xml file name of vec
 ///@param vec vector to be saved
-void dataholder::saveVecToXML(const std::string &filename,const std::vector<double> &vec) {
+void dataholder::saveVecToXML(const std::string &filename, const std::vector<double> &vec) {
 
     std::ofstream ofs(filename);
     boost::archive::xml_oarchive oa(ofs);
@@ -719,7 +832,6 @@ void dataholder::saveVecToXML(const std::string &filename,const std::vector<doub
 /// @param filename  xml file name of vecvec
 /// @param vecvec vector<vector> to be saved
 void dataholder::saveVecVecToXML(const std::string &filename, const std::vector<std::vector<double>> &vecvec) {
-
 
 
     std::ofstream ofs(filename);
