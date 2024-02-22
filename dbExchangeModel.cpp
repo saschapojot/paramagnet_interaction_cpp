@@ -250,7 +250,7 @@ std::vector<double> dbExchangeModel::avgEnergy(const std::vector<double> &EVec) 
 }
 
 
-void dbExchangeModel::executionMC() {
+void dbExchangeModel::reachEqMC(bool& ferro, int &lag, int&loopTotal) {
     //init
 //    dataholder record=dataholder();//records all data
 
@@ -277,7 +277,7 @@ void dbExchangeModel::executionMC() {
     namespace fs = boost::filesystem;
 
     //output directory
-    std::string outDir = "./part" + std::to_string(this->part) + "/" + std::to_string(this->T) + "/";
+    std::string outDir = "./part" + std::to_string(this->part) + "/T" + std::to_string(this->T) + "/";
     std::string outEAllSubDir = outDir + "EAll/";
     std::string outMuAllSubDir = outDir + "muAll/";
     std::string outSAllSubDir = outDir + "sAll/";
@@ -309,9 +309,26 @@ void dbExchangeModel::executionMC() {
 
     const auto tMCStart{std::chrono::steady_clock::now()};
 //    int counter = 0;
+    int fls=0;
+    bool active= true;
+//    std::regex continueRegex("continue");
+    std::regex stopRegex("stop");
+    std::regex wrongRegex("wrong");
+    std::regex ErrRegex("Err");
+    std::regex lagRegex("\\d+");
+    std::regex ferroRegex("ferro");
+    std::regex eqRegex("equilibrium");
+
+//    std::smatch matchContinue;
+    std::smatch matchStop;
+    std::smatch matchWrong;
+    std::smatch matchErr;
+    std::smatch matchLag;
+    std::smatch  matchFerro;
+    std::smatch matchEq;
 
 
-    for (int fls = 0; fls < this->flushMaxNum; fls++) {
+    while (fls<this->flushMaxNum and active==true) {
         std::unique_ptr<dataholder> record_ptr=std::make_unique<dataholder>();
         int loopStart = fls * this->sweepNumInOneFlush * this->L;
 
@@ -358,7 +375,7 @@ void dbExchangeModel::executionMC() {
 
 
         }
-        int loopEnd = loopStart + this->sweepNumInOneFlush * this->L - 1;
+        loopEnd = loopStart + this->sweepNumInOneFlush * this->L - 1;
 
         record_ptr->flattenEigData();
         std::string filenameMiddle="loopStart" + std::to_string(loopStart) +
@@ -390,18 +407,165 @@ void dbExchangeModel::executionMC() {
         std::cout << "flush " << fls << std::endl;
         std::cout << "time elapsed: " << elapsed_seconds.count() / 3600.0 << " h" << std::endl;
 
+        //communicate with python to inquire equilibrium
 
-    }
+        //inquire equilibrium of EAvg
+        std::string commandEAvg="python3 checkVec.py "+outEAllSubDir;
+        std::string  result;
+        if (fls%3==2) {
+            try {
+                result = this->execPython(commandEAvg.c_str());
+                std::cout << "message from python: " << result << std::endl;
+
+            } catch (const std::exception &e) {
+                std::cerr << "Error: " << e.what() << std::endl;
+                std::exit(10);
+            }
+            catch (...) {
+                // Handle any other exceptions
+                std::cerr << "Error" << std::endl;
+                std::exit(11);
+            }
+
+            // parse result
+            if (std::regex_search(result, matchErr, ErrRegex)) {
+                std::cout << "error encountered" << std::endl;
+                std::exit(12);
+            }
+
+            if (std::regex_search(result, matchWrong, wrongRegex)) {
+                std::exit(13);
+            }
+
+//        bool ferro= false;
+
+            if (std::regex_search(result, matchStop, stopRegex)) {
+                if (std::regex_search(result, matchFerro, ferroRegex)) {
+                    active = false;
+                    ferro = true;
+                }
+
+
+            }
+
+
+            if (std::regex_search(result, matchEq, eqRegex)) {
+                if (std::regex_search(result, matchLag, lagRegex)) {
+                    std::string lagStr = matchLag.str(0);
+                    lag = std::stoi(lagStr);
+                    active = false;
+                }
+
+            }
+        }
+
+
+
+
+
+
+        fls++;
+
+
+    }//end of while loop
 
     std::ofstream outSummary(outDir + "summary.txt");
+    loopTotal=flipNum+noFlipNum;
 
 
     const auto tMCEnd{std::chrono::steady_clock::now()};
     const std::chrono::duration<double> elapsed_secondsAll{tMCEnd - tMCStart};
     outSummary << "total mc time: " << elapsed_secondsAll.count() / 3600.0 << " h" << std::endl;
+    outSummary<<"total sweep number: "<<static_cast<int>(loopTotal/this->L)<<std::endl;
+    outSummary<<"total loop number: "<<loopTotal<<std::endl;
+
     outSummary << "flip number: " << flipNum << std::endl;
     outSummary << "no flip number: " << noFlipNum << std::endl;
+
+    outSummary<<"equilibrium reached: "<<!active<<std::endl;
+    outSummary<<"lag="<<lag<<std::endl;
     outSummary.close();
+
+
+}
+///
+/// @param lag decorrelation length
+/// @param loopEq total loop numbers in reaching equilibrium
+void dbExchangeModel::executionMC(const int &lag,const int & loopEq) {
+   double lagDB=static_cast<double>(lag);
+   double loopEqDB=static_cast<double >(loopEq);
+
+   int remainingDataNum=this->dataNumTotal-static_cast<int>(std::floor(loopEqDB/lagDB*2/3));
+
+   int remainingLoopNum=remainingDataNum*lag;
+
+   if(remainingLoopNum<=0){
+       return;
+   }
+   double remainingLoopNumDB=static_cast<double>(remainingLoopNum);
+   double LDB=static_cast<double>(this->L);
+
+   int remainingSweepNum=std::floor(remainingLoopNumDB/LDB);
+    //init
+    std::random_device rd;
+    std::uniform_int_distribution<int> indsAll(0, 1);
+    std::uniform_int_distribution<int> flipInds(0, L - 1);
+    std::vector<double> sCurr;//init s
+    for (int i = 0; i < this->L; i++) {
+        sCurr.push_back(this->sRange[indsAll(rd)]);
+    }
+    std::ranlux24_base e2(rd());
+    std::uniform_real_distribution<> distUnif01(0, 1);
+    auto tripleCurr = this->s2EigSerial(sCurr);//init eig result
+    std::vector<double> EVec = this->combineFromEig(tripleCurr);//init EVec
+    auto EAndMuCurr = this->avgEnergy(EVec);// init E and mu
+    double EAvgCurr = EAndMuCurr[0];
+    double muCurr = EAndMuCurr[1];
+    int flipNum = 0;
+    int noFlipNum = 0;
+    namespace fs = boost::filesystem;
+
+    //output directory
+    std::string outDir = "./part" + std::to_string(this->part) + "/T" + std::to_string(this->T) + "/";
+    std::string outEAllSubDir = outDir + "EAll/";
+    std::string outMuAllSubDir = outDir + "muAll/";
+    std::string outSAllSubDir = outDir + "sAll/";
+    std::string outEigAllSubDir = outDir + "eigAll/";
+    const auto tMCStart{std::chrono::steady_clock::now()};
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+std::string dbExchangeModel::execPython(const char *cmd) {
+        std::array<char, 512> buffer; // Buffer to store command output
+    std::string result; // String to accumulate output
+
+    // Open a pipe to read the output of the executed command
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) {
+        throw std::runtime_error("popen() failed!");
+    }
+
+    // Read the output a chunk at a time and append it to the result string
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+        result += buffer.data();
+    }
+
+    return result; // Return the accumulated output
+
 
 
 }

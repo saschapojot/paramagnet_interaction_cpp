@@ -14,7 +14,11 @@ int main(int argc, char **argv) {
 
     double T = std::stod(argv[1]);
     auto model = dbExchangeModel(T);
-    model.executionMC();
+    bool ferro= false;
+    int lag=-1;
+    int loopEnd=-1;
+
+    model.reachEqMC(ferro,lag,loopEnd);
 //    model.data2File(model.record);
 
 

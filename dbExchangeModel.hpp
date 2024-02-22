@@ -32,6 +32,8 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/complex.hpp>
 #include <cstdlib>
+#include <regex>
+
 
 using namespace std::complex_literals;
 using mat10c = Eigen::Matrix<std::complex<double>, 10, 10>;
@@ -153,8 +155,9 @@ public:
 
 
     std::vector<double>sRange{-1,1};
-    int sweepNumInOneFlush=300;// flush the results to python every sweepNumInOneFlush*L iterations
+    int sweepNumInOneFlush=3000;// flush the results to python every sweepNumInOneFlush*L iterations
     int flushMaxNum=12;
+    int dataNumTotal=15000;
     Eigen::SelfAdjointEigenSolver<mat20c> eigSolution;// solver for hermitian matrices
 //    std::vector<double>EAvgAll;//to be stored
 //    std::vector<std::vector<double>>sAll;//to be stored
@@ -215,8 +218,18 @@ public:
    /// @return
    std::vector<double> avgEnergy(const std::vector<double>& EVec);
 
+   ///
+   /// @param cmd python execution string
+   /// @return signal from the python
+   static std::string execPython(const char* cmd);
 
-   void executionMC();// mc simulation
+   ///
+   /// @param lag decorrelation length
+   /// @param loopEq total loop numbers in reaching equilibrium
+   void executionMC(const int& lag,const int & loopEq);// mc simulation without inquiring equilibrium after reaching equilibrium
+
+
+   void reachEqMC(bool& ferro, int &lag, int&loopTotal);// mc simulation while communicating with python to inquire equilibrium
 
    ///
    /// @param record holding data
