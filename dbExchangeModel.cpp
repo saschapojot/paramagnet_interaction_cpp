@@ -382,14 +382,14 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
             record_ptr->sAll.push_back(sCurr);
             record_ptr->EAll.push_back(EAvgCurr);
             record_ptr->muAll.push_back(muCurr);
-            record_ptr->eigRstAll.push_back(tripleCurr);
+//            record_ptr->eigRstAll.push_back(tripleCurr);
 //            counter += 1;
 
 
         }
         int loopEnd = loopStart + this->sweepNumInOneFlush * this->L - 1;
 
-        record_ptr->flattenEigData();
+//        record_ptr->flattenEigData();
         std::string filenameMiddle = "loopStart" + std::to_string(loopStart) +
                                      "loopEnd" + std::to_string(loopEnd) + "T" + std::to_string(this->T) + "t" +
                                      std::to_string(this->t) + "J" + std::to_string(this->J) + "g" +
@@ -409,9 +409,9 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
         record_ptr->saveVecVecToXML(outSFileTmp, record_ptr->sAll);
 
 
-        std::string outEigFileTmp = outEigAllSubDir + filenameMiddle + ".eigAll.bin";
+//        std::string outEigFileTmp = outEigAllSubDir + filenameMiddle + ".eigAll.bin";
 
-        this->serializationViaFStream(record_ptr->flattenedEigSolution, outEigFileTmp);
+//        this->serializationViaFStream(record_ptr->flattenedEigSolution, outEigFileTmp);
 
 //        record_ptr->saveEigToXML(outEigFileTmp);
 
@@ -604,7 +604,7 @@ void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
             record_ptr->sAll.push_back(sCurr);
             record_ptr->EAll.push_back(EAvgCurr);
             record_ptr->muAll.push_back(muCurr);
-            record_ptr->eigRstAll.push_back(tripleCurr);
+//            record_ptr->eigRstAll.push_back(tripleCurr);
 //            counter += 1;
 
 
@@ -612,7 +612,7 @@ void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
 
 
         int loopEnd = loopStart + this->sweepNumInOneFlush * this->L - 1;
-        record_ptr->flattenEigData();
+//        record_ptr->flattenEigData();
         std::string filenameMiddle = "loopStart" + std::to_string(loopStart) +
                                      "loopEnd" + std::to_string(loopEnd) + "T" + std::to_string(this->T) + "t" +
                                      std::to_string(this->t) + "J" + std::to_string(this->J) + "g" +
@@ -632,9 +632,9 @@ void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
         record_ptr->saveVecVecToXML(outSFileTmp, record_ptr->sAll);
 
 
-        std::string outEigFileTmp = outEigAllSubDir + filenameMiddle + ".eigAll.bin";
-
-        this->serializationViaFStream(record_ptr->flattenedEigSolution, outEigFileTmp);
+//        std::string outEigFileTmp = outEigAllSubDir + filenameMiddle + ".eigAll.bin";
+//
+//        this->serializationViaFStream(record_ptr->flattenedEigSolution, outEigFileTmp);
 
 //        record_ptr->saveEigToXML(outEigFileTmp);
 
