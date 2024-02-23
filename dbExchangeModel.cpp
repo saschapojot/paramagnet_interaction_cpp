@@ -702,39 +702,39 @@ std::string dbExchangeModel::execPython(const char *cmd) {
 
 ///
 /// @return flattened value, Eigen datatypes to std for serialization
-void dataholder::flattenEigData() {
-
-
-    for (auto const &vecAllForOneS: this->eigRstAll) {
-        std::vector<std::tuple<int, std::vector<double>, std::vector<std::complex<double>> >> eigFor1s;
-
-        for (auto const &tp: vecAllForOneS) {
-            int j = std::get<0>(tp);
-            eigVal20 eigValsTmp = std::get<1>(tp);
-            vecVal20 eigVecsTmp = std::get<2>(tp);//stored in column major format
-
-            std::vector<double> stdEigValsTmp;
-            std::vector<std::complex<double>> stdEigVecsTmp;
-
-            for (auto const &x: eigValsTmp) {
-                stdEigValsTmp.emplace_back(x);
-            }
-            for (auto const &x: eigVecsTmp.reshaped()) {
-                stdEigVecsTmp.emplace_back(x);
-            }
-            eigFor1s.push_back(std::make_tuple(j, stdEigValsTmp, stdEigVecsTmp));
-
-//            this->multipleSolutions.push_back(oneEigSolution(j, stdEigValsTmp, stdEigVecsTmp));
-//              this->flattenedEigSolution.push_back(std::make_tuple(j,))
-
-        }
-
-        this->flattenedEigSolution.push_back(eigFor1s);
-
-    }
-
-
-}
+//void dataholder::flattenEigData() {
+//
+//
+//    for (auto const &vecAllForOneS: this->eigRstAll) {
+//        std::vector<std::tuple<int, std::vector<double>, std::vector<std::complex<double>> >> eigFor1s;
+//
+//        for (auto const &tp: vecAllForOneS) {
+//            int j = std::get<0>(tp);
+//            eigVal20 eigValsTmp = std::get<1>(tp);
+//            vecVal20 eigVecsTmp = std::get<2>(tp);//stored in column major format
+//
+//            std::vector<double> stdEigValsTmp;
+//            std::vector<std::complex<double>> stdEigVecsTmp;
+//
+//            for (auto const &x: eigValsTmp) {
+//                stdEigValsTmp.emplace_back(x);
+//            }
+//            for (auto const &x: eigVecsTmp.reshaped()) {
+//                stdEigVecsTmp.emplace_back(x);
+//            }
+//            eigFor1s.push_back(std::make_tuple(j, stdEigValsTmp, stdEigVecsTmp));
+//
+////            this->multipleSolutions.push_back(oneEigSolution(j, stdEigValsTmp, stdEigVecsTmp));
+////              this->flattenedEigSolution.push_back(std::make_tuple(j,))
+//
+//        }
+//
+//        this->flattenedEigSolution.push_back(eigFor1s);
+//
+//    }
+//
+//
+//}
 
 //template<typename T>
 //void dbExchangeModel::serializationViaFStream(const T &values, const std::string & fileName) {
