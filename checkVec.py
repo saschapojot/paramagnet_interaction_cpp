@@ -81,7 +81,21 @@ for file in xmlFileToBeParsed[1:]:
 
 vecValsCombined=np.array(vecValsCombined)
 # print(len(vecValsCombined))
+
 #ferromagnetic case: all values equal
+
+meanE=np.mean(vecValsCombined)
+# print("mean="+str(meanE))
+diff=np.linalg.norm(vecValsCombined-meanE,ord=1)/len(vecValsCombined)
+# print("diff="+str(diff))
+
+if diff<1e-7:
+    print(sigStop+" ferro")
+    exit()
+
+
+
+
 #check if the whole vector has the same value
 with warnings.catch_warnings():
     warnings.filterwarnings("error")

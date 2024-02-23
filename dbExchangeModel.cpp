@@ -323,12 +323,21 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
     std::regex eqRegex("equilibrium");
 
 //    std::smatch matchContinue;
-    std::smatch matchStop;
-    std::smatch matchWrong;
-    std::smatch matchErr;
-    std::smatch matchLag;
-    std::smatch matchFerro;
-    std::smatch matchEq;
+    std::smatch matchEAvgStop;
+    std::smatch matchEAvgWrong;
+    std::smatch matchEAvgErr;
+    std::smatch matchEAvgLag;
+    std::smatch matchEAvgFerro;
+    std::smatch matchEAvgEq;
+
+    std::smatch matchSAvgStop;
+    std::smatch matchSAvgWrong;
+    std::smatch matchSAvgErr;
+    std::smatch matchSAvgLag;
+    std::smatch matchSAvgFerro;
+    std::smatch matchSAvgEq;
+
+
 
 
     while (fls < this->flushMaxNum and active == true) {
@@ -416,12 +425,16 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
         //inquire equilibrium of EAvg
         std::string commandEAvg = "python3 checkVec.py " + outEAllSubDir;
         //inquire equilibrium of s
-        std::string commandsAvg="python3 checksVecVec.py"+outSAllSubDir;
-        std::string result;
+        std::string commandSAvg="python3 checksVecVec.py "+outSAllSubDir;
+        std::string resultEAvg;
+        std::string resultSAvg;
         if (fls % 3 == 2) {
             try {
-                result = this->execPython(commandEAvg.c_str());
-                std::cout << "message from python: " << result << std::endl;
+                resultEAvg = this->execPython(commandEAvg.c_str());
+                resultSAvg=this->execPython(commandSAvg.c_str());
+
+                std::cout << "EAvg message from python: " << resultEAvg << std::endl;
+                std::cout << "sAvg message from python: " << resultSAvg << std::endl;
 
             } catch (const std::exception &e) {
                 std::cerr << "Error: " << e.what() << std::endl;
@@ -434,19 +447,19 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
             }
 
             // parse result
-            if (std::regex_search(result, matchErr, ErrRegex)) {
+            if (std::regex_search(resultEAvg, matchEAvgErr, ErrRegex) or std::regex_search(resultSAvg,matchSAvgErr,ErrRegex)) {
                 std::cout << "error encountered" << std::endl;
                 std::exit(12);
             }
 
-            if (std::regex_search(result, matchWrong, wrongRegex)) {
+            if (std::regex_search(resultEAvg, matchEAvgWrong, wrongRegex) or std::regex_search(resultSAvg,matchSAvgWrong,wrongRegex)) {
                 std::exit(13);
             }
 
 //        bool ferro= false;
 
-            if (std::regex_search(result, matchStop, stopRegex)) {
-                if (std::regex_search(result, matchFerro, ferroRegex)) {
+            if (std::regex_search(resultEAvg, matchEAvgStop, stopRegex) and std::regex_search(resultSAvg,matchSAvgStop,stopRegex)) {
+                if (std::regex_search(resultEAvg, matchEAvgFerro, ferroRegex) and std::regex_search(resultSAvg,matchSAvgFerro,ferroRegex)) {
                     active = false;
                     ferro = true;
                 }
@@ -455,10 +468,14 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
             }
 
 
-            if (std::regex_search(result, matchEq, eqRegex)) {
-                if (std::regex_search(result, matchLag, lagRegex)) {
-                    std::string lagStr = matchLag.str(0);
-                    lag = std::stoi(lagStr);
+            if (std::regex_search(resultEAvg, matchEAvgEq, eqRegex) and std::regex_search(resultSAvg,matchSAvgEq,eqRegex)) {
+                if (std::regex_search(resultEAvg, matchEAvgLag, lagRegex) and std::regex_search(resultSAvg,matchSAvgLag,lagRegex)) {
+                    std::string lagStrEAvg = matchEAvgLag.str(0);
+                    std::string lagStrSAvg=matchSAvgLag.str(0);
+                   int lagEAvg = std::stoi(lagStrEAvg);
+                   int lagSAvg=std::stoi(lagStrSAvg);
+                   lag=(lagEAvg>lagSAvg)? lagEAvg:lagSAvg;
+
                     active = false;
                 }
 
@@ -600,7 +617,7 @@ void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
                                      "loopEnd" + std::to_string(loopEnd) + "T" + std::to_string(this->T) + "t" +
                                      std::to_string(this->t) + "J" + std::to_string(this->J) + "g" +
                                      std::to_string(this->g) + "part" + std::to_string(this->part)
-                                     + "L" + std::to_string(this->L) + "M" + std::to_string(this->M) + "Eq";
+                                     + "L" + std::to_string(this->L) + "M" + std::to_string(this->M) + "AfterEq";
 
         std::string outEFileTmp = outEAllSubDir + filenameMiddle + ".EAll.xml";
 
@@ -628,7 +645,7 @@ void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
 
 
     }//end of flush loop
-    std::ofstream outSummary(outDir + "summaryEq.txt");
+    std::ofstream outSummary(outDir + "summaryAfterEq.txt");
     int loopTotal = flipNum + noFlipNum;
 
 

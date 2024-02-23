@@ -156,7 +156,7 @@ public:
 
     std::vector<double>sRange{-1,1};
     int sweepNumInOneFlush=3000;// flush the results to python every sweepNumInOneFlush*L iterations
-    int flushMaxNum=15;
+    int flushMaxNum=300;
     int dataNumTotal=15000;
     Eigen::SelfAdjointEigenSolver<mat20c> eigSolution;// solver for hermitian matrices
 //    std::vector<double>EAvgAll;//to be stored
