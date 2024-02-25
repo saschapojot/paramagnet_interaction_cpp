@@ -484,6 +484,7 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
 
 
         fls++;
+//        std::cout<<"output data is "<<sizeof(*record_ptr)/std::pow(1024,3)<<" GB"<<std::endl;
 
 
     }//end of while loop
