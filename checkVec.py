@@ -145,20 +145,21 @@ elif ferro0==False and ferro1==True:
 
 #computation of auto-correlation
 
-
-
+# M=100
+# lags=30000
 acfOfVec=sm.tsa.acf(vecValsCombined)
-
+# print("min correlation is ",np.min(acfOfVec))
 # print("total elem number = "+str(len(vecValsCombined)))
 eps=(1e-3)*5
 pThreshHold=0.05
 lagVal=0
-if np.min(acfOfVec)>eps:
+if np.min(np.abs(acfOfVec))>eps:
     # print("high correlation")
+
     print(sigContinue)
     exit()
 else:
-    lagVal=np.where(acfOfVec<=eps)[0][0]
+    lagVal=np.where(np.abs(acfOfVec)<=eps)[0][0]
     selectedFromPart0=part0[::lagVal]
     selectedFromPart1=part1[::lagVal]
     D,p=stats.ks_2samp(part0,part1)
