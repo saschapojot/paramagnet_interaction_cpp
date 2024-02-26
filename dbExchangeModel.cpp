@@ -681,7 +681,7 @@ void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
 
 
 std::string dbExchangeModel::execPython(const char *cmd) {
-    std::array<char, 512> buffer; // Buffer to store command output
+    std::array<char, 2048> buffer; // Buffer to store command output
     std::string result; // String to accumulate output
 
     // Open a pipe to read the output of the executed command
