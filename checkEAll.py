@@ -53,8 +53,8 @@ elif len(inXMLFileNames)%3==1:
 else:
     xmlFileToBeParsed=deepcopy(inXMLFileNames[2:])
 
-xmlFileToBeParsed=xmlFileToBeParsed[int(len(xmlFileToBeParsed)/3):]
-
+# xmlFileToBeParsed=xmlFileToBeParsed[int(len(xmlFileToBeParsed)/3*2):]
+xmlFileToBeParsed=xmlFileToBeParsed[-10:]
 # print("xml file number: "+str(len(xmlFileToBeParsed)))
 def parse1File(fileName):
     """
@@ -72,6 +72,7 @@ def parse1File(fileName):
     return vecValsAll
 
 #combine all vectors
+# print(len(xmlFileToBeParsed))
 vecValsCombined=parse1File(xmlFileToBeParsed[0])
 
 for file in xmlFileToBeParsed[1:]:
@@ -133,11 +134,11 @@ if ferro0 and ferro1:
     print(sigStop+" ferro")
     exit()
 elif ferro0==True and ferro1==False:
-    # print("f0 True f1 False")
+    print("f0 True f1 False")
     print(sigContinue)
     exit()
 elif ferro0==False and ferro1==True:
-    # print("f0 False f1 True")
+    print("f0 False f1 True")
     print(sigContinue)
     exit()
 
@@ -145,27 +146,38 @@ elif ferro0==False and ferro1==True:
 
 #computation of auto-correlation
 
-# M=100
-# lags=30000
+
 acfOfVec=sm.tsa.acf(vecValsCombined)
 # print("min correlation is ",np.min(acfOfVec))
+# print("length of part0 is ",len(part0))
+# print("min of part0 is ",np.min(part0))
+# print("max of part0 is ",np.max(part0))
+# print("mean of part 0 is ",np.mean(part0))
+# print("=================================")
+# print("length of part1 is ",len(part1))
+# print("min of part1 is ",np.min(part1))
+# print("max of part1 is ",np.max(part1))
+# print("mean of part1 is ",np.mean(part1))
 # print("total elem number = "+str(len(vecValsCombined)))
-eps=(1e-3)*5
+eps=(1e-2)*5
 pThreshHold=0.05
 lagVal=0
 if np.min(np.abs(acfOfVec))>eps:
-    # print("high correlation")
+    print("high correlation")
 
     print(sigContinue)
     exit()
 else:
     lagVal=np.where(np.abs(acfOfVec)<=eps)[0][0]
+    print(lagVal)
     selectedFromPart0=part0[::lagVal]
     selectedFromPart1=part1[::lagVal]
+    # print("selected0 len: ",len(selectedFromPart0))
+    # print("selected1 len: ",len(selectedFromPart1))
     D,p=stats.ks_2samp(part0,part1)
     if p<pThreshHold:
         print(sigContinue)
-        # print(p)
+        print("p=",p)
         exit()
     else:
         print(sigEq+" "+str(lagVal))
