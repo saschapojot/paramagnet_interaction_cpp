@@ -8,7 +8,7 @@ import sys
 import re
 from copy import deepcopy
 import warnings
-
+import matplotlib.pyplot as plt
 
 
 #This script checks if a vector<vector> reaches equilibrium
@@ -57,7 +57,7 @@ elif len(inXMLFileNames)%3==1:
 else:
     xmlFileToBeParsed=deepcopy(inXMLFileNames[2:])
 
-xmlFileToBeParsed=xmlFileToBeParsed[int(len(xmlFileToBeParsed)/3):]
+xmlFileToBeParsed=xmlFileToBeParsed[int(len(xmlFileToBeParsed)/3*2):]
 
 
 def parse1File(fileName):
@@ -140,17 +140,31 @@ elif ferro0==False and ferro1==True:
 
 
 acfOfVec=sm.tsa.acf(vecValsCombined)
-eps=(1e-3)*5
+plt.figure()
+plt.plot(acfOfVec,color="black")
+plt.savefig("sAutc.png")
+plt.close()
+eps=(0.1)*5
 pThreshHold=0.05
 lagVal=0
 if np.min(np.abs(acfOfVec))>eps:
     # print("high correlation")
-    print(sigContinue)
-    exit()
+    # print(sigContinue)
+    # exit()
+    pass
 else:
     lagVal=np.where(np.abs(acfOfVec)<=eps)[0][0]
     selectedFromPart0=part0[::lagVal]
     selectedFromPart1=part1[::lagVal]
+    romPart1=part1[::lagVal]
+    plt.subplot(1,2,1)
+    plt.hist(selectedFromPart0,bins=100)
+    plt.subplot(1,2,2)
+    plt.hist(selectedFromPart1,bins=100)
+    print(np.mean(selectedFromPart0), np.sqrt(np.var(selectedFromPart0))/np.sqrt(len(selectedFromPart0/60)))
+    print(np.mean(selectedFromPart1), np.sqrt(np.var(selectedFromPart1))/np.sqrt(len(selectedFromPart1/60)))
+    plt.savefig("histS.png")
+
     D,p=stats.ks_2samp(part0,part1)
     if p<pThreshHold:
         print(sigContinue)
