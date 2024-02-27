@@ -60,7 +60,7 @@ else:
 xmlFileToBeParsed=xmlFileToBeParsed[int(len(xmlFileToBeParsed)/3):]
 
 
-def parse1File(fileName):
+def parse1File(fileName):git
     """
 
     :param fileName: xml file name
