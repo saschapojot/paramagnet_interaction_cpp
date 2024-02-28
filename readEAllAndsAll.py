@@ -6,7 +6,9 @@ import re
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
 # from copy import deepcopy
-
+from pathlib import Path
+from multiprocessing import Pool
+from datetime import datetime
 #This script loads EAll and sAll files under one temperature to compute EAvg and sAvg, chi
 
 L = 10# length of a supercell
@@ -60,7 +62,7 @@ def EAndSFilesSelected(oneTFile):
         fileNumSelected=1
 
     else:
-        fileNumSelected=5
+        fileNumSelected=15
     EAllDir=oneTFile+"/EAll/*"
     sAllDir=oneTFile+"/sAll/*"
 
@@ -190,6 +192,36 @@ def lagVal(oneTFile):
 
         return ferro,EVecValsCombined,sMeanAbsVecCombined,lag,eps
 
+def pseudoValueForChi(SVec,i,T):
+    """
+
+    :param SVec: a vector containing S values
+    :param i: the index of the element to be deleted
+    :param T: temperature
+    :return: pseudovalue for chi with ith element deleted
+    """
+    SVec=np.array(SVec)
+    SVecDeleted=[SVec[j] for j in range(0,len(SVec)) if j!=i]
+    SVecDeleted=np.array(SVecDeleted)
+    chi_i=np.mean(SVecDeleted**2)-(np.mean(SVecDeleted))**2
+    chi_i*=1/T
+    return chi_i
+
+def JackknifeForChi(SVec,T):
+    """
+
+    :param SVec: a vector containing S values
+    :param T: temperature
+    :return: mean and half confidence interval for chi
+    """
+    chi_deletedAll=np.array([pseudoValueForChi(SVec,i,T) for i in range(0,len(SVec))])
+    chi_ps_mean=np.mean(chi_deletedAll)
+    chi_ps_var=np.sum((chi_deletedAll-chi_ps_mean)**2)/(len(SVec)-1)
+
+    halfInterval=1.960*np.sqrt(chi_ps_var/len(SVec))
+
+    return chi_ps_mean, halfInterval
+
 
 
 
@@ -199,33 +231,61 @@ def diagnosticsAndObservables(oneTFile):
     :param oneTFile: corresponds to one temperature
     :return: diagnostic plots and observable values
     """
-
+    tOneFileStart=datetime.now()
     #diagnostics
     ferro,EVecValsCombined,sMeanAbsVecCombined,lag,eps=lagVal(oneTFile)
+
     TTmpMatch=re.search(r"T(\d+(\.\d+)?)",oneTFile)
+    matchPartNum=re.search(r"part(\d+)",oneTFile)
+    if matchPartNum:
+        partNum=int(matchPartNum.group(1))
+    EHistAllDir="./part"+str(partNum)+"EHistAll"
+    sHistAllDir="./part"+str(partNum)+"sHistAll"
+    Path(EHistAllDir).mkdir(parents=True, exist_ok=True)
+    Path(sHistAllDir).mkdir(parents=True, exist_ok=True)
     if TTmpMatch:
         TTmp=float(TTmpMatch.group(1))
     if ferro==1:
+        nbins=100
+        numElem=1000
+        EVecValsCombined=EVecValsCombined[-numElem:]
+        sMeanAbsVecCombined=sMeanAbsVecCombined[-numElem:]
         plt.figure()
         EPerSupercell=np.array(EVecValsCombined)/M
-        plt.hist(EPerSupercell)
+        plt.hist(EPerSupercell,bins=nbins)
         sdE=np.sqrt(np.var(EPerSupercell)/len(EPerSupercell))
         meanE=np.mean(EPerSupercell)
         plt.title("ferromagnetic, T="+str(TTmp)+", mean="+str(meanE)+", sd="+str(sdE),fontsize=10)
         plt.xlabel("$E$")
         EHistOut="T"+str(TTmp)+"EHist.png"
         plt.savefig(oneTFile+"/"+EHistOut)
+        plt.savefig(EHistAllDir+"/"+EHistOut)
         plt.close()
 
         plt.figure()
-        plt.hist(sMeanAbsVecCombined)
+        plt.hist(sMeanAbsVecCombined,bins=nbins)
         meanS=np.mean(sMeanAbsVecCombined)
         sdS=np.sqrt(np.var(sMeanAbsVecCombined)/len(sMeanAbsVecCombined))
         plt.title("ferromagnetic, T="+str(TTmp)+", mean="+str(meanS)+", sd="+str(sdS),fontsize=10)
         plt.xlabel("$|s|$")
         sHistOut="T"+str(TTmp)+"sHist.png"
         plt.savefig(oneTFile+"/"+sHistOut)
+        plt.savefig(sHistAllDir+"/"+sHistOut)
         plt.close()
+
+        #observables
+        chi_ps,hfInterval=JackknifeForChi(sMeanAbsVecCombined,TTmp)
+        chiOutFileName="T"+str(TTmp)+"chi.txt"
+        contents=["chi="+str(chi_ps)+"\n","hfLength="+str(hfInterval)]
+        fptr1=open(oneTFile+"/"+chiOutFileName,"w+")
+        fptr1.writelines(contents)
+        fptr1.close()
+
+        chiAllDir="./part"+str(partNum)+"chiAll"
+        Path(chiAllDir).mkdir(exist_ok=True,parents=True)
+        fptr2=open(chiAllDir+"/"+chiOutFileName,"w+")
+        fptr2.writelines(contents)
+        fptr2.close()
     else:
         EPerSupercell=np.array(EVecValsCombined)/M
         halfLength=int(len(EPerSupercell)/2)
@@ -250,12 +310,12 @@ def diagnosticsAndObservables(oneTFile):
         varEPart1=np.var(ESelectedFromPart1)
         sdEPart1=np.sqrt(varEPart1/len(ESelectedFromPart1))
 
-
+        nbins=100
 
         #histogram of E's part0 and E's part1
         fig=plt.figure()
         axE0=fig.add_subplot(1,2,1)
-        (n0,_,_)= axE0.hist(ESelectedFromPart0,bins=20)
+        (n0,_,_)= axE0.hist(ESelectedFromPart0,bins=nbins)
         meanEPart0=np.round(meanEPart0,4)
         sdEPart0=np.round(sdEPart0,4)
         axE0.set_title("part0, T="+str(np.round(TTmp,3)))
@@ -266,7 +326,7 @@ def diagnosticsAndObservables(oneTFile):
         axE0.text(xPosE0Text,yPosE0Text,"mean="+str(meanEPart0)+"\nsd="+str(sdEPart0)+"\nlag="+str(lag)+"\ncorr="+str(np.round(eps,4)))
 
         axE1=fig.add_subplot(1,2,2)
-        (n1,_,_)=axE1.hist(ESelectedFromPart1,bins=20)
+        (n1,_,_)=axE1.hist(ESelectedFromPart1,bins=nbins)
         meanEPart1=np.round(meanEPart1,4)
         sdEPart1=np.round(sdEPart1,4)
         axE1.set_title("part1, T="+str(np.round(TTmp,3)))
@@ -278,6 +338,7 @@ def diagnosticsAndObservables(oneTFile):
         EHistOut="T"+str(TTmp)+"EHist.png"
 
         plt.savefig(oneTFile+"/"+EHistOut)
+        plt.savefig(EHistAllDir+"/"+EHistOut)
         plt.close()
 
         #diagnostics of s
@@ -295,7 +356,7 @@ def diagnosticsAndObservables(oneTFile):
         #histogram of s's part0 and s's part1
         fig=plt.figure()
         axS0=fig.add_subplot(1,2,1)
-        (n0,_,_)=axS0.hist(sSelectedFromPart0,bins=20)
+        (n0,_,_)=axS0.hist(sSelectedFromPart0,bins=nbins)
         meanSPart0=np.round(meanSPart0,4)
         sdSPart0=np.round(sdSPart0,4)
         axS0.set_title("part0, T="+str(np.round(TTmp,3)))
@@ -306,7 +367,7 @@ def diagnosticsAndObservables(oneTFile):
         axS0.text(xPosS0Text,yPosS0Text,"mean="+str(meanSPart0)+"\nsd="+str(sdSPart0)+"\nlag="+str(lag)+"\ncorr="+str(np.round(eps,4)))
 
         axS1=fig.add_subplot(1,2,2)
-        (n1,_,_)=axS1.hist(sSelectedFromPart1,bins=20)
+        (n1,_,_)=axS1.hist(sSelectedFromPart1,bins=nbins)
         meanSPart1=np.round(meanSPart1,4)
         sdSPart1=np.round(sdSPart1,4)
         axS1.set_title("part1, T="+str(np.round(TTmp,3)))
@@ -317,15 +378,51 @@ def diagnosticsAndObservables(oneTFile):
         axS1.text(xPosS1Text,yPosS1Text,"mean="+str(meanSPart1)+"\nsd="+str(sdSPart1)+"\nlag="+str(lag)+"\ncorr="+str(np.round(eps,4)))
         sHistOut="T"+str(TTmp)+"sHist.png"
         plt.savefig(oneTFile+"/"+sHistOut)
+        plt.savefig(sHistAllDir+"/"+sHistOut)
         plt.close()
 
         #observavles
 
         #chi
+        SVec=np.r_[sSelectedFromPart0,sSelectedFromPart1]
+        # print(SVec)
+        # print(len(SVec))
+
+
+        chi_ps,hfInterval=JackknifeForChi(SVec,TTmp)
+        # print(chi_ps)
+        # print(hfInterval)
+
+        chiOutFileName="T"+str(TTmp)+"chi.txt"
+        contents=["chi="+str(chi_ps)+"\n","hfLength="+str(hfInterval)]
+        fptr1=open(oneTFile+"/"+chiOutFileName,"w+")
+        fptr1.writelines(contents)
+        fptr1.close()
+
+        chiAllDir="./part"+str(partNum)+"chiAll"
+        Path(chiAllDir).mkdir(exist_ok=True,parents=True)
+        fptr2=open(chiAllDir+"/"+chiOutFileName,"w+")
+        fptr2.writelines(contents)
+        fptr2.close()
+    tOneFileEnd=datetime.now()
+    print("one file time: ",tOneFileEnd-tOneFileStart)
 
 
 
 
 
 
-diagnosticsAndObservables(inTFileNamesSorted[2])
+
+# diagnosticsAndObservables(inTFileNamesSorted[1])
+tStart=datetime.now()
+procNum=48
+#parallel
+# pool0=Pool(procNum)
+#
+# ret=pool0.map(diagnosticsAndObservables,inTFileNamesSorted)
+#serial
+for file in inTFileNamesSorted:
+    diagnosticsAndObservables(file)
+tEnd=datetime.now()
+print("total time: ",tEnd-tStart)
+
