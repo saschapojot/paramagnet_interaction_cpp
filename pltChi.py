@@ -49,7 +49,7 @@ fullLengthAll=[2*val for val in hfLengthAll]
 plt.figure()
 # plt.scatter(TSortedVals,chiValsAll,color="black")
 plt.errorbar(TSortedVals,chiValsAll,yerr=fullLengthAll,fmt="o",ecolor="red",color="black",markersize=2)
-
+print(fullLengthAll)
 plt.xlabel("$T$")
 plt.ylabel("$\chi$")
 xTicks=np.linspace(np.min(TSortedVals),np.max(TSortedVals),10)
