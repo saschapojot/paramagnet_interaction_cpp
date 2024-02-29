@@ -57,12 +57,12 @@ def EAndSFilesSelected(oneTFile):
     """
     smrFile=oneTFile+"/summary.txt"
     ferro=parseSummaryFerro(smrFile)
-    fileNumSelected=0
+    fileNumSelected=0#files' numbers to be parsed
     if ferro==1:
         fileNumSelected=1
 
     else:
-        fileNumSelected=1
+        fileNumSelected=15
     EAllDir=oneTFile+"/EAll/*"
     sAllDir=oneTFile+"/sAll/*"
 
@@ -185,7 +185,7 @@ def lagVal(oneTFile):
         if minAcfEAll>eps or minAcfSAll>eps:
             eps=np.max([minAcfEAll,minAcfSAll])
         # print(len(EVecValsCombined))
-        print(eps)
+        # print(eps)
         lagEVec=np.where(acfOfEVec<=eps)[0][0]
         lagSVec=np.where(acfOfSVec<=eps)[0][0]
         lag=np.max([lagEVec,lagEVec])
@@ -242,8 +242,10 @@ def diagnosticsAndObservables(oneTFile):
         partNum=int(matchPartNum.group(1))
     EHistAllDir="./part"+str(partNum)+"EHistAll"
     sHistAllDir="./part"+str(partNum)+"sHistAll"
+    EBlkMeanDir="./part"+str(partNum)+"EBlkMean"
     Path(EHistAllDir).mkdir(parents=True, exist_ok=True)
     Path(sHistAllDir).mkdir(parents=True, exist_ok=True)
+    Path(EBlkMeanDir).mkdir(parents=True,exist_ok=True)
     if TTmpMatch:
         TTmp=float(TTmpMatch.group(1))
     if ferro==1:
@@ -274,6 +276,36 @@ def diagnosticsAndObservables(oneTFile):
         plt.savefig(sHistAllDir+"/"+sHistOut)
         plt.close()
 
+        #block mean
+        def meanPerBlock(length):
+            blockNum=int(len(EPerSupercell)/length)
+            EMeanBlock=[]
+            for blkNum in range(0,blockNum):
+                blkE=EPerSupercell[blkNum*length:(blkNum+1)*length]
+                EMeanBlock.append(np.mean(blkE))
+            return EMeanBlock
+        fig=plt.figure(figsize=(20,20))
+        fig.tight_layout(pad=5.0)
+        lengthVals=[20,50,100,300]
+        for i in range(0,len(lengthVals)):
+            # print("entering loop "+str(i))
+            l=lengthVals[i]
+            EMeanBlk=meanPerBlock(l)
+            ax=fig.add_subplot(2,2,i+1)
+            (n,_,_)=ax.hist(EMeanBlk,bins=100,color="aqua")
+            xPosTextBlk=(np.max(EMeanBlk)-np.min(EMeanBlk))*1/7+np.min(EMeanBlk)
+            yPosTextBlk=np.max(n)*3/4
+
+            meanTmp=np.mean(EMeanBlk)
+            meanTmp=np.round(meanTmp,3)
+            sdTmp=np.sqrt(np.var(EMeanBlk))
+            sdTmp=np.round(sdTmp,3)
+            ax.set_title("L="+str(l))
+            ax.text(xPosTextBlk,yPosTextBlk,"mean="+str(meanTmp)+", sd="+str(sdTmp))
+        fig.suptitle("T="+str(TTmp)+", corr="+str(np.round(eps,3)))
+        plt.savefig(oneTFile+"/T"+str(TTmp)+"EBlk.png")
+        plt.savefig(EBlkMeanDir+"/T"+str(TTmp)+"EBlk.png")
+        plt.close()
         #observables
         # chi_ps,hfInterval=JackknifeForChi(sMeanAbsVecCombined,TTmp)
         # chiOutFileName="T"+str(TTmp)+"chi.txt"
@@ -293,6 +325,7 @@ def diagnosticsAndObservables(oneTFile):
 
 
 
+        #block mean
         def meanPerBlock(length):
             blockNum=int(len(EPerSupercell)/length)
             EMeanBlock=[]
@@ -300,19 +333,28 @@ def diagnosticsAndObservables(oneTFile):
                 blkE=EPerSupercell[blkNum*length:(blkNum+1)*length]
                 EMeanBlock.append(np.mean(blkE))
             return EMeanBlock
-        fig=plt.figure()
-        lengthVals=[10,20,50,100]
+        fig=plt.figure(figsize=(20,20))
+        fig.tight_layout(pad=5.0)
+        lengthVals=[20,50,100,300]
         for i in range(0,len(lengthVals)):
-            print("entering loop "+str(i))
+            # print("entering loop "+str(i))
             l=lengthVals[i]
             EMeanBlk=meanPerBlock(l)
             ax=fig.add_subplot(2,2,i+1)
-            ax.hist(EMeanBlk,bins=100)
-            meanTmp=np.mean(EMeanBlk)
-            sdTmp=np.sqrt(np.var(EMeanBlk))
-            ax.set_title("L="+str(l)+", sd="+str(np.round(sdTmp,4))+", mean="+str(np.round(meanTmp,4)))
+            (n,_,_)=ax.hist(EMeanBlk,bins=100,color="aqua")
+            xPosTextBlk=(np.max(EMeanBlk)-np.min(EMeanBlk))*1/7+np.min(EMeanBlk)
+            yPosTextBlk=np.max(n)*3/4
 
-        plt.savefig(oneTFile+"/"+"EBlk.png")
+            meanTmp=np.mean(EMeanBlk)
+            meanTmp=np.round(meanTmp,3)
+            sdTmp=np.sqrt(np.var(EMeanBlk))
+            sdTmp=np.round(sdTmp,3)
+            ax.set_title("L="+str(l))
+            ax.text(xPosTextBlk,yPosTextBlk,"mean="+str(meanTmp)+", sd="+str(sdTmp))
+        fig.suptitle("T="+str(TTmp)+", corr="+str(np.round(eps,3)))
+        plt.savefig(oneTFile+"/T"+str(TTmp)+"EBlk.png")
+        plt.savefig(EBlkMeanDir+"/T"+str(TTmp)+"EBlk.png")
+        plt.close()
 
 
 
@@ -446,7 +488,7 @@ def diagnosticsAndObservables(oneTFile):
 
 
 
-diagnosticsAndObservables(inTFileNamesSorted[16])
+diagnosticsAndObservables(inTFileNamesSorted[2])
 tStart=datetime.now()
 # procNum=48
 # #parallel
