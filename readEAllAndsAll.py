@@ -319,42 +319,42 @@ def diagnosticsAndObservables(oneTFile):
         fptr2=open(chiAllDir+"/"+chiOutFileName,"w+")
         fptr2.writelines(contents)
         fptr2.close()
-    else:
-
-        EPerSupercell=np.array(EVecValsCombined)/M
-
-
-
-        #block mean
-        def meanPerBlock(length):
-            blockNum=int(len(EPerSupercell)/length)
-            EMeanBlock=[]
-            for blkNum in range(0,blockNum):
-                blkE=EPerSupercell[blkNum*length:(blkNum+1)*length]
-                EMeanBlock.append(np.mean(blkE))
-            return EMeanBlock
-        fig=plt.figure(figsize=(20,20))
-        fig.tight_layout(pad=5.0)
-        lengthVals=[20,50,100,300]
-        for i in range(0,len(lengthVals)):
-            # print("entering loop "+str(i))
-            l=lengthVals[i]
-            EMeanBlk=meanPerBlock(l)
-            ax=fig.add_subplot(2,2,i+1)
-            (n,_,_)=ax.hist(EMeanBlk,bins=100,color="aqua")
-            xPosTextBlk=(np.max(EMeanBlk)-np.min(EMeanBlk))*1/7+np.min(EMeanBlk)
-            yPosTextBlk=np.max(n)*3/4
-
-            meanTmp=np.mean(EMeanBlk)
-            meanTmp=np.round(meanTmp,3)
-            sdTmp=np.sqrt(np.var(EMeanBlk))
-            sdTmp=np.round(sdTmp,3)
-            ax.set_title("L="+str(l))
-            ax.text(xPosTextBlk,yPosTextBlk,"mean="+str(meanTmp)+", sd="+str(sdTmp))
-        fig.suptitle("T="+str(TTmp)+", corr="+str(np.round(eps,3)))
-        plt.savefig(oneTFile+"/T"+str(TTmp)+"EBlk.png")
-        plt.savefig(EBlkMeanDir+"/T"+str(TTmp)+"EBlk.png")
-        plt.close()
+    # else:
+    #
+    #     EPerSupercell=np.array(EVecValsCombined)/M
+    #
+    #
+    #
+    #     #block mean
+    #     def meanPerBlock(length):
+    #         blockNum=int(len(EPerSupercell)/length)
+    #         EMeanBlock=[]
+    #         for blkNum in range(0,blockNum):
+    #             blkE=EPerSupercell[blkNum*length:(blkNum+1)*length]
+    #             EMeanBlock.append(np.mean(blkE))
+    #         return EMeanBlock
+    #     fig=plt.figure(figsize=(20,20))
+    #     fig.tight_layout(pad=5.0)
+    #     lengthVals=[20,50,100,300]
+    #     for i in range(0,len(lengthVals)):
+    #         # print("entering loop "+str(i))
+    #         l=lengthVals[i]
+    #         EMeanBlk=meanPerBlock(l)
+    #         ax=fig.add_subplot(2,2,i+1)
+    #         (n,_,_)=ax.hist(EMeanBlk,bins=100,color="aqua")
+    #         xPosTextBlk=(np.max(EMeanBlk)-np.min(EMeanBlk))*1/7+np.min(EMeanBlk)
+    #         yPosTextBlk=np.max(n)*3/4
+    #
+    #         meanTmp=np.mean(EMeanBlk)
+    #         meanTmp=np.round(meanTmp,3)
+    #         sdTmp=np.sqrt(np.var(EMeanBlk))
+    #         sdTmp=np.round(sdTmp,3)
+    #         ax.set_title("L="+str(l))
+    #         ax.text(xPosTextBlk,yPosTextBlk,"mean="+str(meanTmp)+", sd="+str(sdTmp))
+    #     fig.suptitle("T="+str(TTmp)+", corr="+str(np.round(eps,3)))
+    #     plt.savefig(oneTFile+"/T"+str(TTmp)+"EBlk.png")
+    #     plt.savefig(EBlkMeanDir+"/T"+str(TTmp)+"EBlk.png")
+    #     plt.close()
 
 
 
