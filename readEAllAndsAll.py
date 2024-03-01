@@ -48,7 +48,7 @@ def parseSummaryFerro(summaryFile):
             ferro=int(match.group(1))
     return ferro
 
-
+paraFileSelectedNum=15
 def EAndSFilesSelected(oneTFile):
     """
 
@@ -62,7 +62,7 @@ def EAndSFilesSelected(oneTFile):
         fileNumSelected=1
 
     else:
-        fileNumSelected=15
+        fileNumSelected=paraFileSelectedNum
     EAllDir=oneTFile+"/EAll/*"
     sAllDir=oneTFile+"/sAll/*"
 
@@ -149,7 +149,7 @@ def combineValues(oneTFile):
     """
 
     :param oneTFile: corresponds to one temperature
-    :return: combined values of E and s from each file
+    :return: combined values of E and s from each file, names of the parsed files
     """
     ferro, ELastFileNames,sLastFileNames=EAndSFilesSelected(oneTFile)
     EVecValsCombined=parseEFile(ELastFileNames[0])
@@ -248,6 +248,7 @@ def diagnosticsAndObservables(oneTFile):
     Path(EBlkMeanDir).mkdir(parents=True,exist_ok=True)
     if TTmpMatch:
         TTmp=float(TTmpMatch.group(1))
+    ##############ferro case################################################################
     if ferro==1:
         nbins=100
         numElem=1000
@@ -309,7 +310,8 @@ def diagnosticsAndObservables(oneTFile):
         #observables
         chi_ps,hfInterval=JackknifeForChi(sMeanAbsVecCombined,TTmp)
         chiOutFileName="T"+str(TTmp)+"chi.txt"
-        contents=["chi="+str(chi_ps)+"\n","hfLength="+str(hfInterval)+"\n"+"lag="+str(lag)]
+        contents=["chi="+str(chi_ps)+"\n","hfLength="+str(hfInterval)+"\n"+"lag="+str(lag)\
+                  +"\nlastElemNum="+str(numElem)]
         fptr1=open(oneTFile+"/"+chiOutFileName,"w+")
         fptr1.writelines(contents)
         fptr1.close()
@@ -319,42 +321,43 @@ def diagnosticsAndObservables(oneTFile):
         fptr2=open(chiAllDir+"/"+chiOutFileName,"w+")
         fptr2.writelines(contents)
         fptr2.close()
-    # else:
-    #
-    #     EPerSupercell=np.array(EVecValsCombined)/M
-    #
-    #
-    #
-    #     #block mean
-    #     def meanPerBlock(length):
-    #         blockNum=int(len(EPerSupercell)/length)
-    #         EMeanBlock=[]
-    #         for blkNum in range(0,blockNum):
-    #             blkE=EPerSupercell[blkNum*length:(blkNum+1)*length]
-    #             EMeanBlock.append(np.mean(blkE))
-    #         return EMeanBlock
-    #     fig=plt.figure(figsize=(20,20))
-    #     fig.tight_layout(pad=5.0)
-    #     lengthVals=[20,50,100,300]
-    #     for i in range(0,len(lengthVals)):
-    #         # print("entering loop "+str(i))
-    #         l=lengthVals[i]
-    #         EMeanBlk=meanPerBlock(l)
-    #         ax=fig.add_subplot(2,2,i+1)
-    #         (n,_,_)=ax.hist(EMeanBlk,bins=100,color="aqua")
-    #         xPosTextBlk=(np.max(EMeanBlk)-np.min(EMeanBlk))*1/7+np.min(EMeanBlk)
-    #         yPosTextBlk=np.max(n)*3/4
-    #
-    #         meanTmp=np.mean(EMeanBlk)
-    #         meanTmp=np.round(meanTmp,3)
-    #         sdTmp=np.sqrt(np.var(EMeanBlk))
-    #         sdTmp=np.round(sdTmp,3)
-    #         ax.set_title("L="+str(l))
-    #         ax.text(xPosTextBlk,yPosTextBlk,"mean="+str(meanTmp)+", sd="+str(sdTmp))
-    #     fig.suptitle("T="+str(TTmp)+", corr="+str(np.round(eps,3)))
-    #     plt.savefig(oneTFile+"/T"+str(TTmp)+"EBlk.png")
-    #     plt.savefig(EBlkMeanDir+"/T"+str(TTmp)+"EBlk.png")
-    #     plt.close()
+    ##############paramagnetic case################################################################
+    else:
+
+        EPerSupercell=np.array(EVecValsCombined)/M
+
+
+
+        #block mean
+        def meanPerBlock(length):
+            blockNum=int(len(EPerSupercell)/length)
+            EMeanBlock=[]
+            for blkNum in range(0,blockNum):
+                blkE=EPerSupercell[blkNum*length:(blkNum+1)*length]
+                EMeanBlock.append(np.mean(blkE))
+            return EMeanBlock
+        fig=plt.figure(figsize=(20,20))
+        fig.tight_layout(pad=5.0)
+        lengthVals=[20,50,100,300]
+        for i in range(0,len(lengthVals)):
+            # print("entering loop "+str(i))
+            l=lengthVals[i]
+            EMeanBlk=meanPerBlock(l)
+            ax=fig.add_subplot(2,2,i+1)
+            (n,_,_)=ax.hist(EMeanBlk,bins=100,color="aqua")
+            xPosTextBlk=(np.max(EMeanBlk)-np.min(EMeanBlk))*1/7+np.min(EMeanBlk)
+            yPosTextBlk=np.max(n)*3/4
+
+            meanTmp=np.mean(EMeanBlk)
+            meanTmp=np.round(meanTmp,3)
+            sdTmp=np.sqrt(np.var(EMeanBlk))
+            sdTmp=np.round(sdTmp,3)
+            ax.set_title("L="+str(l))
+            ax.text(xPosTextBlk,yPosTextBlk,"mean="+str(meanTmp)+", sd="+str(sdTmp))
+        fig.suptitle("T="+str(TTmp)+", corr="+str(np.round(eps,3)))
+        plt.savefig(oneTFile+"/T"+str(TTmp)+"EBlk.png")
+        plt.savefig(EBlkMeanDir+"/T"+str(TTmp)+"EBlk.png")
+        plt.close()
 
 
 
@@ -369,53 +372,59 @@ def diagnosticsAndObservables(oneTFile):
         EVecPart0=EPerSupercell[:halfLength]
         EvecPart1=EPerSupercell[halfLength:]
 
+
+
         sVecPart0=sMeanAbsVecCombined[:halfLength]
         sVecPart1=sMeanAbsVecCombined[halfLength:]
-        #
-        # ESelectedFromPart0=EVecPart0[::lag]
-        # ESelectedFromPart1=EvecPart1[::lag]
-        #
-        #
-        # #diagnostics of E
-        # meanEPart0=np.mean(ESelectedFromPart0)
-        # varEPart0=np.var(ESelectedFromPart0)
-        # sdEPart0=np.sqrt(varEPart0/len(ESelectedFromPart0))
-        #
-        # meanEPart1=np.mean(ESelectedFromPart1)
-        # varEPart1=np.var(ESelectedFromPart1)
-        # sdEPart1=np.sqrt(varEPart1/len(ESelectedFromPart1))
-        #
-        # nbins=100
-        #
-        # #histogram of E's part0 and E's part1
-        # fig=plt.figure()
-        # axE0=fig.add_subplot(1,2,1)
-        # (n0,_,_)= axE0.hist(ESelectedFromPart0,bins=nbins)
-        # meanEPart0=np.round(meanEPart0,4)
-        # sdEPart0=np.round(sdEPart0,4)
-        # axE0.set_title("part0, T="+str(np.round(TTmp,3)))
-        # axE0.set_xlabel("$\epsilon$")
-        # axE0.set_ylabel("#")
-        # xPosE0Text=(np.max(ESelectedFromPart0)-np.min(ESelectedFromPart1))*1/2+np.min(ESelectedFromPart0)
-        # yPosE0Text=np.max(n0)*2/3
-        # axE0.text(xPosE0Text,yPosE0Text,"mean="+str(meanEPart0)+"\nsd="+str(sdEPart0)+"\nlag="+str(lag)+"\ncorr="+str(np.round(eps,4)))
-        #
-        # axE1=fig.add_subplot(1,2,2)
-        # (n1,_,_)=axE1.hist(ESelectedFromPart1,bins=nbins)
-        # meanEPart1=np.round(meanEPart1,4)
-        # sdEPart1=np.round(sdEPart1,4)
-        # axE1.set_title("part1, T="+str(np.round(TTmp,3)))
-        # axE1.set_xlabel("$\epsilon$")
-        # axE1.set_ylabel("#")
-        # xPosE1Text=(np.max(ESelectedFromPart1)-np.min(ESelectedFromPart1))*1/2+np.min(ESelectedFromPart1)
-        # yPosE1Text=np.max(n1)*2/3
-        # axE1.text(xPosE1Text,yPosE1Text,"mean="+str(meanEPart1)+"\nsd="+str(sdEPart1)+"\nlag="+str(lag)+"\ncorr="+str(np.round(eps,4)))
-        # EHistOut="T"+str(TTmp)+"EHist.png"
-        #
-        # plt.savefig(oneTFile+"/"+EHistOut)
-        # plt.savefig(EHistAllDir+"/"+EHistOut)
-        # plt.close()
-        #
+
+        ESelectedFromPart0=EVecPart0[::lag]
+        ESelectedFromPart1=EvecPart1[::lag]
+        # print("total E val numbers="+str(len(EPerSupercell)))
+        # print("lag="+str(lag))
+        # print("E val numbers selected from part0="+str(len(ESelectedFromPart0)))
+        # print("E val numbers selected from part1="+str(len(ESelectedFromPart1)))
+
+
+        #diagnostics of E
+        meanEPart0=np.mean(ESelectedFromPart0)
+        varEPart0=np.var(ESelectedFromPart0)
+        sdEPart0=np.sqrt(varEPart0/len(ESelectedFromPart0))
+
+        meanEPart1=np.mean(ESelectedFromPart1)
+        varEPart1=np.var(ESelectedFromPart1)
+        sdEPart1=np.sqrt(varEPart1/len(ESelectedFromPart1))
+
+        nbins=100
+
+        #histogram of E's part0 and E's part1
+        fig=plt.figure()
+        axE0=fig.add_subplot(1,2,1)
+        (n0,_,_)= axE0.hist(ESelectedFromPart0,bins=nbins)
+        meanEPart0=np.round(meanEPart0,4)
+        sdEPart0=np.round(sdEPart0,4)
+        axE0.set_title("part0, T="+str(np.round(TTmp,3)))
+        axE0.set_xlabel("$\epsilon$")
+        axE0.set_ylabel("#")
+        xPosE0Text=(np.max(ESelectedFromPart0)-np.min(ESelectedFromPart1))*1/2+np.min(ESelectedFromPart0)
+        yPosE0Text=np.max(n0)*2/3
+        axE0.text(xPosE0Text,yPosE0Text,"mean="+str(meanEPart0)+"\nsd="+str(sdEPart0)+"\nlag="+str(lag)+"\ncorr="+str(np.round(eps,4)))
+
+        axE1=fig.add_subplot(1,2,2)
+        (n1,_,_)=axE1.hist(ESelectedFromPart1,bins=nbins)
+        meanEPart1=np.round(meanEPart1,4)
+        sdEPart1=np.round(sdEPart1,4)
+        axE1.set_title("part1, T="+str(np.round(TTmp,3)))
+        axE1.set_xlabel("$\epsilon$")
+        axE1.set_ylabel("#")
+        xPosE1Text=(np.max(ESelectedFromPart1)-np.min(ESelectedFromPart1))*1/2+np.min(ESelectedFromPart1)
+        yPosE1Text=np.max(n1)*2/3
+        axE1.text(xPosE1Text,yPosE1Text,"mean="+str(meanEPart1)+"\nsd="+str(sdEPart1)+"\nlag="+str(lag)+"\ncorr="+str(np.round(eps,4)))
+        EHistOut="T"+str(TTmp)+"EHist.png"
+
+        plt.savefig(oneTFile+"/"+EHistOut)
+        plt.savefig(EHistAllDir+"/"+EHistOut)
+        plt.close()
+
         # #diagnostics of s
         sSelectedFromPart0=sVecPart0[::lag]
         sSelectedFromPart1=sVecPart1[::lag]
@@ -429,32 +438,32 @@ def diagnosticsAndObservables(oneTFile):
         sdSPart1=np.sqrt(varSPart1/len(sSelectedFromPart1))
 
         #histogram of s's part0 and s's part1
-        # fig=plt.figure()
-        # axS0=fig.add_subplot(1,2,1)
-        # (n0,_,_)=axS0.hist(sSelectedFromPart0,bins=nbins)
-        # meanSPart0=np.round(meanSPart0,4)
-        # sdSPart0=np.round(sdSPart0,4)
-        # axS0.set_title("part0, T="+str(np.round(TTmp,3)))
-        # axS0.set_xlabel("$|s|$")
-        # axS0.set_ylabel("#")
-        # xPosS0Text=(np.max(sSelectedFromPart0)-np.min(sSelectedFromPart0))*1/2+np.min(sSelectedFromPart0)
-        # yPosS0Text=np.max(n0)*2/3
-        # axS0.text(xPosS0Text,yPosS0Text,"mean="+str(meanSPart0)+"\nsd="+str(sdSPart0)+"\nlag="+str(lag)+"\ncorr="+str(np.round(eps,4)))
-        #
-        # axS1=fig.add_subplot(1,2,2)
-        # (n1,_,_)=axS1.hist(sSelectedFromPart1,bins=nbins)
-        # meanSPart1=np.round(meanSPart1,4)
-        # sdSPart1=np.round(sdSPart1,4)
-        # axS1.set_title("part1, T="+str(np.round(TTmp,3)))
-        # axS1.set_xlabel("$|s|$")
-        # axS1.set_ylabel("#")
-        # xPosS1Text=(np.max(sSelectedFromPart1)-np.min(sSelectedFromPart1))*1/2+np.min(sSelectedFromPart1)
-        # yPosS1Text=np.max(n1)*2/3
-        # axS1.text(xPosS1Text,yPosS1Text,"mean="+str(meanSPart1)+"\nsd="+str(sdSPart1)+"\nlag="+str(lag)+"\ncorr="+str(np.round(eps,4)))
-        # sHistOut="T"+str(TTmp)+"sHist.png"
-        # plt.savefig(oneTFile+"/"+sHistOut)
-        # plt.savefig(sHistAllDir+"/"+sHistOut)
-        # plt.close()
+        fig=plt.figure()
+        axS0=fig.add_subplot(1,2,1)
+        (n0,_,_)=axS0.hist(sSelectedFromPart0,bins=nbins)
+        meanSPart0=np.round(meanSPart0,4)
+        sdSPart0=np.round(sdSPart0,4)
+        axS0.set_title("part0, T="+str(np.round(TTmp,3)))
+        axS0.set_xlabel("$|s|$")
+        axS0.set_ylabel("#")
+        xPosS0Text=(np.max(sSelectedFromPart0)-np.min(sSelectedFromPart0))*1/2+np.min(sSelectedFromPart0)
+        yPosS0Text=np.max(n0)*2/3
+        axS0.text(xPosS0Text,yPosS0Text,"mean="+str(meanSPart0)+"\nsd="+str(sdSPart0)+"\nlag="+str(lag)+"\ncorr="+str(np.round(eps,4)))
+
+        axS1=fig.add_subplot(1,2,2)
+        (n1,_,_)=axS1.hist(sSelectedFromPart1,bins=nbins)
+        meanSPart1=np.round(meanSPart1,4)
+        sdSPart1=np.round(sdSPart1,4)
+        axS1.set_title("part1, T="+str(np.round(TTmp,3)))
+        axS1.set_xlabel("$|s|$")
+        axS1.set_ylabel("#")
+        xPosS1Text=(np.max(sSelectedFromPart1)-np.min(sSelectedFromPart1))*1/2+np.min(sSelectedFromPart1)
+        yPosS1Text=np.max(n1)*2/3
+        axS1.text(xPosS1Text,yPosS1Text,"mean="+str(meanSPart1)+"\nsd="+str(sdSPart1)+"\nlag="+str(lag)+"\ncorr="+str(np.round(eps,4)))
+        sHistOut="T"+str(TTmp)+"sHist.png"
+        plt.savefig(oneTFile+"/"+sHistOut)
+        plt.savefig(sHistAllDir+"/"+sHistOut)
+        plt.close()
 
         #observavles
 
@@ -469,7 +478,8 @@ def diagnosticsAndObservables(oneTFile):
     #     # print(hfInterval)
     #
         chiOutFileName="T"+str(TTmp)+"chi.txt"
-        contents=["chi="+str(chi_ps)+"\n","hfLength="+str(hfInterval)+"\n"+"lag="+str(lag)]
+        contents=["chi="+str(chi_ps)+"\n","hfLength="+str(hfInterval)+"\n"+"lag="+str(lag)\
+                  +"\nlastFilesNum="+str(paraFileSelectedNum)]
         fptr1=open(oneTFile+"/"+chiOutFileName,"w+")
         fptr1.writelines(contents)
         fptr1.close()
@@ -488,7 +498,7 @@ def diagnosticsAndObservables(oneTFile):
 
 
 
-# diagnosticsAndObservables(inTFileNamesSorted[43])
+diagnosticsAndObservables(inTFileNamesSorted[4])
 tStart=datetime.now()
 # procNum=48
 # #parallel
@@ -496,8 +506,8 @@ tStart=datetime.now()
 # #
 # # ret=pool0.map(diagnosticsAndObservables,inTFileNamesSorted)
 # #serial
-for file in inTFileNamesSorted:
-    diagnosticsAndObservables(file)
-tEnd=datetime.now()
-print("total time: ",tEnd-tStart)
+# for file in inTFileNamesSorted:
+#     diagnosticsAndObservables(file)
+# tEnd=datetime.now()
+# print("total time: ",tEnd-tStart)
 
