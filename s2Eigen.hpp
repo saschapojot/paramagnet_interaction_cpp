@@ -13,6 +13,12 @@
 #include <iostream>
 #include <numeric>      // std::iota
 #include <algorithm>
+
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
+
+
 namespace fs = std::filesystem;
 //Read from the xml files and solve eigenvalue problem, then map the folded bands to unfolded bands
 //Also, compute specific heat
@@ -48,6 +54,8 @@ public:
     ///sort files by starting loop
     void sortFiles();
 
+
+
     template<class T>
     std::vector<size_t> argsort(const std::vector<T> &v) {
         std::vector<size_t> idx(v.size());
@@ -55,6 +63,12 @@ public:
         std::stable_sort(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) { return v[i1] <= v[i2]; });
         return idx;
     }
+
+    ///parse Txxx.xxxchi.txt to extract lag, lastElemNum, lastFilesNum
+    void parseCHiFile();
+
+    /// parse sVec values in sAll directory
+    void parse_sAllDir();
 
 
 
@@ -77,10 +91,19 @@ public:
     int L = 10;
     int M = 20;
 
-    int ferro=0;
+    bool ferro;
     int lag=0;
+    int lastFilesNum=0;//used for paramagnetic case
+    int lastElemNum=0;//used for ferromagnetic case
+
+    std::vector<std::vector<double>>sSelected;// selected s vectors for computation of unfolded bands
+
 
 
 };
+
+
+
+
 
 #endif //PARAMAGNET_INTERACTION_CPP_S2EIGEN_HPP
