@@ -383,7 +383,11 @@ def diagnosticsAndObservables(oneTFile):
         # print("lag="+str(lag))
         # print("E val numbers selected from part0="+str(len(ESelectedFromPart0)))
         # print("E val numbers selected from part1="+str(len(ESelectedFromPart1)))
-
+        # EComTmp=np.r_[ESelectedFromPart0,ESelectedFromPart1]
+        # i1=1000
+        # i2=14062
+        # print(str(i1)+" th vec="+str(EComTmp[i1]*M))
+        # print(str(i2)+" th vec="+str(EComTmp[i2]*M))
 
         #diagnostics of E
         meanEPart0=np.mean(ESelectedFromPart0)
@@ -471,6 +475,10 @@ def diagnosticsAndObservables(oneTFile):
         SVec=np.r_[sSelectedFromPart0,sSelectedFromPart1]
     #     # print(SVec)
     #     # print(len(SVec))
+    #     i1=1000
+    #     i2=14062
+    #     print(str(i1)+" th vec="+str(SVec[i1]))
+    #     print(str(i2)+" th vec="+str(SVec[i2]))
     #
     #
         chi_ps,hfInterval=JackknifeForChi(SVec,TTmp)
@@ -498,14 +506,14 @@ def diagnosticsAndObservables(oneTFile):
 
 
 
-diagnosticsAndObservables(inTFileNamesSorted[4])
-tStart=datetime.now()
-# procNum=48
-# #parallel
-# # pool0=Pool(procNum)
-# #
-# # ret=pool0.map(diagnosticsAndObservables,inTFileNamesSorted)
-# #serial
+diagnosticsAndObservables(inTFileNamesSorted[1])
+# tStart=datetime.now()
+# # procNum=48
+# # #parallel
+# # # pool0=Pool(procNum)
+# # #
+# # # ret=pool0.map(diagnosticsAndObservables,inTFileNamesSorted)
+# # #serial
 # for file in inTFileNamesSorted:
 #     diagnosticsAndObservables(file)
 # tEnd=datetime.now()

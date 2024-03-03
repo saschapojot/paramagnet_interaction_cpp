@@ -121,24 +121,22 @@ void reader::parseCHiFile() {
 
 
 /// parse sVec values in sAll directory
-void reader::parse_sAllDir(){
+void reader::parse_sAllDir() {
 //    std::cout<<"ferro="<<ferro<<std::endl;
-  if(this->ferro==true){// ferro case, read last file
-      std::vector<std::vector<double>> sAll;
+    if (this->ferro == true) {// ferro case, read last file
+        std::vector<std::vector<double>> sAll;
 //      std::cout<<"file num="<<sortedsAllFilesAll.size()<<std::endl;
 //      std::cout<<"file name: "<<this->sortedsAllFilesAll[sortedsAllFilesAll.size()-1]<<std::endl;
-      std::ifstream ifs(this->sortedsAllFilesAll[sortedsAllFilesAll.size()-1]);
-      if(!ifs.is_open()){
-          std::cerr<<"cannot open"<<std::endl;
-          return;
-      }
-      boost::archive::xml_iarchive ia(ifs);
-//      vecvec sAllVecvec;
-      ia>> BOOST_SERIALIZATION_NVP(sAll);
-//      for(const auto& vec: sAllVecvec.data){
-//          sAll.push_back(vec);
-//      }
-        for (int i=sAll.size()-lastElemNum;i<sAll.size();i++){
+        std::ifstream ifs(this->sortedsAllFilesAll[sortedsAllFilesAll.size() - 1]);
+        if (!ifs.is_open()) {
+            std::cerr << "cannot open" << std::endl;
+            return;
+        }
+        boost::archive::xml_iarchive ia(ifs);
+
+        ia >> BOOST_SERIALIZATION_NVP(sAll);
+
+        for (int i = sAll.size() - lastElemNum; i < sAll.size(); i++) {
             this->sSelected.push_back(sAll[i]);
         }
 //        std::cout<<sSelected.size()<<std::endl;
@@ -147,21 +145,113 @@ void reader::parse_sAllDir(){
 
 
 
-  }// end of ferro case
-  else{//paramagnetic case, read last lastFilesNum files
-      std::vector<std::string> selectedFiles_sAll;
-      for (int i=this->sortedsAllFilesAll.size()-lastFilesNum;i<this->sortedsAllFilesAll.size();i++){
-      selectedFiles_sAll.push_back(this->sortedsAllFilesAll[i]);
+    }// end of ferro case
+    else {//paramagnetic case, read last lastFilesNum files
+//        std::cout<<"entering para"<<std::endl;
+        std::vector<std::string> selectedFiles_sAll;
+        std::vector<std::vector<double>> sVecsCombined;
+        for (int i = this->sortedsAllFilesAll.size() - lastFilesNum; i < this->sortedsAllFilesAll.size(); i++) {
+            selectedFiles_sAll.push_back(this->sortedsAllFilesAll[i]);
 
-      }
-      std::vector<std::vector<double>> sAll;
+        }
+//        std::cout<<"sorted file num="<<sortedsAllFilesAll.size()<<std::endl;
+//        std::cout<<"last files num="<<lastFilesNum<<std::endl;
+        for (const auto &oneName: selectedFiles_sAll) {//read all xml files in sVec
+            std::vector<std::vector<double>> sAll;
+            std::ifstream ifs(oneName);
+            if (!ifs.is_open()) {
+                std::cerr << "cannot open" << std::endl;
+                return;
+            }
+            boost::archive::xml_iarchive ia(ifs);
+            ia >> BOOST_SERIALIZATION_NVP(sAll);
+            for (const auto &vec: sAll) {
+                sVecsCombined.push_back(vec);
+
+            }
+
+
+        }//end of reading all sVec xml files
+
+        int onePartLengh=static_cast<int>(sVecsCombined.size()/2);
+//        std::cout<<"one part length="<<onePartLengh<<std::endl;
+//        std::cout<<"lag="<<lag<<std::endl;
+            for(int i=0;i<onePartLengh;i+=lag){
+                this->sSelected.push_back(sVecsCombined[i]);
+            }
+            for(int i=onePartLengh;i<2*onePartLengh;i+=lag){
+                this->sSelected.push_back(sVecsCombined[i]);
+            }
+
+//            int i1=1000;
+//            int i2=int(sSelected.size()*0.75);
+//            std::cout<<i1<<" th vec = ";
+//        printVec(sSelected[i1]);
+//        std::cout<<i2<<" th vec = ";
+//        printVec(sSelected[i2]);
+    }//end of paramagnetic case
 
 
 
+}
+
+///parse EAvg values in EAll directory
+void reader::parse_EAllDir() {
+    if (this->ferro == true) {//ferro case, read last file
+        std::vector<double> EInLastFile;
+        std::ifstream ifs(this->sortedEFilesAll[sortedEFilesAll.size() - 1]);
+        if (!ifs.is_open()) {
+            std::cerr << "cannot open" << std::endl;
+            return;
+        }
+        boost::archive::xml_iarchive ia(ifs);
+        ia >> BOOST_SERIALIZATION_NVP(EInLastFile);
+        for (int i = EInLastFile.size() - lastElemNum; i < EInLastFile.size(); i++) {
+            this->ESelected.push_back(EInLastFile[i]);
+
+        }
+//        printVec(ESelected);
+
+    }// end of ferro case
+    else {//paramagnetic case, read last lastFilesNum files
+        std::vector<std::string> selectedFilesEAll;
+        std::vector<double> EAllCombined;
+        for (int i = this->sortedEFilesAll.size() - lastFilesNum; i < this->sortedEFilesAll.size(); i++) {
+            selectedFilesEAll.push_back(this->sortedEFilesAll[i]);
 
 
-  }//end of paramagnetic case
+        }
+//        std::cout<<"selected file num="<<selectedFilesEAll.size()<<std::endl;
+
+        for (const auto &oneName: selectedFilesEAll) {//read all xml files in EAll
+            std::vector<double> EPerFile;
+            std::ifstream ifs(oneName);
+            if (!ifs.is_open()) {
+                std::cerr << "cannot open" << std::endl;
+                return;
+            }
+            boost::archive::xml_iarchive ia(ifs);
+            ia >> BOOST_SERIALIZATION_NVP(EPerFile);
+            for (const auto &val: EPerFile) {
+                EAllCombined.push_back(val);
+            }
 
 
+        }//end of reading all xml files in EAll
+
+        int onePartLength = static_cast<int>(EAllCombined.size() / 2);
+        for (int i = 0; i < onePartLength; i += lag) {
+            this->ESelected.push_back(EAllCombined[i]);
+        }
+        for (int i = onePartLength; i < 2 * onePartLength; i += lag) {
+            this->ESelected.push_back(EAllCombined[i]);
+        }
+
+    }//end of paramagnetic case
+
+//    int i1=1000;
+//int i2=int(ESelected.size()*0.75);
+//std::cout<<i1<<" th value="<<ESelected[i1]<<std::endl;
+//std::cout<<i2<<" th value="<<ESelected[i2]<<std::endl;
 
 }

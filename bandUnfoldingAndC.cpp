@@ -6,9 +6,11 @@ int main(int argc, char **argv) {
     std::string name3="T2.175758";
 
     auto rd=reader(1,name3);
+    auto model=dbExchangeModel(rd.T);
     rd.searchFiles();
     rd.sortFiles();
     rd.parseCHiFile();
     rd.parse_sAllDir();
+    rd.parse_EAllDir();
 
 }

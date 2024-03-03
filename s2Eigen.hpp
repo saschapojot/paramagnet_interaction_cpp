@@ -4,19 +4,11 @@
 
 #ifndef PARAMAGNET_INTERACTION_CPP_S2EIGEN_HPP
 #define PARAMAGNET_INTERACTION_CPP_S2EIGEN_HPP
-#include <vector>
-#include <fstream>
-#include <regex>
-#include <string>
-#include <filesystem>
-#include <regex>
-#include <iostream>
-#include <numeric>      // std::iota
-#include <algorithm>
+#include "dbExchangeModel.hpp"
 
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/serialization/vector.hpp>
+
+
+#include <string>
 
 
 namespace fs = std::filesystem;
@@ -70,7 +62,17 @@ public:
     /// parse sVec values in sAll directory
     void parse_sAllDir();
 
+    template<class T>
+            static void printVec(const std::vector<T>& vec){
+                for(int i=0;i<vec.size()-1;i++){
+                    std::cout<<vec[i]<<",";
+                }
+                std::cout<<vec[vec.size()-1]<<std::endl;
+            }
 
+
+    ///parse EAvg values in EAll directory
+    void parse_EAllDir();
 
 
 public:
@@ -97,7 +99,7 @@ public:
     int lastElemNum=0;//used for ferromagnetic case
 
     std::vector<std::vector<double>>sSelected;// selected s vectors for computation of unfolded bands
-
+    std::vector<double>ESelected;//selected E values for computation of unfolded bands and C
 
 
 };
