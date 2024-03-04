@@ -311,7 +311,7 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
 
 
     const auto tMCStart{std::chrono::steady_clock::now()};
-//    int counter = 0;
+    int counter = 0;
     int fls = 0;
     bool active = true;
 //    std::regex continueRegex("continue");
@@ -339,7 +339,7 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
 
 
 
-
+    std::cout<<"reachEq part"<<std::endl;
     while (fls < this->flushMaxNum and active == true) {
         std::unique_ptr<dataholder> record_ptr = std::make_unique<dataholder>();
         int loopStart = fls * this->sweepNumInOneFlush * this->L;
@@ -378,12 +378,19 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
 
 
             }
-
+            std::cout<<"========================"<<std::endl;
+            std::cout<<"step "<<counter<<std::endl;
+            std::cout<<"EAvg Curr="<<EAvgCurr<<std::endl;
+            std::cout<<"mu Curr="<<muCurr<<std::endl;
+            std::cout<<"sCurr=";
+            printVec(sCurr);
+            std::cout<<"============"<<std::endl;
             record_ptr->sAll.push_back(sCurr);
             record_ptr->EAll.push_back(EAvgCurr);
             record_ptr->muAll.push_back(muCurr);
+
 //            record_ptr->eigRstAll.push_back(tripleCurr);
-//            counter += 1;
+            counter += 1;
 
 
         }
@@ -516,7 +523,7 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
 void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
     double lagDB = static_cast<double>(lag);
     double loopEqDB = static_cast<double >(loopEq);
-
+    int counter=0;
     int remainingDataNum = this->dataNumTotal - static_cast<int>(std::floor(loopEqDB / lagDB * 2 / 3));
 
     int remainingLoopNum = remainingDataNum * lag;
@@ -601,12 +608,20 @@ void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
 
 
             }
+            std::cout<<"========================"<<std::endl;
+            std::cout<<"step "<<counter<<std::endl;
+            std::cout<<"EAvg Curr="<<EAvgCurr<<std::endl;
+            std::cout<<"mu Curr="<<muCurr<<std::endl;
+            std::cout<<"sCurr=";
+            printVec(sCurr);
+            std::cout<<"============"<<std::endl;
+
 
             record_ptr->sAll.push_back(sCurr);
             record_ptr->EAll.push_back(EAvgCurr);
             record_ptr->muAll.push_back(muCurr);
 //            record_ptr->eigRstAll.push_back(tripleCurr);
-//            counter += 1;
+            counter += 1;
 
 
         }//end of sweeps in 1 flush

@@ -28,6 +28,8 @@ public:
         if (std::regex_search(TDir, T_match, TPattern)) {
 
             this->T = std::stod(T_match.str(1));
+//            std::cout<<T<<std::endl;
+            this->beta=1.0/T;
         }
 //        std::cout<<TDir<<std::endl;
 //        std::cout<<T<<std::endl;
@@ -74,6 +76,12 @@ public:
     ///parse EAvg values in EAll directory
     void parse_EAllDir();
 
+    ///parse mu values in muAll directory
+    void parse_muAllDir();
+
+    ///compute Ze weights
+    void fillZeWeights( dbExchangeModel& model);
+
 
 public:
     std::vector<std::string> EFilesAll;
@@ -85,6 +93,7 @@ public:
     int part = 1;
 
     double T = 0;
+    double beta=0;
     std::string TDir;
     std::string EPath;
     std::string muPath;
@@ -100,7 +109,10 @@ public:
 
     std::vector<std::vector<double>>sSelected;// selected s vectors for computation of unfolded bands
     std::vector<double>ESelected;//selected E values for computation of unfolded bands and C
-
+    std::vector<double> muSelected;//selected mu values for computation of unfolded bands and C
+//    std::vector<double> KSupValsAll;//all the values in SBZ
+//    std::vector<int> KSupIndsAll;//[0,1,...,M-1]
+    std::vector<std::vector<std::vector<double>>>ZeWeightsAll;//Ze weights for each s
 
 };
 

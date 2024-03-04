@@ -97,7 +97,7 @@ void reader::parseCHiFile() {
         }
         //extract lastFilesNum
         if (std::regex_search(line, matchFileNum, lastFilesNumPattern)) {
-            this->lastFilesNum = std::stoi(matchFileNum.str(1));
+            this->lastFilesNum =1;// std::stoi(matchFileNum.str(1));
         }
 
         //extract lastElemNum
@@ -154,9 +154,10 @@ void reader::parse_sAllDir() {
             selectedFiles_sAll.push_back(this->sortedsAllFilesAll[i]);
 
         }
+//        std::cout<<selectedFiles_sAll[selectedFiles_sAll.size()-2]<<std::endl;
 //        std::cout<<"sorted file num="<<sortedsAllFilesAll.size()<<std::endl;
 //        std::cout<<"last files num="<<lastFilesNum<<std::endl;
-        for (const auto &oneName: selectedFiles_sAll) {//read all xml files in sVec
+        for (const auto &oneName: selectedFiles_sAll) {//read  xml files in sVec
             std::vector<std::vector<double>> sAll;
             std::ifstream ifs(oneName);
             if (!ifs.is_open()) {
@@ -171,7 +172,7 @@ void reader::parse_sAllDir() {
             }
 
 
-        }//end of reading all sVec xml files
+        }//end of reading  sVec xml files
 
         int onePartLengh=static_cast<int>(sVecsCombined.size()/2);
 //        std::cout<<"one part length="<<onePartLengh<<std::endl;
@@ -179,9 +180,11 @@ void reader::parse_sAllDir() {
             for(int i=0;i<onePartLengh;i+=lag){
                 this->sSelected.push_back(sVecsCombined[i]);
             }
-            for(int i=onePartLengh;i<2*onePartLengh;i+=lag){
+            int i=onePartLengh;
+            for(;i<2*onePartLengh;i+=lag){
                 this->sSelected.push_back(sVecsCombined[i]);
             }
+            std::cout<<"s last ind="<<i-lag<<std::endl;
 
 //            int i1=1000;
 //            int i2=int(sSelected.size()*0.75);
@@ -221,9 +224,10 @@ void reader::parse_EAllDir() {
 
 
         }
+//        std::cout<<selectedFilesEAll[selectedFilesEAll.size()-2]<<std::endl;
 //        std::cout<<"selected file num="<<selectedFilesEAll.size()<<std::endl;
 
-        for (const auto &oneName: selectedFilesEAll) {//read all xml files in EAll
+        for (const auto &oneName: selectedFilesEAll) {//read  xml files in EAll
             std::vector<double> EPerFile;
             std::ifstream ifs(oneName);
             if (!ifs.is_open()) {
@@ -237,15 +241,16 @@ void reader::parse_EAllDir() {
             }
 
 
-        }//end of reading all xml files in EAll
+        }//end of reading  xml files in EAll
 
         int onePartLength = static_cast<int>(EAllCombined.size() / 2);
         for (int i = 0; i < onePartLength; i += lag) {
             this->ESelected.push_back(EAllCombined[i]);
         }
-        for (int i = onePartLength; i < 2 * onePartLength; i += lag) {
+        int i=onePartLength;
+        for (; i < 2 * onePartLength; i += lag) {
             this->ESelected.push_back(EAllCombined[i]);
-        }
+        }std::cout<<"E last ind="<<i-lag<<std::endl;
 
     }//end of paramagnetic case
 
@@ -253,5 +258,96 @@ void reader::parse_EAllDir() {
 //int i2=int(ESelected.size()*0.75);
 //std::cout<<i1<<" th value="<<ESelected[i1]<<std::endl;
 //std::cout<<i2<<" th value="<<ESelected[i2]<<std::endl;
+//std::cout<<"E num="<<ESelected.size()<<std::endl;
+
+}
+
+
+///parse mu values in muAll directory
+void reader::parse_muAllDir() {
+    if (this->ferro == true) {//ferro case, read last file
+        std::vector<double> muInLastFile;
+        std::ifstream ifs(this->sortedmuFilesAll[sortedmuFilesAll.size() - 1]);
+        if (!ifs.is_open()) {
+            std::cerr << "cannot open" << std::endl;
+            return;
+        }
+        boost::archive::xml_iarchive ia(ifs);
+        ia >> BOOST_SERIALIZATION_NVP(muInLastFile);
+        for (int i = muInLastFile.size() - lastElemNum; i < muInLastFile.size(); i++) {
+            this->muSelected.push_back(muInLastFile[i]);
+        }
+
+    }// end of ferro case
+    else {//paramagnetic case, read last lastFilesNum files
+        std::vector<std::string> selectedMuFilesAll;
+        std::vector<double> muAllCombined;
+        for (int i = this->sortedmuFilesAll.size() - lastFilesNum; i < this->sortedmuFilesAll.size(); i++) {
+            selectedMuFilesAll.push_back(this->sortedmuFilesAll[i]);
+        }
+//        std::cout<<selectedMuFilesAll[selectedMuFilesAll.size()-2]<<std::endl;
+
+        for (const auto &oneName: selectedMuFilesAll) {//read xml files in muAll
+            std::vector<double> muPerFile;
+            std::ifstream ifs(oneName);
+            if (!ifs.is_open()) {
+                std::cerr << "cannot open" << std::endl;
+                return;
+            }
+            boost::archive::xml_iarchive ia(ifs);
+            ia >> BOOST_SERIALIZATION_NVP(muPerFile);
+            for (const auto &val: muPerFile) {
+                muAllCombined.push_back(val);
+            }
+
+        }//end of reading xml files in muAll
+        int onePartLength = static_cast<int>(muAllCombined.size() / 2);
+        for (int i = 0; i < onePartLength; i += lag) {
+            this->muSelected.push_back(muAllCombined[i]);
+        }
+        int i=onePartLength;
+        for (; i < 2 * onePartLength; i += lag) {
+            this->muSelected.push_back(muAllCombined[i]);
+        }
+        std::cout<<"mu last ind="<<i-lag<<std::endl;
+
+
+    }//end of paramagnetic case
+//    std::cout<<"mu num="<<this->muSelected.size()<<std::endl;
+
+}
+
+
+///compute Ze weights
+void reader::fillZeWeights( dbExchangeModel& model){
+//    for(const auto &s: this->sSelected){
+//        auto tripleTmp=model.s2EigSerial(s);
+//        std::vector<double>EInOne_s=model.combineFromEig(tripleTmp);
+//        auto EAnd_muTmp=model.avgEnergy(EInOne_s);
+//
+//
+//
+//    }
+        int i=this->ESelected.size()-1;
+        double muTmp=this->muSelected[i];
+        double ETmp=this->ESelected[i];
+        std::vector<double> one_s=this->sSelected[i];
+
+        auto tripleTmp=model.s2EigSerial(one_s);
+        std::vector<double> EVecTmp=model.combineFromEig(tripleTmp);
+        auto EAndMuTmp=model.avgEnergy(EVecTmp);
+        double EAvgTmp=EAndMuTmp[0];
+        double mu2Tmp=EAndMuTmp[1];
+        std::cout<<"T="<<model.T<<std::endl;
+        std::cout<<"T reader="<<this->T<<std::endl;
+
+        std::cout<<"s from reading:";
+    printVec(one_s);
+
+        std::cout<<"E from reading="<<ETmp<<std::endl;
+        std::cout<<"E from computing="<<EAvgTmp<<std::endl;
+
+        std::cout<<"mu from reading="<<muTmp<<std::endl;
+        std::cout<<"mu from computing="<<mu2Tmp<<std::endl;
 
 }

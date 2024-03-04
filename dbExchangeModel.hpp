@@ -184,6 +184,7 @@ public:
 /// @param s spin values for a MC step
 /// @param j index of one SBZ value
 /// @return j, eigenvals, eigenvects
+
    std::tuple<int,eigVal20 ,vecVal20>  hEig(const std::vector<double> &s, const int &j); //using s value from each MC step to construct SBZ Hamiltonian, and compute its eigenvalue problem
 
 
@@ -196,6 +197,7 @@ public:
    ///
    /// @param s spin values in a MC step
    /// @return eigenvalues and eigenvectors for all values in SBZ
+public:
    std::vector<std::tuple<int,eigVal20 ,vecVal20>> s2EigSerial(const std::vector<double> &s);//serial version of s2Eig()
 
    ///
@@ -246,6 +248,13 @@ public:
 //
     void serializationViaFStream(const std::vector<std::vector<std::tuple<int,std::vector<double>,std::vector<std::complex<double>> >>>& vecvectuple,const std::string & fileName);
 
+    template<class T>
+    static void printVec(const std::vector<T>& vec){
+        for(int i=0;i<vec.size()-1;i++){
+            std::cout<<vec[i]<<",";
+        }
+        std::cout<<vec[vec.size()-1]<<std::endl;
+    }
 
 
 };
