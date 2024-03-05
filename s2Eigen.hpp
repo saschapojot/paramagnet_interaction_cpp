@@ -82,6 +82,32 @@ public:
     ///compute Ze weights
     void fillZeWeights( dbExchangeModel& model);
 
+    ///parse last file under EAll,muAll, sAll
+    void parseLast(dbExchangeModel& model);
+
+
+
+    ///
+    /// @param s_ind index of s vector
+    /// @return WE for each s
+    double computeWE(const int& s_ind);
+
+    //compute WE2 for each s
+
+
+    /// @param s_ind index of s vector
+    /// @return WE2 for each s
+    double computeWE2(const int& s_ind);
+
+
+    ///compute all WE and WE2
+    void computeAllWEAllWE2();
+
+    ///
+    /// @param i index of s, to be deleted in computation
+    /// @return pseudovalue of \partial_{\beta}\braket{\epsilon} with si deleted
+    double dbeta_epsilon(const int& i);
+
 
 public:
     std::vector<std::string> EFilesAll;
@@ -112,7 +138,15 @@ public:
     std::vector<double> muSelected;//selected mu values for computation of unfolded bands and C
 //    std::vector<double> KSupValsAll;//all the values in SBZ
 //    std::vector<int> KSupIndsAll;//[0,1,...,M-1]
-    std::vector<std::vector<std::vector<double>>>ZeWeightsAll;//Ze weights for each s
+
+    std::vector<double> muRecomputed;// the reading from muAll is not accurate, we recompute mu.
+    std::vector<double>epsilonSelected;// energy per supercell
+    std::vector<std::vector<std::vector<double>>>ZeWeightsAll;// weights for all s, for all values in SBZ, for all eigenvalues given one value in SBZ
+    std::vector<double> ZeVals;// Ze values for each s
+    std::vector<std::vector<std::vector<double>>> eigValsRecomputed;// recomputed values for eigenvalue,  for all s, for all values in SBZ, for all eigenvalues
+    std::vector<double> WE;// W(E(\beta,s)) for each s
+    std::vector<double>WE2;// W(E^{2}(\beta,s)) for each s
+
 
 };
 

@@ -186,7 +186,7 @@ double dbExchangeModel::bisection_method(std::function<double(double)> func) {
     while (counter <= maxiter) {
         double midpoint = (a + b) / 2.0;
         double midVal = func(midpoint);
-        if (std::abs(midVal) < 1e-9 or (b - a) / 2 < tol) {
+        if (std::abs(midVal) < 1e-8 or (b - a) / 2 < tol) {
 
             return midpoint;
         }
@@ -872,6 +872,24 @@ void dataholder::saveVecVecToXML(const std::string &filename, const std::vector<
     oa & BOOST_SERIALIZATION_NVP(vecvec);
 //    oa.put("<\\boost_serialization>\r\n");
 
+
+
+}
+
+
+
+void dbExchangeModel::oneStepEig(const std::vector<double> &sCurr) {
+
+auto tripleCurr=this->s2EigSerial(sCurr);
+    std::vector<double> EVec = this->combineFromEig(tripleCurr);
+    auto EAndMuCurr = this->avgEnergy(EVec);
+    double EAvgCurr = EAndMuCurr[0];
+    double muCurr = EAndMuCurr[1];
+    std::cout<<"sCurr=";
+    printVec(sCurr);
+
+    std::cout<<"EAvgCurr="<<EAvgCurr<<std::endl;
+    std::cout<<"muCurr="<<muCurr<<std::endl;
 
 
 }

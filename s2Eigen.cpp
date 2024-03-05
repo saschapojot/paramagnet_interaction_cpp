@@ -6,9 +6,9 @@
 
 ///search Ell, muAll, sAll folder's files
 void reader::searchFiles() {
-    this-> EPath = this->TDir + "/EAll/";
-    this-> muPath = this->TDir + "/muAll/";
-    this-> sAllPath = this->TDir + "/sAll/";
+    this->EPath = this->TDir + "/EAll/";
+    this->muPath = this->TDir + "/muAll/";
+    this->sAllPath = this->TDir + "/sAll/";
 
     for (const auto &entry: fs::directory_iterator(EPath)) {
         this->EFilesAll.push_back(entry.path().string());
@@ -28,7 +28,7 @@ void reader::searchFiles() {
 ///
 /// @param path the path containing xml files
 /// @return sorted xml files by starting loop
-std::vector<std::string> reader::sortOneDir(const std::vector<std::string> & allFiles) {
+std::vector<std::string> reader::sortOneDir(const std::vector<std::string> &allFiles) {
     std::vector<int> startingLoopsAll;
     for (const std::string &name: allFiles) {
         std::regex startPattern("loopStart(\\d+)loopEnd");
@@ -39,17 +39,16 @@ std::vector<std::string> reader::sortOneDir(const std::vector<std::string> & all
 
     }
 
-    std::vector<size_t> inds=this->argsort<int>(startingLoopsAll);;
+    std::vector<size_t> inds = this->argsort<int>(startingLoopsAll);;
 
     std::vector<std::string> sortedFiles;
-    for(const auto &i: inds){
+    for (const auto &i: inds) {
         sortedFiles.push_back(allFiles[i]);
     }
 
     return sortedFiles;
 
 }
-
 
 
 ///sort files by starting loop
@@ -97,7 +96,7 @@ void reader::parseCHiFile() {
         }
         //extract lastFilesNum
         if (std::regex_search(line, matchFileNum, lastFilesNumPattern)) {
-            this->lastFilesNum =1;// std::stoi(matchFileNum.str(1));
+            this->lastFilesNum = 1;// std::stoi(matchFileNum.str(1));
         }
 
         //extract lastElemNum
@@ -174,17 +173,18 @@ void reader::parse_sAllDir() {
 
         }//end of reading  sVec xml files
 
-        int onePartLengh=static_cast<int>(sVecsCombined.size()/2);
+        int onePartLengh = static_cast<int>(sVecsCombined.size() / 2);
 //        std::cout<<"one part length="<<onePartLengh<<std::endl;
 //        std::cout<<"lag="<<lag<<std::endl;
-            for(int i=0;i<onePartLengh;i+=lag){
-                this->sSelected.push_back(sVecsCombined[i]);
-            }
-            int i=onePartLengh;
-            for(;i<2*onePartLengh;i+=lag){
-                this->sSelected.push_back(sVecsCombined[i]);
-            }
-            std::cout<<"s last ind="<<i-lag<<std::endl;
+        for (int i = 0; i < onePartLengh; i += lag) {
+            this->sSelected.push_back(sVecsCombined[i]);
+        }
+        int i = onePartLengh;
+        for (; i < 2 * onePartLengh; i += lag) {
+            this->sSelected.push_back(sVecsCombined[i]);
+        }
+//            std::cout<<"s last ind="<<i-lag<<std::endl;
+//std::cout<<"s num="<<sSelected.size()<<std::endl;
 
 //            int i1=1000;
 //            int i2=int(sSelected.size()*0.75);
@@ -247,10 +247,11 @@ void reader::parse_EAllDir() {
         for (int i = 0; i < onePartLength; i += lag) {
             this->ESelected.push_back(EAllCombined[i]);
         }
-        int i=onePartLength;
+        int i = onePartLength;
         for (; i < 2 * onePartLength; i += lag) {
             this->ESelected.push_back(EAllCombined[i]);
-        }std::cout<<"E last ind="<<i-lag<<std::endl;
+        }
+//        std::cout << "E last ind=" << i - lag << std::endl;
 
     }//end of paramagnetic case
 
@@ -305,11 +306,11 @@ void reader::parse_muAllDir() {
         for (int i = 0; i < onePartLength; i += lag) {
             this->muSelected.push_back(muAllCombined[i]);
         }
-        int i=onePartLength;
+        int i = onePartLength;
         for (; i < 2 * onePartLength; i += lag) {
             this->muSelected.push_back(muAllCombined[i]);
         }
-        std::cout<<"mu last ind="<<i-lag<<std::endl;
+//        std::cout<<"mu last ind="<<i-lag<<std::endl;
 
 
     }//end of paramagnetic case
@@ -319,35 +320,260 @@ void reader::parse_muAllDir() {
 
 
 ///compute Ze weights
-void reader::fillZeWeights( dbExchangeModel& model){
-//    for(const auto &s: this->sSelected){
-//        auto tripleTmp=model.s2EigSerial(s);
-//        std::vector<double>EInOne_s=model.combineFromEig(tripleTmp);
-//        auto EAnd_muTmp=model.avgEnergy(EInOne_s);
+void reader::fillZeWeights(dbExchangeModel &model) {
+
+//check consistency from reading and new computation
+//std::cout<<"E num="<<this->ESelected.size()<<std::endl;
+//std::cout<<"s num="<<this->sSelected.size()<<std::endl;
+//std::cout<<"mu num="<<this->muSelected.size()<<std::endl;
+//        int i=int(ESelected.size()*0.75);
+//        double muTmp=this->muSelected[i];
+//        double ETmp=this->ESelected[i];
+//        std::vector<double> one_s=this->sSelected[i];
 //
+//        auto tripleTmp=model.s2EigSerial(one_s);
+//        std::vector<double> EVecTmp=model.combineFromEig(tripleTmp);
+//        auto EAndMuTmp=model.avgEnergy(EVecTmp);
+//        double EAvgTmp=EAndMuTmp[0];
+//        double mu2Tmp=EAndMuTmp[1];
+//        std::cout<<"T="<<model.T<<std::endl;
+//        std::cout<<"T reader="<<this->T<<std::endl;
 //
+//        std::cout<<"s from reading:";
+//    printVec(one_s);
 //
-//    }
-        int i=this->ESelected.size()-1;
-        double muTmp=this->muSelected[i];
-        double ETmp=this->ESelected[i];
-        std::vector<double> one_s=this->sSelected[i];
+//        std::cout<<"E from reading="<<ETmp<<std::endl;
+//        std::cout<<"E from computing="<<EAvgTmp<<std::endl;
+//
+//        std::cout<<"mu from reading="<<muTmp<<std::endl;
+//        std::cout<<"mu from computing="<<mu2Tmp<<std::endl;
 
-        auto tripleTmp=model.s2EigSerial(one_s);
-        std::vector<double> EVecTmp=model.combineFromEig(tripleTmp);
-        auto EAndMuTmp=model.avgEnergy(EVecTmp);
-        double EAvgTmp=EAndMuTmp[0];
-        double mu2Tmp=EAndMuTmp[1];
-        std::cout<<"T="<<model.T<<std::endl;
-        std::cout<<"T reader="<<this->T<<std::endl;
+    for (const auto &s: this->sSelected) {
+        auto tripleTmp = model.s2EigSerial(s);
+        std::vector<double> EInOne_s = model.combineFromEig(tripleTmp);
+        auto EAnd_muTmp = model.avgEnergy(EInOne_s);
+        double EAvgTmp = EAnd_muTmp[0];
+        double muTmp = EAnd_muTmp[1];
+        this->muRecomputed.push_back(muTmp);
+        this->epsilonSelected.push_back(EAvgTmp / static_cast<double >(M));
+        std::vector<std::vector<double>> weightForOne_s;
+        std::vector<std::vector<double>> eigsForOne_s;
+        double sumForOne_s = 0;
+        for (const auto &tp: tripleTmp) {//for all K
+            std::vector<double> weightForOne_sOneK;
+            std::vector<double> eigsForOne_sOneK;
+//            int j=std::get<0>(tp);
+//            double KTmp=model.KSupValsAll[j];
+            eigVal20 eigValsTmp = std::get<1>(tp);
+            for (const double &e: eigValsTmp) {//for all eigenvalues in one K
+                double expVal = std::exp(beta * (e - muTmp));
+                double wtTmp = std::pow(1 / (expVal + 1), 2) * expVal;
+                weightForOne_sOneK.push_back(wtTmp);
+                eigsForOne_sOneK.push_back(e);
+            }
+            sumForOne_s += std::accumulate(weightForOne_sOneK.begin(), weightForOne_sOneK.end(), 0.0);
+            weightForOne_s.push_back(weightForOne_sOneK);
+            eigsForOne_s.push_back(eigsForOne_sOneK);
 
-        std::cout<<"s from reading:";
-    printVec(one_s);
+        }//end of for all K
+        this->ZeVals.push_back(sumForOne_s);
 
-        std::cout<<"E from reading="<<ETmp<<std::endl;
-        std::cout<<"E from computing="<<EAvgTmp<<std::endl;
+        for (auto &vec: weightForOne_s) {
+            for (auto &val: vec) {
+                val /= sumForOne_s;
+            }
+        }
+        this->eigValsRecomputed.push_back(eigsForOne_s);
+        this->ZeWeightsAll.push_back(weightForOne_s);
 
-        std::cout<<"mu from reading="<<muTmp<<std::endl;
-        std::cout<<"mu from computing="<<mu2Tmp<<std::endl;
+//        double tmp=0;
+//        for(const auto &vec:weightForOne_s){
+//            tmp+=std::accumulate(vec.begin(),vec.end(),0.0);
+//        }
+//        std::cout<<"total weight: "<<tmp<<std::endl;
+
+
+
+
+
+    }//end of for all s
+//    printVec(this->ZeWeightsAll[100][10]);
+//std::cout<<muRecomputed[389]<<std::endl;
+
+//std::cout<<epsilonSelected[389]<<std::endl;
+}//end of fillZeWeights
+
+
+///parse last file under EAll,muAll, sAll
+void reader::parseLast(dbExchangeModel &model) {
+
+    int ind = 0;
+    std::string lastEFile = "/home/polya/Documents/cppCode/paramagnet_interaction_cpp/part1/T3.100000/EAll/loopStart660000loopEnd689999T3.100000t0.400000J-1.000000g0.010000part1L10M20AfterEq.EAll.xml";
+
+    std::vector<double> EInLastFile;
+    std::ifstream ifsE(lastEFile);
+    boost::archive::xml_iarchive iaE(ifsE);
+    iaE >> BOOST_SERIALIZATION_NVP(EInLastFile);
+    ind = EInLastFile.size() - 2;
+    std::cout << "E=" << EInLastFile[ind] << std::endl;
+
+    std::string lastMuFile = "/home/polya/Documents/cppCode/paramagnet_interaction_cpp/part1/T3.100000/muAll/loopStart660000loopEnd689999T3.100000t0.400000J-1.000000g0.010000part1L10M20AfterEq.muAll.xml";
+    std::vector<double> muInLastFile;
+    std::ifstream ifsMu(lastMuFile);
+    boost::archive::xml_iarchive iaMu(ifsMu);
+    iaMu >> BOOST_SERIALIZATION_NVP(muInLastFile);
+    std::cout << "mu=" << muInLastFile[ind] << std::endl;
+
+
+    std::string lastSFile = "/home/polya/Documents/cppCode/paramagnet_interaction_cpp/part1/T3.100000/sAll/loopStart660000loopEnd689999T3.100000t0.400000J-1.000000g0.010000part1L10M20AfterEq.sAll.xml";
+    std::vector<std::vector<double>> sInLastFile;
+    std::ifstream ifsS(lastSFile);
+    boost::archive::xml_iarchive iaS(ifsS);
+    iaS >> BOOST_SERIALIZATION_NVP(sInLastFile);
+    std::cout << "s=";
+    printVec(sInLastFile[ind]);
+    std::vector<double> lastS = sInLastFile[ind];
+    auto tripleTmp = model.s2EigSerial(lastS);
+    auto EVecLast = model.combineFromEig(tripleTmp);
+    auto EAndMuLast = model.avgEnergy(EVecLast);
+    double EAvgLast = EAndMuLast[0];
+    double muLast = EAndMuLast[1];
+    std::cout << "computation E=" << EAvgLast << std::endl;
+    std::cout << "computation mu=" << muLast << std::endl;
+
+    std::cout << "model t=" << model.t << ", J=" << model.J << ", g=" << model.g << ", T=" << model.T << std::endl;
 
 }
+
+
+/// @param s_ind index of s vector
+/// @return WE for each s
+double reader::computeWE(const int& s_ind){
+
+    std::vector<std::vector<double>>& weightsTmp=this->ZeWeightsAll[s_ind];
+    std::vector<std::vector<double>>& eigsTmp=this->eigValsRecomputed[s_ind];
+    double sumTmp=0;
+    for(int i=0;i<weightsTmp.size();i++){
+        auto& vec_wt=weightsTmp[i];
+        auto & vec_eigs=eigsTmp[i];
+        sumTmp+=std::inner_product(vec_wt.begin(),vec_wt.end(),vec_eigs.begin(),0.0);
+    }
+
+    return sumTmp;
+
+}
+
+
+/// @param s_ind index of s vector
+/// @return WE2 for each s
+double reader::computeWE2(const int& s_ind) {
+    std::vector<std::vector<double>> &weightsTmp = this->ZeWeightsAll[s_ind];
+    std::vector<std::vector<double>> &eigsTmp = this->eigValsRecomputed[s_ind];
+    double sumTmp = 0;
+    for (int i = 0; i < weightsTmp.size(); i++) {
+        auto &vec_wt = weightsTmp[i];
+        auto &vec_eigs = eigsTmp[i];
+        std::vector<double> vec_eigs2;
+        for (const auto &e: vec_eigs) {
+            vec_eigs2.push_back(std::pow(e, 2));
+        }
+        sumTmp += std::inner_product(vec_wt.begin(), vec_wt.end(), vec_eigs2.begin(), 0.0);
+
+
+    }
+    return sumTmp;
+
+}
+
+///compute all WE and WE2
+void reader::computeAllWEAllWE2(){
+    for (int i=0;i<this->sSelected.size();i++){
+        double tmp=this->computeWE(i);
+        double tmp2=this->computeWE2(i);
+        this->WE.push_back(tmp);
+        this->WE2.push_back(tmp2);
+    }
+
+
+}
+
+
+
+///
+/// @param i index of s, to be deleted in computation
+/// @return pseudovalue of \partial_{\beta}\braket{\epsilon} with si deleted
+double reader::dbeta_epsilon(const int& i) {
+    std::vector<double> epsilonDeleted;
+    std::vector<double> ZeDeleted;
+    std::vector<double> WEDeleted;
+    std::vector<double> WE2Deleted;
+//std::cout<<this->epsilonSelected.size()<<std::endl;
+//std::cout<<this->ZeVals.size()<<std::endl;
+//std::cout<<this->WE.size()<<std::endl;
+//std::cout<<this->WE2.size()<<std::endl;
+    for (int j = 0; j < this->epsilonSelected.size(); j++) {
+        if (j == i) {
+            continue;
+        } else {
+            epsilonDeleted.push_back(this->epsilonSelected[j]);
+            ZeDeleted.push_back(this->ZeVals[j]);
+            WEDeleted.push_back(this->WE[j]);
+            WE2Deleted.push_back(this->WE2[j]);
+        }
+    }//end for
+
+    //compute part1
+    std::vector<double>oneMinus_betaEpsilonVec;
+    for(const auto &val:epsilonDeleted){
+        oneMinus_betaEpsilonVec.push_back(1-this->beta*val);
+    }
+
+    std::vector<double> W2EMinusWE2Vec;
+    for(int l=0;l<WEDeleted.size();l++){
+        double tmp=std::pow(WEDeleted[l],2)-WE2Deleted[l];
+        W2EMinusWE2Vec.push_back(tmp);
+
+    }
+    std::vector<double>part1_vec;
+    for(int l=0;l<ZeDeleted.size();l++){
+        double tmp=oneMinus_betaEpsilonVec[l]*ZeDeleted[l]*W2EMinusWE2Vec[l]/static_cast<double>(M);
+        part1_vec.push_back(tmp);
+    }
+    double part1=std::accumulate(part1_vec.begin(),part1_vec.end(),0.0);
+    part1/=static_cast<double >(part1_vec.size());
+
+
+
+//compute part2
+double part2=std::accumulate(epsilonDeleted.begin(),epsilonDeleted.end(),0.0);
+part2/=static_cast<double >(epsilonDeleted.size());
+
+
+//compute part3
+std::vector<double> part3_vec;
+for(int l=0;l<ZeDeleted.size();l++){
+    double tmp=ZeDeleted[l]*W2EMinusWE2Vec[l];
+    part3_vec.push_back(tmp);
+}
+
+double part3=std::accumulate(part3_vec.begin(),part3_vec.end(),0.0);
+part3/=static_cast<double>(part3_vec.size());
+part3*=beta;
+part3/=static_cast<double>(M);
+
+//compute part4
+
+std::vector<double> part4_vec;
+for(const auto& val:epsilonDeleted){
+    part4_vec.push_back(std::pow(val,2));
+}
+
+double part4=std::accumulate(part4_vec.begin(),part4_vec.end(),0.0);
+part4/=static_cast<double>(part4_vec.size());
+
+
+double rst=part1+part2*part3+std::pow(part2,2)-part4;
+    return rst;
+
+
+}// end dbeta_epsilon

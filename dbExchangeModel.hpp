@@ -256,6 +256,10 @@ public:
         std::cout<<vec[vec.size()-1]<<std::endl;
     }
 
+    /// eigenvalues and mu for a s vector
+    /// @param sCurr s vector
+    void oneStepEig(const std::vector<double>& sCurr);
+
 
 };
 

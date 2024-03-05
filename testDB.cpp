@@ -2,10 +2,12 @@
 
 int main(int argc, char **argv) {
 
-    double T=3.1;
-    auto model= dbExchangeModel(T);
-    std::vector<double>sCurr{1,1,1,1,1,-1,1,1,-1,-1};
-    model.oneStepEig(sCurr);
+    int i = 2;
+    for (int j = 0; j < 10; j++) {
+        if (j == i) {
+            continue;
+        } else { std::cout << j << std::endl; }
+    }
 
 
 }

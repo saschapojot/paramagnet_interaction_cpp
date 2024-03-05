@@ -144,7 +144,7 @@ plt.figure()
 plt.plot(acfOfVec,color="black")
 plt.savefig("sAutc.png")
 plt.close()
-eps=(0.1)*5
+eps=(1e-3)*5
 pThreshHold=0.05
 lagVal=0
 if np.min(np.abs(acfOfVec))>eps:
@@ -161,8 +161,8 @@ else:
     plt.hist(selectedFromPart0,bins=100)
     plt.subplot(1,2,2)
     plt.hist(selectedFromPart1,bins=100)
-    print(np.mean(selectedFromPart0), np.sqrt(np.var(selectedFromPart0))/np.sqrt(len(selectedFromPart0/60)))
-    print(np.mean(selectedFromPart1), np.sqrt(np.var(selectedFromPart1))/np.sqrt(len(selectedFromPart1/60)))
+    # print(np.mean(selectedFromPart0), np.sqrt(np.var(selectedFromPart0))/np.sqrt(len(selectedFromPart0/60)))
+    # print(np.mean(selectedFromPart1), np.sqrt(np.var(selectedFromPart1))/np.sqrt(len(selectedFromPart1/60)))
     plt.savefig("histS.png")
 
     D,p=stats.ks_2samp(part0,part1)
