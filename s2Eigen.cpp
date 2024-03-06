@@ -669,5 +669,56 @@ void reader::C2File(){
 
 
 }
+///
+/// @tparam T
+/// @param vec
+/// @return norm of vector
+template<class valType>
+double reader::vectorNorm(const std::vector<valType>&vec){
 
+    std::vector<double> vecAbs;
+    for (const auto&val: vec){
+        vecAbs.push_back(std::abs(val));
+    }
+
+    double tmp=std::inner_product(vecAbs.begin(),vecAbs.end(),vecAbs.begin(),0.0);
+    return std::sqrt(tmp);
+
+}
+
+
+/// construct all y vectors
+/// @param model dbExchangeModel object
+void reader::construct_yAll(const dbExchangeModel& model) {
+    //y vectors are indexed by m,a,j
+    for (int m = 0; m < M; m++) {
+        double Km = model.KSupValsAll[m];
+        std::vector<std::vector<std::vector<std::complex<double>>>> yVecForOne_m;
+
+        for (int a = 0; a < L; a++) {
+           std::vector<std::vector<std::complex<double>>> yVecForOne_a;
+            for (int j = 0; j < xVecsAll.size(); j++) {
+                std::vector<std::complex<double>> one_yVec;
+                for (int l = 0; l < L; l++) {
+                    one_yVec.emplace_back(xVecsAll[j][0]);
+                    one_yVec.emplace_back(xVecsAll[j][1]);
+                }
+                for (int l = 0; l < L; l++) {
+                    std::complex<double> coefTmp = std::exp(1i * static_cast<double>(l) * Km) * std::exp(
+                            1i * 2.0 * PI * static_cast<double>(l) / static_cast<double>(L) * static_cast<double >(a));
+                    one_yVec[2 * l] *= coefTmp;
+                    one_yVec[2 * l + 1] *= coefTmp;
+
+                }//finishing constructing one y
+                yVecForOne_a.push_back(one_yVec);
+
+            }//end of j loop
+            yVecForOne_m.push_back(yVecForOne_a);
+        }//end of a loop
+        this->yVecsAll.push_back(yVecForOne_m);
+    }//end of m loop
+    printVec(yVecsAll[1][2][0]);
+
+
+}
 

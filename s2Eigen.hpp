@@ -33,6 +33,10 @@ public:
         }
 //        std::cout<<TDir<<std::endl;
 //        std::cout<<T<<std::endl;
+        std::vector<double> x0{1,0};
+        std::vector<double>x1{0,1};
+        this->xVecsAll.push_back(x0);
+        this->xVecsAll.push_back(x1);
 
     }
 
@@ -116,6 +120,17 @@ public:
     ///compute C and write to file
     void C2File();
 
+    /// construct all y vectors
+    /// @param model dbExchangeModel object
+    void construct_yAll(const dbExchangeModel& model);
+
+    ///
+    /// @tparam T
+    /// @param vec
+    /// @return norm of vector
+    template<class valType>
+            double vectorNorm(const std::vector<valType>&vec);
+
 
 
 public:
@@ -155,6 +170,9 @@ public:
     std::vector<std::vector<std::vector<double>>> eigValsRecomputed;// recomputed values for eigenvalue,  for all s, for all values in SBZ, for all eigenvalues
     std::vector<double> WE;// W(E(\beta,s)) for each s
     std::vector<double>WE2;// W(E^{2}(\beta,s)) for each s
+
+    std::vector<std::vector<double>>xVecsAll;
+    std::vector<std::vector<std::vector<std::vector<std::complex<double>>>>> yVecsAll;//m,a,j,vec
 
 
 };
