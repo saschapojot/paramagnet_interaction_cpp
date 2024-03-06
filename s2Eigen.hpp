@@ -108,6 +108,15 @@ public:
     /// @return pseudovalue of \partial_{\beta}\braket{\epsilon} with si deleted
     double dbeta_epsilon(const int& i);
 
+    ///
+    /// @param ps pseudovalue of C
+    /// @param sd standard deviation of C
+    void pseudoValueOfC(double &ps, double &sd);
+
+    ///compute C and write to file
+    void C2File();
+
+
 
 public:
     std::vector<std::string> EFilesAll;

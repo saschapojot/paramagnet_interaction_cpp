@@ -106,14 +106,18 @@ void reader::parseCHiFile() {
 
 
     }
-
+//    std::cout<<"=========="<<std::endl;
+//    std::cout<<"chi file name="<<chiFileName<<std::endl;
+//    std::cout<<"T="<<T<<std::endl;
 //    std::cout<<"lag="<<lag<<std::endl;
-//    std::cout<<"lastFilesNum="<<lastFilesNum<<std::endl;
-//    std::cout<<"lastElemNum="<<lastElemNum<<std::endl;
-    if (this->lag == -1) {
-        this->ferro = true;
+//
+////    std::cout<<"lastFilesNum="<<lastFilesNum<<std::endl;
+////    std::cout<<"lastElemNum="<<lastElemNum<<std::endl;
+//    if (this->lag == -1) {
+//        this->ferro = true;
 //        std::cout<<"ferro: "<<ferro<<std::endl;
-    }
+//    }
+//    std::cout<<"=========="<<std::endl;
 
 
 }
@@ -354,6 +358,10 @@ void reader::fillZeWeights(dbExchangeModel &model) {
         auto EAnd_muTmp = model.avgEnergy(EInOne_s);
         double EAvgTmp = EAnd_muTmp[0];
         double muTmp = EAnd_muTmp[1];
+//        if(ferro==true){
+//            std::cout<<"E="<<EAvgTmp<<std::endl;
+//            std::cout<<"mu="<<muTmp<<std::endl;
+//        }
         this->muRecomputed.push_back(muTmp);
         this->epsilonSelected.push_back(EAvgTmp / static_cast<double >(M));
         std::vector<std::vector<double>> weightForOne_s;
@@ -368,6 +376,10 @@ void reader::fillZeWeights(dbExchangeModel &model) {
             for (const double &e: eigValsTmp) {//for all eigenvalues in one K
                 double expVal = std::exp(beta * (e - muTmp));
                 double wtTmp = std::pow(1 / (expVal + 1), 2) * expVal;
+//                if (ferro==true){
+//
+//                    std::cout<<"wtTmp="<<wtTmp<<std::endl;
+//                }
                 weightForOne_sOneK.push_back(wtTmp);
                 eigsForOne_sOneK.push_back(e);
             }
@@ -385,6 +397,9 @@ void reader::fillZeWeights(dbExchangeModel &model) {
         }
         this->eigValsRecomputed.push_back(eigsForOne_s);
         this->ZeWeightsAll.push_back(weightForOne_s);
+//        if (ferro==true){
+//            printVec(ZeWeightsAll[0][0]);
+//        }
 
 //        double tmp=0;
 //        for(const auto &vec:weightForOne_s){
@@ -493,6 +508,9 @@ void reader::computeAllWEAllWE2(){
         this->WE.push_back(tmp);
         this->WE2.push_back(tmp2);
     }
+//    if(ferro==true){
+//        printVec(WE2);
+//    }
 
 
 }
@@ -507,10 +525,17 @@ double reader::dbeta_epsilon(const int& i) {
     std::vector<double> ZeDeleted;
     std::vector<double> WEDeleted;
     std::vector<double> WE2Deleted;
+//    if(T==1.066667){
+//        std::cout<<this->epsilonSelected.size()<<std::endl;
+//std::cout<<this->ZeVals.size()<<std::endl;
+//std::cout<<this->WE.size()<<std::endl;
+//std::cout<<this->WE2.size()<<std::endl;
+//    }
 //std::cout<<this->epsilonSelected.size()<<std::endl;
 //std::cout<<this->ZeVals.size()<<std::endl;
 //std::cout<<this->WE.size()<<std::endl;
 //std::cout<<this->WE2.size()<<std::endl;
+
     for (int j = 0; j < this->epsilonSelected.size(); j++) {
         if (j == i) {
             continue;
@@ -570,10 +595,79 @@ for(const auto& val:epsilonDeleted){
 
 double part4=std::accumulate(part4_vec.begin(),part4_vec.end(),0.0);
 part4/=static_cast<double>(part4_vec.size());
-
-
+//
+//    if(T==1.066667){
+//        std::cout<<"part1="<<part1<<", part2="<<part2<<", part3="<<part3<<", part4="<<part4<<std::endl;
+//    }
 double rst=part1+part2*part3+std::pow(part2,2)-part4;
     return rst;
 
 
+
 }// end dbeta_epsilon
+
+
+
+///
+/// @param ps pseudovalue of dbeta_epsilon
+/// @param sd standard deviation of dbeta_epsilon
+void reader::pseudoValueOfC(double &ps, double &sd){
+
+    std::vector<double> C_All;
+    for(int i=0;i<this->sSelected.size();i++){
+        C_All.push_back(-dbeta_epsilon(i)/std::pow(this->T,2));
+
+    }
+//    if(T==1.066667){
+//        printVec(C_All);
+//    }
+    ps=std::accumulate(C_All.begin(),C_All.end(),0.0);
+    ps/=static_cast<double >(C_All.size());
+
+    std::vector<double> varVec;
+    for(int i=0;i<C_All.size();i++){
+        double tmp=std::pow(ps-C_All[i],2)/static_cast<double >(C_All.size()-1);
+        varVec.push_back(tmp);
+    }
+//    if(T==1.066667){
+//        printVec(varVec);
+//    }
+
+    double var=std::accumulate(varVec.begin(),varVec.end(),0.0);
+
+    sd=std::sqrt(var/ static_cast<double >(C_All.size()));
+
+
+
+
+
+
+}
+
+
+///compute C and write to file
+void reader::C2File(){
+    double C_ps=0, sd=0;
+    this->pseudoValueOfC(C_ps,sd);
+//    if(T==1.066667){
+//        std::cout<<"C="<<C_ps<<std::endl;
+//        std::cout<<"sd="<<sd<<std::endl;
+//    }
+
+
+
+    std::string outCDir="./part"+std::to_string(this->part)+"CAll/";
+    namespace fs = boost::filesystem;
+    if(!fs::is_directory(outCDir) || !fs::exists(outCDir)){
+        fs::create_directories(outCDir);
+    }
+    std::string outCFileName=outCDir+"T"+std::to_string(this->T)+"C.txt";
+    std::ofstream  ofs(outCFileName);
+    ofs<<"C="<<C_ps<<std::endl;
+    ofs<<"halfLength="<<1.960*sd<<std::endl;
+    ofs.close();
+
+
+}
+
+
