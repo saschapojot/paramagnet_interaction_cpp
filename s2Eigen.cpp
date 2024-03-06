@@ -113,10 +113,10 @@ void reader::parseCHiFile() {
 //
 ////    std::cout<<"lastFilesNum="<<lastFilesNum<<std::endl;
 ////    std::cout<<"lastElemNum="<<lastElemNum<<std::endl;
-//    if (this->lag == -1) {
-//        this->ferro = true;
+    if (this->lag == -1) {
+        this->ferro = true;
 //        std::cout<<"ferro: "<<ferro<<std::endl;
-//    }
+    }
 //    std::cout<<"=========="<<std::endl;
 
 
@@ -669,22 +669,20 @@ void reader::C2File(){
 
 
 }
-///
-/// @tparam T
-/// @param vec
-/// @return norm of vector
-template<class valType>
-double reader::vectorNorm(const std::vector<valType>&vec){
-
-    std::vector<double> vecAbs;
-    for (const auto&val: vec){
-        vecAbs.push_back(std::abs(val));
-    }
-
-    double tmp=std::inner_product(vecAbs.begin(),vecAbs.end(),vecAbs.begin(),0.0);
-    return std::sqrt(tmp);
-
-}
+/////
+///// @tparam T
+///// @param vec
+///// @return norm of vector
+//template<class valType>
+//double reader::vectorNorm(const std::vector<valType>&vec){
+//
+//    double sum = 0.0;
+//    for (const auto& val : vec) {
+//        sum += std::pow(std::abs(val), 2);
+//    }
+//    return std::sqrt(sum);
+//
+//}
 
 
 /// construct all y vectors
@@ -710,6 +708,10 @@ void reader::construct_yAll(const dbExchangeModel& model) {
                     one_yVec[2 * l + 1] *= coefTmp;
 
                 }//finishing constructing one y
+                double nm= vectorNorm(one_yVec);//normaliztion
+                for(auto&val:one_yVec){
+                    val/=nm;
+                }
                 yVecForOne_a.push_back(one_yVec);
 
             }//end of j loop
@@ -717,7 +719,8 @@ void reader::construct_yAll(const dbExchangeModel& model) {
         }//end of a loop
         this->yVecsAll.push_back(yVecForOne_m);
     }//end of m loop
-    printVec(yVecsAll[1][2][0]);
+
+//    printVec(yVecsAll[2][2][1]);
 
 
 }
