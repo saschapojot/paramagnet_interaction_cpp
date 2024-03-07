@@ -152,11 +152,11 @@ public:
     std::string EPath;
     std::string muPath;
     std::string sAllPath;
-    double C = 0;
+//    double C = 0;
     int L = 10;
     int M = 20;
 
-    bool ferro;
+    bool ferro=false;
     int lag = 0;
     int lastFilesNum = 0;//used for paramagnetic case
     int lastElemNum = 0;//used for ferromagnetic case

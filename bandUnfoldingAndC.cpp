@@ -47,10 +47,7 @@ int main(int argc, char **argv) {
     }
 //
 ////////////////////////one file
-//    std::string name0="T0.111616";
-//    std::string name1="T1.066667";
-//    std::string name3="T2.175757575757576";
-//    std::string name4="T3.100000";
+//    std::string name0="T0.481313";
 //    auto rd=reader(1,name0);
 //    auto model=dbExchangeModel(rd.T);
 //

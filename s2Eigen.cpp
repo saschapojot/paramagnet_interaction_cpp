@@ -93,31 +93,31 @@ void reader::parseCHiFile() {
         //extract lag value
         if (std::regex_search(line, matchLag, lagPattern)) {
             this->lag = std::stoi(matchLag.str(1));
+//            std::cout<<"lag="<<lag<<std::endl;
         }
         //extract lastFilesNum
         if (std::regex_search(line, matchFileNum, lastFilesNumPattern)) {
-            this->lastFilesNum = 1;// std::stoi(matchFileNum.str(1));
+            this->lastFilesNum =  std::stoi(matchFileNum.str(1));
+//            std::cout<<"lastFilesNum="<<lastFilesNum<<std::endl;
         }
 
         //extract lastElemNum
         if (std::regex_search(line, matchElemNum, lastElemNumPattern)) {
             this->lastElemNum = std::stoi(matchElemNum.str(1));
+//            std::cout<<"lastElemNum"<<lastElemNum<<std::endl;
         }
 
 
     }
-//    std::cout<<"=========="<<std::endl;
-//    std::cout<<"chi file name="<<chiFileName<<std::endl;
-//    std::cout<<"T="<<T<<std::endl;
+
 //    std::cout<<"lag="<<lag<<std::endl;
-//
-////    std::cout<<"lastFilesNum="<<lastFilesNum<<std::endl;
-////    std::cout<<"lastElemNum="<<lastElemNum<<std::endl;
+
     if (this->lag == -1) {
         this->ferro = true;
-//        std::cout<<"ferro: "<<ferro<<std::endl;
+//        std::cout<<"c'est ferro"<<std::endl;
+
     }
-//    std::cout<<"=========="<<std::endl;
+
 
 
 }
@@ -125,9 +125,12 @@ void reader::parseCHiFile() {
 
 /// parse sVec values in sAll directory
 void reader::parse_sAllDir() {
-//    std::cout<<"ferro="<<ferro<<std::endl;
+//    std::cout<<"enterinng parse s"<<std::endl;
+//std::cout<<"T="<<T<<std::endl;
+//std::cout<<"ferro="<<ferro<<std::endl;
     if (this->ferro == true) {// ferro case, read last file
         std::vector<std::vector<double>> sAll;
+//        std::cout<<"entering ferro"<<std::endl;
 //      std::cout<<"file num="<<sortedsAllFilesAll.size()<<std::endl;
 //      std::cout<<"file name: "<<this->sortedsAllFilesAll[sortedsAllFilesAll.size()-1]<<std::endl;
         std::ifstream ifs(this->sortedsAllFilesAll[sortedsAllFilesAll.size() - 1]);
@@ -160,6 +163,7 @@ void reader::parse_sAllDir() {
 //        std::cout<<selectedFiles_sAll[selectedFiles_sAll.size()-2]<<std::endl;
 //        std::cout<<"sorted file num="<<sortedsAllFilesAll.size()<<std::endl;
 //        std::cout<<"last files num="<<lastFilesNum<<std::endl;
+//        printVec(selectedFiles_sAll);
         for (const auto &oneName: selectedFiles_sAll) {//read  xml files in sVec
             std::vector<std::vector<double>> sAll;
             std::ifstream ifs(oneName);
@@ -618,6 +622,9 @@ void reader::pseudoValueOfC(double &ps, double &sd){
         C_All.push_back(-dbeta_epsilon(i)/std::pow(this->T,2));
 
     }
+//    std::cout<<"sSelected len="<<sSelected.size()<<std::endl;
+//    std::cout<<"C_All len="<<C_All.size()<<std::endl;
+//    std::cout<<C_All[10]<<std::endl;
 //    if(T==1.066667){
 //        printVec(C_All);
 //    }
@@ -636,6 +643,8 @@ void reader::pseudoValueOfC(double &ps, double &sd){
     double var=std::accumulate(varVec.begin(),varVec.end(),0.0);
 
     sd=std::sqrt(var/ static_cast<double >(C_All.size()));
+//    std::cout<<"C="<<ps<<std::endl;
+//    std::cout<<"sd="<<sd<<std::endl;
 
 
 
@@ -654,7 +663,8 @@ void reader::C2File(){
 //        std::cout<<"sd="<<sd<<std::endl;
 //    }
 
-
+//    std::cout<<"C="<<C_ps<<std::endl;
+//    std::cout<<"sd="<<sd<<std::endl;
 
     std::string outCDir="./part"+std::to_string(this->part)+"CAll/";
     namespace fs = boost::filesystem;
