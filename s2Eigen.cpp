@@ -97,30 +97,29 @@ void reader::parseCHiFile() {
         }
         //extract lastFilesNum
         if (std::regex_search(line, matchFileNum, lastFilesNumPattern)) {
-            this->lastFilesNum = std::stoi(matchFileNum.str(1));
+
+            this->lastFilesNum =  std::stoi(matchFileNum.str(1));
+
 //            std::cout<<"lastFilesNum="<<lastFilesNum<<std::endl;
         }
 
         //extract lastElemNum
         if (std::regex_search(line, matchElemNum, lastElemNumPattern)) {
             this->lastElemNum = std::stoi(matchElemNum.str(1));
-//            std::cout<<"lastElemNum="<<lastElemNum<<std::endl;
+
         }
 
 
     }
-//    std::cout<<"=========="<<std::endl;
-//    std::cout<<"chi file name="<<chiFileName<<std::endl;
-//    std::cout<<"T="<<T<<std::endl;
+
 //    std::cout<<"lag="<<lag<<std::endl;
-//
-////    std::cout<<"lastFilesNum="<<lastFilesNum<<std::endl;
-////    std::cout<<"lastElemNum="<<lastElemNum<<std::endl;
+
     if (this->lag == -1) {
         this->ferro = true;
-//        std::cout<<"ferro: "<<ferro<<std::endl;
+//        std::cout<<"c'est ferro"<<std::endl;
+
     }
-//    std::cout<<"=========="<<std::endl;
+
 
 
 }
@@ -128,9 +127,12 @@ void reader::parseCHiFile() {
 
 /// parse sVec values in sAll directory
 void reader::parse_sAllDir() {
-//    std::cout<<"ferro="<<ferro<<std::endl;
+//    std::cout<<"enterinng parse s"<<std::endl;
+//std::cout<<"T="<<T<<std::endl;
+//std::cout<<"ferro="<<ferro<<std::endl;
     if (this->ferro == true) {// ferro case, read last file
         std::vector<std::vector<double>> sAll;
+//        std::cout<<"entering ferro"<<std::endl;
 //      std::cout<<"file num="<<sortedsAllFilesAll.size()<<std::endl;
 //      std::cout<<"file name: "<<this->sortedsAllFilesAll[sortedsAllFilesAll.size()-1]<<std::endl;
         std::ifstream ifs(this->sortedsAllFilesAll[sortedsAllFilesAll.size() - 1]);
@@ -163,6 +165,7 @@ void reader::parse_sAllDir() {
 //        std::cout<<selectedFiles_sAll[selectedFiles_sAll.size()-2]<<std::endl;
 //        std::cout<<"sorted file num="<<sortedsAllFilesAll.size()<<std::endl;
 //        std::cout<<"last files num="<<lastFilesNum<<std::endl;
+//        printVec(selectedFiles_sAll);
         for (const auto &oneName: selectedFiles_sAll) {//read  xml files in sVec
             std::vector<std::vector<double>> sAll;
             std::ifstream ifs(oneName);
@@ -201,7 +204,7 @@ void reader::parse_sAllDir() {
 //        printVec(sSelected[i2]);
     }//end of paramagnetic case
 
-
+//std::cout<<"data point num="<<sSelected.size()<<std::endl;
 
 }
 
@@ -326,7 +329,7 @@ void reader::parse_muAllDir() {
 }
 
 
-///compute Ze weights
+///compute Ze weights and projections
 void reader::fillZeWeights(dbExchangeModel &model) {
 
 //check consistency from reading and new computation
@@ -354,11 +357,46 @@ void reader::fillZeWeights(dbExchangeModel &model) {
 //
 //        std::cout<<"mu from reading="<<muTmp<<std::endl;
 //        std::cout<<"mu from computing="<<mu2Tmp<<std::endl;
-
-    for (const auto &s: this->sSelected) {
+    int P=this->sSelected.size();
+    for ( int p=0;p<P;p++) {
+        auto s=this->sSelected[p];
         auto tripleTmp = model.s2EigSerial(s);
         std::vector<double> EInOne_s = model.combineFromEig(tripleTmp);
         auto EAnd_muTmp = model.avgEnergy(EInOne_s);
+        //compute one A mat
+//        std::cout<<"len="<<tripleTmp.size()<<std::endl;
+        //projection
+
+        for(int m=0;m<M;m++) {
+            for (int a = 0; a < L; a++) {
+                std::vector<std::vector<double>> oneATmp;
+                int rowCount = 0;
+                for (int j = 0; j < 2; j++) {
+                    for (int b = 0; b < 2 * L; b++) {
+
+                        vec20c yEigen(this->yVecsAll[m][a][j].data());
+                        double ETmp = std::get<1>(tripleTmp[m])[b];
+                        vec20c zb = std::get<2>(tripleTmp[m]).col(b);
+                        double cbja = std::abs(zb.dot(yEigen));
+//                        this->AMatsAll[p][m][a][rowCount]=std::vector<double>({ETmp,cbja});
+                        oneATmp.push_back({ETmp, cbja});
+                        rowCount++;
+                    }
+                }
+
+                int sortBy=0;
+                std::sort(oneATmp.begin(), oneATmp.end(), [sortBy](const std::vector<double>& a, const std::vector<double>& b) {
+                    return a[sortBy] < b[sortBy];
+                });
+
+                this->AMatsAll[p][m][a]=oneATmp;
+            }//a end
+        }//m end
+
+
+
+
+
         double EAvgTmp = EAnd_muTmp[0];
         double muTmp = EAnd_muTmp[1];
 //        if(ferro==true){
@@ -414,11 +452,9 @@ void reader::fillZeWeights(dbExchangeModel &model) {
 
 
 
-    }//end of for all s
-//    printVec(this->ZeWeightsAll[100][10]);
-//std::cout<<muRecomputed[389]<<std::endl;
+    }//end of for all s (p)
 
-//std::cout<<epsilonSelected[389]<<std::endl;
+
 }//end of fillZeWeights
 
 
@@ -622,6 +658,9 @@ void reader::pseudoValueOfC(double &ps, double &sd){
         C_All.push_back(-dbeta_epsilon(i)/std::pow(this->T,2));
 
     }
+//    std::cout<<"sSelected len="<<sSelected.size()<<std::endl;
+//    std::cout<<"C_All len="<<C_All.size()<<std::endl;
+//    std::cout<<C_All[10]<<std::endl;
 //    if(T==1.066667){
 //        printVec(C_All);
 //    }
@@ -640,6 +679,8 @@ void reader::pseudoValueOfC(double &ps, double &sd){
     double var=std::accumulate(varVec.begin(),varVec.end(),0.0);
 
     sd=std::sqrt(var/ static_cast<double >(C_All.size()));
+//    std::cout<<"C="<<ps<<std::endl;
+//    std::cout<<"sd="<<sd<<std::endl;
 
 
 
@@ -658,7 +699,8 @@ void reader::C2File(){
 //        std::cout<<"sd="<<sd<<std::endl;
 //    }
 
-
+//    std::cout<<"C="<<C_ps<<std::endl;
+//    std::cout<<"sd="<<sd<<std::endl;
 
     std::string outCDir="./part"+std::to_string(this->part)+"CAll/";
     namespace fs = boost::filesystem;
@@ -729,3 +771,63 @@ void reader::construct_yAll(const dbExchangeModel& model) {
 
 }
 
+
+
+///initialize all A matrices, AMatsAll indexed by s,m,a,j
+void reader::initAMatsAll() {
+    std::vector<std::vector<double>> oneAMat;
+    oneAMat.reserve(2 * L);
+    for (int b = 0; b < 2 * L; b++) {
+        for (int j = 0; j < 2; j++) {
+            oneAMat.push_back({0.0, 0.0});
+
+        }
+    }
+
+    //a
+    std::vector<std::vector<std::vector<double>>> AMat_a;
+    AMat_a.reserve(L);
+    for(int a=0;a<L;a++){
+        AMat_a.push_back(oneAMat);
+    }
+
+    //m
+    std::vector<std::vector<std::vector<std::vector<double>>>> AMat_m;
+    AMat_m.reserve(M);
+    for(int m=0;m<M;m++){
+        AMat_m.push_back(AMat_a);
+    }
+
+    int P=this->sSelected.size();
+    //s
+    this->AMatsAll.reserve(P);
+    for(int p=0;p<P;p++){
+        this->AMatsAll.push_back(AMat_m);
+    }
+//std::cout<<"A size"<<sizeof(AMatsAll)<<std::endl;
+
+}
+
+
+///compute the average of eigenvalue
+void reader::computeMeanE(){
+    for(int m=0;m<M;m++){
+        std::vector<std::vector<double>> meanVec_m;
+        for(int a=0;a<L;a++){
+            std::vector<double> EVecTmp;
+            for(const auto& all_m_a: this->AMatsAll){
+                auto ATmp=all_m_a[m][a];
+                for(const auto&row:ATmp){
+                    EVecTmp.push_back(row[0]);
+                }
+            }
+
+                meanVec_m.push_back(EVecTmp);
+
+        }//a end
+        this->meanE.push_back(meanVec_m);
+    }// m end
+
+
+
+}

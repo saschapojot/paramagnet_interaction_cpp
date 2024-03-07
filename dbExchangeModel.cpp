@@ -86,6 +86,12 @@ std::tuple<int, eigVal20, vecVal20> dbExchangeModel::hEig(const std::vector<doub
     this->eigSolution.compute(wholeh);
     eigVal20 vals = eigSolution.eigenvalues();
     vecVal20 vecs = eigSolution.eigenvectors();
+//
+//    int nm=11;
+//    double val=vals[nm];
+//    auto vec=vecs.col(nm);
+////    auto diff=wholeh*vec-val*vec;
+//    std::cout<<"norm="<<vec.norm()<<std::endl;
 
     return std::make_tuple(j, vals, vecs);
 

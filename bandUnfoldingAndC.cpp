@@ -47,11 +47,10 @@ int main(int argc, char **argv) {
 //    }
 //
 ////////////////////////one file
-    std::string name0="T1.960101";
 
+    std::string name0="T0.111616";
     auto rd=reader(1,name0);
     auto model=dbExchangeModel(rd.T);
-
 
     rd.searchFiles();
     rd.sortFiles();
@@ -59,14 +58,26 @@ int main(int argc, char **argv) {
     rd.parse_sAllDir();
     rd.parse_EAllDir();
 
+    rd.construct_yAll(model);
+    rd.initAMatsAll();
+
     rd.fillZeWeights(model);
+    int p=10;
+    int m=7;
+    int a=2;
+    rd.printVec(rd.AMatsAll[p][m][a][0]);
+    rd.printVec(rd.AMatsAll[p][m][a][1]);
+    rd.printVec(rd.AMatsAll[p][m][a][2]);
+    rd.printVec(rd.AMatsAll[p][m][a][3]);
+    rd.printVec(rd.AMatsAll[p][m][a][4]);
+    rd.printVec(rd.AMatsAll[p][m][a][5]);
+
 
     rd.computeAllWEAllWE2();
 
     rd.C2File();
 
-    //band unfolding
-//    rd.construct_yAll(model);
+
 
 
 
