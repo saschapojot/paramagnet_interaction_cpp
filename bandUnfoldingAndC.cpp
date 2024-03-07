@@ -62,20 +62,23 @@ int main(int argc, char **argv) {
     rd.initAMatsAll();
 
     rd.fillZeWeights(model);
-    int p=10;
-    int m=7;
-    int a=2;
-    rd.printVec(rd.AMatsAll[p][m][a][0]);
-    rd.printVec(rd.AMatsAll[p][m][a][1]);
-    rd.printVec(rd.AMatsAll[p][m][a][2]);
-    rd.printVec(rd.AMatsAll[p][m][a][3]);
-    rd.printVec(rd.AMatsAll[p][m][a][4]);
-    rd.printVec(rd.AMatsAll[p][m][a][5]);
+
 
 
     rd.computeAllWEAllWE2();
 
     rd.C2File();
+
+
+    rd.computeMeanE();
+
+    rd.computeMarkerSize();
+    rd.bandToFile();
+
+
+
+
+
 
 
 

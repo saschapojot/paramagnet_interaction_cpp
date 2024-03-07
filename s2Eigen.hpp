@@ -138,8 +138,36 @@ public:
     ///initialize all A matrices, AMatsAll indexed by s,m,a,j
     void initAMatsAll();
 
-    ///compute the average of eigenvalue
+    ///compute the average and error of eigenvalue
     void computeMeanE();
+
+
+    ///compute the marker size of unfolded band
+    void computeMarkerSize();
+
+    /// add the value of RHS to LHS
+    /// @param LHS vector
+    /// @param RHS vector
+    static void addRightVecToLeft(std::vector<double>& LHS, const std::vector<double> & RHS);
+
+    ///
+    /// @param LHS vector
+    /// @param RHS vector
+    /// @return LHS-RHS
+    static std::vector<double> leftMinusRightVec(const std::vector<double> &LHS,const std::vector<double> &RHS);
+
+
+    ///
+    /// @param vec vector
+    /// @return elementwise squared vector
+    static std::vector<double> vectorSquared(const std::vector<double> &vec);
+
+    ///
+    /// @return flattened data
+    static std::vector<double> flattenData(const std::vector<std::vector<std::vector<double>>>& data);
+
+    ///write meanE, hfLengthE, markerSize to file
+    void bandToFile();
 
 public:
     std::vector <std::string> EFilesAll;
@@ -187,7 +215,9 @@ public:
 
   std::vector<std::vector<std::vector<std::vector<std::vector<double>>>>> AMatsAll;//s,m,a,
     std::vector<std::vector<std::vector<double>>> meanE;//m,a
-    std::vector<std::vector<std::vector<double>>>sdE;//m,a
+    std::vector<std::vector<std::vector<double>>>hfLengthE;//m,a
+
+    std::vector<std::vector<std::vector<double>>> markerSize;//m,a
 };
 
 

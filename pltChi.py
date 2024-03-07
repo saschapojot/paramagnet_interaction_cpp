@@ -31,7 +31,7 @@ for file in inChiFileNamesSorted:
     contents=fptr.readlines()
     for line in contents:
         # print(line)
-        matchChi=re.search(r"chi=(\d+(\.\d+)?)",line)
+        matchChi=re.search(r"chi=(-?\d+(\.\d+)?)",line)
         if matchChi:
             chiTmp=float(matchChi.group(1))
             chiValsAll.append(chiTmp)
