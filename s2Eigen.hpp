@@ -82,7 +82,7 @@ public:
     ///parse mu values in muAll directory
     void parse_muAllDir();
 
-    ///compute Ze weights
+    ///compute Ze weights and projections
     void fillZeWeights(dbExchangeModel &model);
 
     ///parse last file under EAll,muAll, sAll
@@ -135,7 +135,11 @@ public:
         }
         return std::sqrt(sum);
     }
+    ///initialize all A matrices, AMatsAll indexed by s,m,a,j
+    void initAMatsAll();
 
+    ///compute the average of eigenvalue
+    void computeMeanE();
 
 public:
     std::vector <std::string> EFilesAll;
@@ -181,7 +185,9 @@ public:
     std::vector <std::vector<std::vector < std::vector < std::complex < double>>>>>
     yVecsAll;//m,a,j,vec
 
-
+  std::vector<std::vector<std::vector<std::vector<std::vector<double>>>>> AMatsAll;//s,m,a,
+    std::vector<std::vector<std::vector<double>>> meanE;//m,a
+    std::vector<std::vector<std::vector<double>>>sdE;//m,a
 };
 
 
