@@ -93,15 +93,18 @@ void reader::parseCHiFile() {
         //extract lag value
         if (std::regex_search(line, matchLag, lagPattern)) {
             this->lag = std::stoi(matchLag.str(1));
+//            std::cout<<"lag="<<lag<<std::endl;
         }
         //extract lastFilesNum
         if (std::regex_search(line, matchFileNum, lastFilesNumPattern)) {
-            this->lastFilesNum = 1;// std::stoi(matchFileNum.str(1));
+            this->lastFilesNum = std::stoi(matchFileNum.str(1));
+//            std::cout<<"lastFilesNum="<<lastFilesNum<<std::endl;
         }
 
         //extract lastElemNum
         if (std::regex_search(line, matchElemNum, lastElemNumPattern)) {
             this->lastElemNum = std::stoi(matchElemNum.str(1));
+//            std::cout<<"lastElemNum="<<lastElemNum<<std::endl;
         }
 
 
@@ -229,7 +232,7 @@ void reader::parse_EAllDir() {
 
         }
 //        std::cout<<selectedFilesEAll[selectedFilesEAll.size()-2]<<std::endl;
-//        std::cout<<"selected file num="<<selectedFilesEAll.size()<<std::endl;
+        std::cout<<"selected file num="<<selectedFilesEAll.size()<<std::endl;
 
         for (const auto &oneName: selectedFilesEAll) {//read  xml files in EAll
             std::vector<double> EPerFile;
@@ -508,6 +511,7 @@ void reader::computeAllWEAllWE2(){
         this->WE.push_back(tmp);
         this->WE2.push_back(tmp2);
     }
+    printVec(WE2);
 //    if(ferro==true){
 //        printVec(WE2);
 //    }
