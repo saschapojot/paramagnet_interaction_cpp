@@ -357,6 +357,7 @@ void reader::fillZeWeights(dbExchangeModel &model) {
 //        std::cout<<"mu from reading="<<muTmp<<std::endl;
 //        std::cout<<"mu from computing="<<mu2Tmp<<std::endl;
     int P = this->sSelected.size();
+//    std::cout<<"P="<<std::endl;
     for (int p = 0; p < P; p++) {
         auto s = this->sSelected[p];
         auto tripleTmp = model.s2EigSerial(s);
