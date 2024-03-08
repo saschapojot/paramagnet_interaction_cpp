@@ -98,10 +98,10 @@ def vec2Array(flattenedVec):
                 retMat[m,a,j]=flattenedVec[startingPos+j]
 
     return retMat
-
-ind=1
+#0..6
+ind=6
 TD=inTDirs[ind]
-
+print(TD)
 hfLengthFlattened,EMeanFlattened,mkSzFlattened=xml2Vec(TD)
 
 matEMean=vec2Array(EMeanFlattened)
@@ -117,11 +117,11 @@ for m in range(0,M):
         rowPos=m+a*M
         matEMean2Plt[rowPos,:]=matEMean[m,a,:]
 
-matHf2Plt=np.zeros((M*L,vecLength),dtype=float)
+matFullLength2Plt=np.zeros((M*L,vecLength),dtype=float)
 for m in range(0,M):
     for a in range(0,L):
         rowPos=m+a*M
-        matHf2Plt[rowPos,:]=matHfLength[m,a,:]
+        matFullLength2Plt[rowPos,:]=2*matHfLength[m,a,:]
 
 matMkSize2Plt=np.zeros((M*L,vecLength),dtype=float)
 for m in range(0,M):
@@ -137,7 +137,17 @@ plt.figure()
 for c in range(0,colNum):
     EValsTmp=matEMean2Plt[:,c]
     mkSizeTmp=matMkSize2Plt[:,c]
-    plt.scatter(kPrimValsAll,EValsTmp,s=mkSizeTmp,color="red")
+    lengthTmp=matFullLength2Plt[:,c]
+    lengthTmpNew=[]
+    # plt.scatter(kPrimValsAll,EValsTmp,s=mkSizeTmp,color="red")
+    # plt.errorbar(kPrimValsAll,EValsTmp,yerr=lengthTmp,ls="None",color="red")
+    for i in range(0,len(lengthTmp)):
+        val=0 if mkSizeTmp[i]<1e-3 else lengthTmp[i]
+        lengthTmpNew.append(val)
+    # print(lengthTmpNew)
+    plt.errorbar(kPrimValsAll,EValsTmp,yerr=lengthTmpNew,ls="None",color="red",elinewidth=0.1)
+    plt.scatter(kPrimValsAll,EValsTmp,s=mkSizeTmp,color="blue")
+
 
 plt.xlabel("$k/\pi$")
 plt.ylabel("$\epsilon$")

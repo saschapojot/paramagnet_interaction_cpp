@@ -23,6 +23,7 @@ int main(int argc, char **argv) {
 
     int part = 1;
     std::vector<std::string> TDirs = scanFiles(part);
+//    reader::printVec(TDirs);
     for (const auto& s:TDirs) {
         const auto tCStart{std::chrono::steady_clock::now()};
         auto rd = reader(part, s);
@@ -35,6 +36,8 @@ int main(int argc, char **argv) {
         rd.parseCHiFile();
         rd.parse_sAllDir();
         rd.parse_EAllDir();
+        rd.construct_yAll(model);
+    rd.initAMatsAll();
 
         rd.fillZeWeights(model);
 
