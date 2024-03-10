@@ -8,7 +8,7 @@ import sys
 import re
 from copy import deepcopy
 import warnings
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 #This script checks if a vector reaches equilibrium
 
@@ -142,6 +142,21 @@ elif ferro0==False and ferro1==True:
     print(sigContinue)
     exit()
 
+def Jackknife(vec):
+    """
+
+    :param vec:
+    :return: the mean and half length  of 0.95 confidence interval computed by Jackkknife
+    """
+
+    psMean=np.mean(vec)
+
+    psVar=np.var(vec,ddof=1)
+
+    n=len(vec)
+
+    hfLen=1.96*np.sqrt(psVar/n)
+    return psMean,hfLen
 
 
 #computation of auto-correlation
@@ -151,11 +166,11 @@ elif ferro0==False and ferro1==True:
 acfOfVec=sm.tsa.acf(vecValsCombined)
 # print("min correlation is ",np.min(acfOfVec))
 # print("total elem number = "+str(len(vecValsCombined)))
-plt.figure()
-plt.plot(acfOfVec,color="black")
-plt.savefig("ECorr.png")
-plt.close()
-eps=(1e-3)*5
+# plt.figure()
+# plt.plot(acfOfVec,color="black")
+# plt.savefig("ECorr.png")
+# plt.close()
+eps=(1e-2)*5
 pThreshHold=0.05
 lagVal=0
 if np.min(np.abs(acfOfVec))>eps:
@@ -168,21 +183,22 @@ else:
     selectedFromPart0=part0[::lagVal]
     # print(len(selectedFromPart0))
     selectedFromPart1=part1[::lagVal]
-    plt.subplot(1,2,1)
-    plt.hist(selectedFromPart0,bins=100)
-    plt.subplot(1,2,2)
-    plt.hist(selectedFromPart1,bins=100)
+    # plt.subplot(1,2,1)
+    # plt.hist(selectedFromPart0,bins=100)
+    # plt.subplot(1,2,2)
+    # plt.hist(selectedFromPart1,bins=100)
     # print(np.mean(selectedFromPart0), np.sqrt(np.var(selectedFromPart0))/np.sqrt(len(selectedFromPart0/60)))
     # print(np.mean(selectedFromPart1), np.sqrt(np.var(selectedFromPart1))/np.sqrt(len(selectedFromPart1/60)))
 
-    plt.savefig("hist.png")
-    D,p=stats.ks_2samp(part0,part1)
-    if p<pThreshHold:
-        print(sigContinue)
-        # print(p)
+    # plt.savefig("hist.png")
+    # D,p=stats.ks_2samp(part0,part1)
+    mean0,hf0=Jackknife(part0)
+    mean1,hf1=Jackknife(part1)
+    if np.abs(mean0-mean1)<=hf0 or np.abs(mean0-mean1)<=hf1:
+        print(sigEq+" "+str(lagVal))
         exit()
     else:
-        print(sigEq+" "+str(lagVal))
+        print(sigContinue)
         exit()
 
 
