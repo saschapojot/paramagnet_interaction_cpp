@@ -506,16 +506,16 @@ def diagnosticsAndObservables(oneTFile):
 
 
 
-diagnosticsAndObservables(inTFileNamesSorted[1])
-# tStart=datetime.now()
+# diagnosticsAndObservables(inTFileNamesSorted[1])
+tStart=datetime.now()
 # # procNum=48
 # # #parallel
 # # # pool0=Pool(procNum)
 # # #
 # # # ret=pool0.map(diagnosticsAndObservables,inTFileNamesSorted)
 # # #serial
-# for file in inTFileNamesSorted:
-#     diagnosticsAndObservables(file)
-# tEnd=datetime.now()
-# print("total time: ",tEnd-tStart)
+for file in inTFileNamesSorted:
+    diagnosticsAndObservables(file)
+tEnd=datetime.now()
+print("total time: ",tEnd-tStart)
 
