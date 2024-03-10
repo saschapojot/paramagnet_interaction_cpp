@@ -8,7 +8,8 @@ int main(int argc, char **argv) {
     }
 
     double T = std::stod(argv[1]);
-    auto model = dbExchangeModel(T);
+    int part=2;
+    auto model = dbExchangeModel(T,part);
     bool ferro = false;
     int lag = -1;
     int totalLoopEq = -1;
