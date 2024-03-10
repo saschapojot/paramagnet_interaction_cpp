@@ -114,9 +114,10 @@ public:
 
 class dbExchangeModel {
 public:
-    dbExchangeModel(double temperature) {
+    dbExchangeModel(double temperature,const int &partNum) {
         this->T = temperature;
         this->beta=1/temperature;
+        this->part=partNum;
 
         //construct SBZ values
         for (int j = 0; j < this->M; j++) {
@@ -135,7 +136,7 @@ public:
 
 public:
 //    dataholder record;
-    int part = 1; // a group of computations
+    int part = 0; // a group of computations
     int L = 10;// length of a supercell
     int M = 20;// number of supercells
 
@@ -157,7 +158,7 @@ public:
 
     std::vector<double>sRange{-1,1};
     int sweepNumInOneFlush=3000;// flush the results to python every sweepNumInOneFlush*L iterations
-    int flushMaxNum=700;
+    int flushMaxNum=100;
     int dataNumTotal=15000;
     Eigen::SelfAdjointEigenSolver<mat20c> eigSolution;// solver for hermitian matrices
 //    std::vector<double>EAvgAll;//to be stored

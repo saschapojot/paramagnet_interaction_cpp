@@ -286,7 +286,7 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
     namespace fs = boost::filesystem;
 
     //output directory
-    std::string outDir = "./part" + std::to_string(this->part) + "/T" + std::to_string(this->T) + "/";
+    std::string outDir = "./part" + std::to_string(this->part)+"data"+"/part"+std::to_string(this->part)+ "/T" + std::to_string(this->T) + "/";
     std::string outEAllSubDir = outDir + "EAll/";
     std::string outMuAllSubDir = outDir + "muAll/";
     std::string outSAllSubDir = outDir + "sAll/";
@@ -568,7 +568,7 @@ void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
     namespace fs = boost::filesystem;
 
     //output directory
-    std::string outDir = "./part" + std::to_string(this->part) + "/T" + std::to_string(this->T) + "/";
+    std::string outDir = "./part" + std::to_string(this->part)+"data"+"/part"+std::to_string(this->part) + "/T" + std::to_string(this->T) + "/";
     std::string outEAllSubDir = outDir + "EAll/";
     std::string outMuAllSubDir = outDir + "muAll/";
     std::string outSAllSubDir = outDir + "sAll/";
@@ -614,13 +614,13 @@ void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
 
 
             }
-            std::cout<<"========================"<<std::endl;
-            std::cout<<"step "<<counter<<std::endl;
-            std::cout<<"EAvg Curr="<<EAvgCurr<<std::endl;
-            std::cout<<"mu Curr="<<muCurr<<std::endl;
-            std::cout<<"sCurr=";
-            printVec(sCurr);
-            std::cout<<"============"<<std::endl;
+//            std::cout<<"========================"<<std::endl;
+//            std::cout<<"step "<<counter<<std::endl;
+//            std::cout<<"EAvg Curr="<<EAvgCurr<<std::endl;
+//            std::cout<<"mu Curr="<<muCurr<<std::endl;
+//            std::cout<<"sCurr=";
+//            printVec(sCurr);
+//            std::cout<<"============"<<std::endl;
 
 
             record_ptr->sAll.push_back(sCurr);
@@ -702,7 +702,7 @@ void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
 
 
 std::string dbExchangeModel::execPython(const char *cmd) {
-    std::array<char, 2048> buffer; // Buffer to store command output
+    std::array<char, 4096> buffer; // Buffer to store command output
     std::string result; // String to accumulate output
 
     // Open a pipe to read the output of the executed command

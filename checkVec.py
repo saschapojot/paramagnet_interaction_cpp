@@ -174,7 +174,7 @@ eps=(1e-2)*5
 pThreshHold=0.05
 lagVal=0
 if np.min(np.abs(acfOfVec))>eps:
-    # print("high correlation")
+    print("high correlation")
 
     print(sigContinue)
     exit()
@@ -194,6 +194,8 @@ else:
     # D,p=stats.ks_2samp(part0,part1)
     mean0,hf0=Jackknife(part0)
     mean1,hf1=Jackknife(part1)
+    print("mean0="+str(mean0)+", mean1="+str(mean1))
+    print("hf0="+str(hf0)+", hf1="+str(hf1))
     if np.abs(mean0-mean1)<=hf0 or np.abs(mean0-mean1)<=hf1:
         print(sigEq+" "+str(lagVal))
         exit()
