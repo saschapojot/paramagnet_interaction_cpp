@@ -175,6 +175,7 @@ pThreshHold=0.05
 lagVal=0
 if np.min(np.abs(acfOfVec))>eps:
     print("high correlation")
+    print(np.min(np.abs(acfOfVec)))
 
     print(sigContinue)
     exit()
