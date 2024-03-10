@@ -345,7 +345,7 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
 
 
 
-    std::cout<<"reachEq part"<<std::endl;
+//    std::cout<<"reachEq part"<<std::endl;
     while (fls < this->flushMaxNum and active == true) {
         std::unique_ptr<dataholder> record_ptr = std::make_unique<dataholder>();
         int loopStart = fls * this->sweepNumInOneFlush * this->L;
@@ -384,13 +384,13 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
 
 
             }
-            std::cout<<"========================"<<std::endl;
-            std::cout<<"step "<<counter<<std::endl;
-            std::cout<<"EAvg Curr="<<EAvgCurr<<std::endl;
-            std::cout<<"mu Curr="<<muCurr<<std::endl;
-            std::cout<<"sCurr=";
-            printVec(sCurr);
-            std::cout<<"============"<<std::endl;
+//            std::cout<<"========================"<<std::endl;
+//            std::cout<<"step "<<counter<<std::endl;
+//            std::cout<<"EAvg Curr="<<EAvgCurr<<std::endl;
+//            std::cout<<"mu Curr="<<muCurr<<std::endl;
+//            std::cout<<"sCurr=";
+//            printVec(sCurr);
+//            std::cout<<"============"<<std::endl;
             record_ptr->sAll.push_back(sCurr);
             record_ptr->EAll.push_back(EAvgCurr);
             record_ptr->muAll.push_back(muCurr);
