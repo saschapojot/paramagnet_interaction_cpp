@@ -14,11 +14,11 @@ from datetime import datetime
 L = 10# length of a supercell
 M = 20#number of supercells
 
-if (len(sys.argv)!=2):
-    print("wrong number of arguments")
-    exit()
+# if (len(sys.argv)!=2):
+#     print("wrong number of arguments")
+#     exit()
 
-pathPartNum=int(str(sys.argv[1]))
+pathPartNum=1
 pathPart="./part"+str(pathPartNum)+"data/part"+str(pathPartNum)+"/"
 inTFileNames=[]
 TVals=[]
