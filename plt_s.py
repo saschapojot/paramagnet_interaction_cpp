@@ -8,7 +8,7 @@ from pathlib import Path
 
 part=1
 
-in_sFileDir="./part"+str(part)+"data/sAll"
+in_sFileDir="./part"+str(part)+"data/part"+str(part)+"sAll"
 in_sFileNames=[]
 
 TVals=[]
@@ -52,6 +52,6 @@ xTicks=np.linspace(np.min(TSortedVals),np.max(TSortedVals),10)
 plt.xticks(xTicks)
 outDir="./part"+str(part)+"data/part"+str(part)+"Observables"
 Path(outDir).mkdir(exist_ok=True,parents=True)
-fileName="C.png"
+fileName="s.png"
 
 plt.savefig(outDir+"/"+fileName)
