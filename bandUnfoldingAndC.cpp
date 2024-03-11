@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
         const auto tCStart{std::chrono::steady_clock::now()};
         auto rd = reader(part, s);
 
-        auto model = dbExchangeModel(rd.T);
+        auto model = dbExchangeModel(rd.T,part);
 
 
         rd.searchFiles();
