@@ -18,11 +18,12 @@ if (len(sys.argv)!=2):
     print("wrong number of arguments")
     exit()
 
-pathPart=str(sys.argv[1])
-
+pathPartNum=int(str(sys.argv[1]))
+pathPart="./part"+str(pathPartNum)+"data/part"+str(pathPartNum)+"/"
 inTFileNames=[]
 TVals=[]
 for file in glob.glob(pathPart+"/*"):
+    # print(file)
     inTFileNames.append(file)
     matchT=re.search(r"T(\d+(\.\d+)?)",file)
     TVals.append(float(matchT.group(1)))
@@ -225,7 +226,7 @@ def JackknifeForChi(SVec,T):
 
 
 
-
+outRoot="./part"+str(pathPartNum)+"data/"
 def diagnosticsAndObservables(oneTFile):
     """
 
@@ -240,9 +241,9 @@ def diagnosticsAndObservables(oneTFile):
     matchPartNum=re.search(r"part(\d+)",oneTFile)
     if matchPartNum:
         partNum=int(matchPartNum.group(1))
-    EHistAllDir="./part"+str(partNum)+"EHistAll"
-    sHistAllDir="./part"+str(partNum)+"sHistAll"
-    EBlkMeanDir="./part"+str(partNum)+"EBlkMean"
+    EHistAllDir=outRoot+"part"+str(partNum)+"EHistAll"
+    sHistAllDir=outRoot+"part"+str(partNum)+"sHistAll"
+    EBlkMeanDir=outRoot+"part"+str(partNum)+"EBlkMean"
     Path(EHistAllDir).mkdir(parents=True, exist_ok=True)
     Path(sHistAllDir).mkdir(parents=True, exist_ok=True)
     Path(EBlkMeanDir).mkdir(parents=True,exist_ok=True)
@@ -316,11 +317,29 @@ def diagnosticsAndObservables(oneTFile):
         fptr1.writelines(contents)
         fptr1.close()
 
-        chiAllDir="./part"+str(partNum)+"chiAll"
+        chiAllDir=outRoot+"chiAll"
         Path(chiAllDir).mkdir(exist_ok=True,parents=True)
         fptr2=open(chiAllDir+"/"+chiOutFileName,"w+")
         fptr2.writelines(contents)
         fptr2.close()
+        #<|s|>, Jackknife
+        ps_s=np.mean(sMeanAbsVecCombined)
+        var_s=np.var(sMeanAbsVecCombined,ddof=1)
+        hfLengh_s=1.96*np.sqrt(var_s/len(sMeanAbsVecCombined))
+        outSFileName="T"+str(TTmp)+"s.txt"
+        contents=["s="+str(ps_s)+"\n","hfLength="+str(hfInterval)+"\n"+"lag="+str(lag) \
+                  +"\nlastElemNum="+str(numElem)]
+        fptr3=open(oneTFile+"/"+outSFileName,"w+")
+        fptr3.writelines(contents)
+        fptr3.close()
+
+        sAllDir=outRoot+"sAll"
+        Path(sAllDir).mkdir(exist_ok=True,parents=True)
+        fptr4=open(sAllDir+"/"+outSFileName,"w+")
+        fptr4.writelines(contents)
+        fptr4.close()
+
+
     ##############paramagnetic case################################################################
     else:
 
@@ -492,11 +511,27 @@ def diagnosticsAndObservables(oneTFile):
         fptr1.writelines(contents)
         fptr1.close()
 
-        chiAllDir="./part"+str(partNum)+"chiAll"
+        chiAllDir=outRoot+"part"+str(pathPartNum)+"chiAll"
         Path(chiAllDir).mkdir(exist_ok=True,parents=True)
         fptr2=open(chiAllDir+"/"+chiOutFileName,"w+")
         fptr2.writelines(contents)
         fptr2.close()
+        #<|s|>, Jackknife
+        ps_s=np.mean(sMeanAbsVecCombined)
+        var_s=np.var(sMeanAbsVecCombined,ddof=1)
+        hfLengh_s=1.96*np.sqrt(var_s/len(sMeanAbsVecCombined))
+        outSFileName="T"+str(TTmp)+"s.txt"
+        contents=["s="+str(ps_s)+"\n","hfLength="+str(hfInterval)+"\n"+"lag="+str(lag) \
+                  +"\nlastFilesNum="+str(paraFileSelectedNum)]
+        fptr3=open(oneTFile+"/"+outSFileName,"w+")
+        fptr3.writelines(contents)
+        fptr3.close()
+
+        sAllDir=outRoot+"sAll"
+        Path(sAllDir).mkdir(exist_ok=True,parents=True)
+        fptr4=open(sAllDir+"/"+outSFileName,"w+")
+        fptr4.writelines(contents)
+        fptr4.close()
     tOneFileEnd=datetime.now()
     print("one file time: ",tOneFileEnd-tOneFileStart)
 
