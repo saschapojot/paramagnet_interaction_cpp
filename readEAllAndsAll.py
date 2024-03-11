@@ -333,7 +333,7 @@ def diagnosticsAndObservables(oneTFile):
         fptr3.writelines(contents)
         fptr3.close()
 
-        sAllDir=outRoot+"sAll"
+        sAllDir=outRoot+"part"+str(partNum)+"sAll"
         Path(sAllDir).mkdir(exist_ok=True,parents=True)
         fptr4=open(sAllDir+"/"+outSFileName,"w+")
         fptr4.writelines(contents)
@@ -527,7 +527,7 @@ def diagnosticsAndObservables(oneTFile):
         fptr3.writelines(contents)
         fptr3.close()
 
-        sAllDir=outRoot+"sAll"
+        sAllDir=outRoot+"part"+str(partNum)+"sAll"
         Path(sAllDir).mkdir(exist_ok=True,parents=True)
         fptr4=open(sAllDir+"/"+outSFileName,"w+")
         fptr4.writelines(contents)
