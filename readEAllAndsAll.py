@@ -50,6 +50,19 @@ def parseSummaryFerro(summaryFile):
     return ferro
 
 # paraFileSelectedNum=15
+def searchAfterEqFile(oneTFile):
+    """
+
+    :param oneTFile:
+    :return: whether the summaryAfterEq.txt file exists under directory oneTFile
+    """
+    file=glob.glob(oneTFile+"/summaryAfterEq.txt")
+    return file
+
+
+
+
+
 def EAndSFilesSelected(oneTFile):
     """
 
