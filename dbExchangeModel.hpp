@@ -148,6 +148,7 @@ public:
     double g = 0.01;// coupling coefficient
 
     double T;// temperature
+    int lastFileNum=0;
     double beta;
     std::vector<double> KSupValsAll;//all the values in SBZ
     std::vector<int> KSupIndsAll;//[0,1,...,M-1]

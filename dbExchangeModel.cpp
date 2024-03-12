@@ -324,7 +324,8 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
     std::regex stopRegex("stop");
     std::regex wrongRegex("wrong");
     std::regex ErrRegex("Err");
-    std::regex lagRegex("\\d+");
+    std::regex lagRegex("lag=\\s*(\\d+)");
+    std::regex  fileNumRegex("fileNum=\\s*(\\d+)");
     std::regex ferroRegex("ferro");
     std::regex eqRegex("equilibrium");
 
@@ -333,15 +334,16 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
     std::smatch matchEAvgWrong;
     std::smatch matchEAvgErr;
     std::smatch matchEAvgLag;
+    std::smatch  matchFileNum;
     std::smatch matchEAvgFerro;
     std::smatch matchEAvgEq;
 
-    std::smatch matchSAvgStop;
-    std::smatch matchSAvgWrong;
-    std::smatch matchSAvgErr;
-    std::smatch matchSAvgLag;
-    std::smatch matchSAvgFerro;
-    std::smatch matchSAvgEq;
+//    std::smatch matchSAvgStop;
+//    std::smatch matchSAvgWrong;
+//    std::smatch matchSAvgErr;
+//    std::smatch matchSAvgLag;
+//    std::smatch matchSAvgFerro;
+//    std::smatch matchSAvgEq;
 
 
 
@@ -438,16 +440,16 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
         //inquire equilibrium of EAvg
         std::string commandEAvg = "python3 checkVec.py " + outEAllSubDir;
         //inquire equilibrium of s
-        std::string commandSAvg="python3 checksVecVec.py "+outSAllSubDir;
+//        std::string commandSAvg="python3 checksVecVec.py "+outSAllSubDir;
         std::string resultEAvg;
-        std::string resultSAvg;
+//        std::string resultSAvg;
         if (fls % 3 == 2) {
             try {
                 resultEAvg = this->execPython(commandEAvg.c_str());
-                resultSAvg=this->execPython(commandSAvg.c_str());
+//                resultSAvg=this->execPython(commandSAvg.c_str());
 
                 std::cout << "EAvg message from python: " << resultEAvg << std::endl;
-                std::cout << "sAvg message from python: " << resultSAvg << std::endl;
+//                std::cout << "sAvg message from python: " << resultSAvg << std::endl;
 
             } catch (const std::exception &e) {
                 std::cerr << "Error: " << e.what() << std::endl;
@@ -460,19 +462,19 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
             }
 
             // parse result
-            if (std::regex_search(resultEAvg, matchEAvgErr, ErrRegex) or std::regex_search(resultSAvg,matchSAvgErr,ErrRegex)) {
+            if (std::regex_search(resultEAvg, matchEAvgErr, ErrRegex)) {
                 std::cout << "error encountered" << std::endl;
                 std::exit(12);
             }
 
-            if (std::regex_search(resultEAvg, matchEAvgWrong, wrongRegex) or std::regex_search(resultSAvg,matchSAvgWrong,wrongRegex)) {
+            if (std::regex_search(resultEAvg, matchEAvgWrong, wrongRegex) ) {
                 std::exit(13);
             }
 
 //        bool ferro= false;
 
-            if (std::regex_search(resultEAvg, matchEAvgStop, stopRegex) and std::regex_search(resultSAvg,matchSAvgStop,stopRegex)) {
-                if (std::regex_search(resultEAvg, matchEAvgFerro, ferroRegex) and std::regex_search(resultSAvg,matchSAvgFerro,ferroRegex)) {
+            if (std::regex_search(resultEAvg, matchEAvgStop, stopRegex) ) {
+                if (std::regex_search(resultEAvg, matchEAvgFerro, ferroRegex) ) {
                     active = false;
                     ferro = true;
                 }
@@ -481,14 +483,17 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
             }
 
 
-            if (std::regex_search(resultEAvg, matchEAvgEq, eqRegex) and std::regex_search(resultSAvg,matchSAvgEq,eqRegex)) {
-                if (std::regex_search(resultEAvg, matchEAvgLag, lagRegex) and std::regex_search(resultSAvg,matchSAvgLag,lagRegex)) {
-                    std::string lagStrEAvg = matchEAvgLag.str(0);
-                    std::string lagStrSAvg=matchSAvgLag.str(0);
-                   int lagEAvg = std::stoi(lagStrEAvg);
-                   int lagSAvg=std::stoi(lagStrSAvg);
-                   lag=(lagEAvg>lagSAvg)? lagEAvg:lagSAvg;
+            if (std::regex_search(resultEAvg, matchEAvgEq, eqRegex) ) {
+                if (std::regex_search(resultEAvg, matchEAvgLag, lagRegex)) {
+                    std::string lagStrEAvg = matchEAvgLag.str(1);
 
+                   int lagEAvg = std::stoi(lagStrEAvg);
+
+                   lag=lagEAvg;
+                    std::regex_search(resultEAvg,matchFileNum,fileNumRegex);
+                    std::string fileNumStr=matchFileNum.str(1);
+//                    std::cout<<"fileNumStr: "<<fileNumStr<<std::endl;
+                    this->lastFileNum=std::stoi(fileNumStr);
                     active = false;
                 }
 

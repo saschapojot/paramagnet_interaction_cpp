@@ -54,7 +54,10 @@ elif len(inXMLFileNames)%3==1:
 else:
     xmlFileToBeParsed=deepcopy(inXMLFileNames[2:])
 
-xmlFileToBeParsed=xmlFileToBeParsed[int(len(xmlFileToBeParsed)/3*2):]
+lastFileNum=12 if len(xmlFileToBeParsed)>12 else int(len(xmlFileToBeParsed)/3*2)
+
+xmlFileToBeParsed=xmlFileToBeParsed[-lastFileNum:]
+
 
 # print("xml file number: "+str(len(xmlFileToBeParsed)))
 def parse1File(fileName):
@@ -160,10 +163,10 @@ def Jackknife(vec):
 
 
 #computation of auto-correlation
-
+NLags=int(len(vecValsCombined)*3/4)
 # M=100
 # lags=30000
-acfOfVec=sm.tsa.acf(vecValsCombined)
+acfOfVec=sm.tsa.acf(vecValsCombined,nlags=NLags)
 # print("min correlation is ",np.min(acfOfVec))
 # print("total elem number = "+str(len(vecValsCombined)))
 # plt.figure()
@@ -175,7 +178,7 @@ pThreshHold=0.05
 lagVal=0
 if np.min(np.abs(acfOfVec))>eps:
     print("high correlation")
-    print(np.min(np.abs(acfOfVec)))
+    # print(np.min(np.abs(acfOfVec)))
 
     print(sigContinue)
     exit()
@@ -198,7 +201,7 @@ else:
     print("mean0="+str(mean0)+", mean1="+str(mean1))
     print("hf0="+str(hf0)+", hf1="+str(hf1))
     if np.abs(mean0-mean1)<=hf0 or np.abs(mean0-mean1)<=hf1:
-        print(sigEq+" "+str(lagVal))
+        print(sigEq+" "+str(lagVal)+", fileNum="+str(lastFileNum))
         exit()
     else:
         print(sigContinue)
