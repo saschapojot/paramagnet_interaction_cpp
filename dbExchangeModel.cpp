@@ -443,7 +443,7 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
 //        std::string commandSAvg="python3 checksVecVec.py "+outSAllSubDir;
         std::string resultEAvg;
 //        std::string resultSAvg;
-        if (fls % 3 == 2) {
+        if (fls % 6 == 5) {
             try {
                 resultEAvg = this->execPython(commandEAvg.c_str());
 //                resultSAvg=this->execPython(commandSAvg.c_str());
