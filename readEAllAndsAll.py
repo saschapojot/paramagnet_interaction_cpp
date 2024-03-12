@@ -18,7 +18,7 @@ M = 20#number of supercells
 #     print("wrong number of arguments")
 #     exit()
 
-pathPartNum=1
+pathPartNum=2
 pathPart="./part"+str(pathPartNum)+"data/part"+str(pathPartNum)+"/"
 inTFileNames=[]
 TVals=[]
@@ -49,7 +49,7 @@ def parseSummaryFerro(summaryFile):
             ferro=int(match.group(1))
     return ferro
 
-paraFileSelectedNum=15
+# paraFileSelectedNum=15
 def EAndSFilesSelected(oneTFile):
     """
 
