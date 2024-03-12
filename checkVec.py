@@ -163,7 +163,7 @@ def Jackknife(vec):
 
 
 #computation of auto-correlation
-NLags=int(len(vecValsCombined)*4/5)
+NLags=int(len(vecValsCombined)*5/6)
 # M=100
 # lags=30000
 acfOfVec=sm.tsa.acf(vecValsCombined,nlags=NLags)
