@@ -2,7 +2,7 @@ import numpy as np
 
 #this script generates MCMC computing scripts
 
-TAll=np.linspace(0.05,3.1,100)
+TAll=np.linspace(0.05,10,100)
 
 counter=0
 for T in TAll:
@@ -12,7 +12,7 @@ for T in TAll:
     bashContents.append("#SBATCH -N 1\n")
     bashContents.append("#SBATCH -t 0-40:00\n")
     bashContents.append("#SBATCH -p CLUSTER\n")
-    bashContents.append("#SBATCH --mem=80GB\n")
+    bashContents.append("#SBATCH --mem=2GB\n")
     bashContents.append("#SBATCH -o outmc" + str(counter) + ".out\n")
     bashContents.append("#SBATCH -e outmc" + str(counter) + ".err\n")
     bashContents.append("cd /home/cywanag/liuxi/Documents/cppCode/paramagnet_interaction_cpp\n")
