@@ -477,6 +477,10 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
                 if (std::regex_search(resultEAvg, matchEAvgFerro, ferroRegex) ) {
                     active = false;
                     ferro = true;
+                    std::regex_search(resultEAvg,matchFileNum,fileNumRegex);
+                    std::string fileNumStr=matchFileNum.str(1);
+//                    std::cout<<"fileNumStr: "<<fileNumStr<<std::endl;
+                    this->lastFileNum=std::stoi(fileNumStr);
                 }
 
 
