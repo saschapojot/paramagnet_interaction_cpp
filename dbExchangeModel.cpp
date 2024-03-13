@@ -519,7 +519,7 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
 
     outSummary << "flip number: " << flipNum << std::endl;
     outSummary << "no flip number: " << noFlipNum << std::endl;
-
+    outSummary<<"lastFileNum="<<lastFileNum<<std::endl;
     outSummary << "equilibrium reached: " << !active << std::endl;
     outSummary<<"ferro: "<<ferro<<std::endl;
     outSummary << "lag=" << lag << std::endl;
@@ -532,10 +532,9 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
 /// @param lag decorrelation length
 /// @param loopEq total loop numbers in reaching equilibrium
 void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
-    double lagDB = static_cast<double>(lag);
-    double loopEqDB = static_cast<double >(loopEq);
+
     int counter=0;
-    int remainingDataNum = this->dataNumTotal - static_cast<int>(std::floor(loopEqDB / lagDB * 2 / 3));
+    int remainingDataNum = this->dataNumTotal - this->lastFileNum*sweepNumInOneFlush*L;
 
     int remainingLoopNum = remainingDataNum * lag;
 
