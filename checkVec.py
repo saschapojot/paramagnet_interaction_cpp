@@ -94,7 +94,7 @@ diff=np.linalg.norm(vecValsCombined-meanE,ord=1)/len(vecValsCombined)
 # print("diff="+str(diff))
 
 if diff<1e-7:
-    print(sigStop+" ferro")
+    print(sigStop+" ferro"+", fileNum="+str(lastFileNum))
     exit()
 
 
@@ -106,7 +106,7 @@ with warnings.catch_warnings():
     try:
         vecAutc=sm.tsa.acf(vecValsCombined)
     except Warning as w:
-        print(sigStop+" ferro")
+        print(sigStop+" ferro"+", fileNum="+str(lastFileNum))
         exit()
 
 
@@ -134,7 +134,7 @@ with warnings.catch_warnings():
         ferro1=True
 
 if ferro0 and ferro1:
-    print(sigStop+" ferro")
+    print(sigStop+" ferro"+", fileNum="+str(lastFileNum))
     exit()
 elif ferro0==True and ferro1==False:
     # print("f0 True f1 False")
