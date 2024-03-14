@@ -6,7 +6,7 @@ from pathlib import Path
 #this script plots s and confidence interval
 
 
-part=1
+part=2
 
 in_sFileDir="./part"+str(part)+"data/part"+str(part)+"sAll"
 in_sFileNames=[]

@@ -21,7 +21,7 @@ class reader {
 public:
     reader(const int &p, const std::string &TDir) {
         this->part = p;
-        this->TDir = "./part" + std::to_string(p) + "/" + TDir;
+        this->TDir ="./part"+std::to_string(p)+"data/part"+std::to_string(p)+"/"+ TDir;
 
         std::regex TPattern("T([+-]?\\d*(\\.\\d+)?)");
         std::smatch T_match;
@@ -37,6 +37,7 @@ public:
         std::vector<double> x1{0, 1};
         this->xVecsAll.push_back(x0);
         this->xVecsAll.push_back(x1);
+//        std::cout<<"finishing constructor"<<std::endl;
 
     }
 

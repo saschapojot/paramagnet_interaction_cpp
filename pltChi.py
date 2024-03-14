@@ -5,10 +5,10 @@ import glob
 from pathlib import Path
 #this script plots chi and confidence interval
 
-part=1
+part=2
 
-
-inChiFilesDir="./part"+str(part)+"chiAll"
+inDir="./part"+str(part)+"data/"
+inChiFilesDir=inDir+"part"+str(part)+"chiAll"
 
 inChiFileNames=[]
 TVals=[]
@@ -49,12 +49,12 @@ fullLengthAll=[2*val for val in hfLengthAll]
 plt.figure()
 # plt.scatter(TSortedVals,chiValsAll,color="black")
 plt.errorbar(TSortedVals,chiValsAll,yerr=fullLengthAll,fmt="o",ecolor="red",color="black",markersize=2)
-print(fullLengthAll)
+# print(fullLengthAll)
 plt.xlabel("$T$")
 plt.ylabel("$\chi$")
 xTicks=np.linspace(np.min(TSortedVals),np.max(TSortedVals),10)
 plt.xticks(xTicks)
-outDir="./part"+str(part)+"Observables"
+outDir=inDir+"part"+str(part)+"Observables"
 Path(outDir).mkdir(exist_ok=True,parents=True)
 fileName="chi.png"
 

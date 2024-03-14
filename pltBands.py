@@ -8,9 +8,9 @@ from datetime import datetime
 #this script plots unfolded bands and confidence interval
 
 
-part=1
+part=2
 
-inPartDir="./part"+str(part)+"/"
+inPartDir="./part"+str(part)+"data/part"+str(part)+"/"
 inTDirs=[]
 TVals=[]
 
@@ -99,58 +99,61 @@ def vec2Array(flattenedVec):
 
     return retMat
 #0..6
-ind=6
-TD=inTDirs[ind]
-print(TD)
-hfLengthFlattened,EMeanFlattened,mkSzFlattened=xml2Vec(TD)
+# ind=3
+# print(inTDirs)
+for ind in range(0,len(inTDirs)):
+    TD=inTDirs[ind]
+    print(TD)
+    hfLengthFlattened,EMeanFlattened,mkSzFlattened=xml2Vec(TD)
 
-matEMean=vec2Array(EMeanFlattened)
-matHfLength=vec2Array(hfLengthFlattened)
-matMkSize=vec2Array(mkSzFlattened)
+    matEMean=vec2Array(EMeanFlattened)
+    matHfLength=vec2Array(hfLengthFlattened)
+    matMkSize=vec2Array(mkSzFlattened)
 
-NPrim=M*L
-kPrimValsAll=[2*j/NPrim for j in range(0,NPrim)]
+    NPrim=M*L
+    kPrimValsAll=[2*j/NPrim for j in range(0,NPrim)]
 
-matEMean2Plt=np.zeros((M*L,vecLength),dtype=float)
-for m in range(0,M):
-    for a in range(0,L):
-        rowPos=m+a*M
-        matEMean2Plt[rowPos,:]=matEMean[m,a,:]
+    matEMean2Plt=np.zeros((M*L,vecLength),dtype=float)
+    for m in range(0,M):
+        for a in range(0,L):
+            rowPos=m+a*M
+            matEMean2Plt[rowPos,:]=matEMean[m,a,:]
 
-matFullLength2Plt=np.zeros((M*L,vecLength),dtype=float)
-for m in range(0,M):
-    for a in range(0,L):
-        rowPos=m+a*M
-        matFullLength2Plt[rowPos,:]=2*matHfLength[m,a,:]
+    matFullLength2Plt=np.zeros((M*L,vecLength),dtype=float)
+    for m in range(0,M):
+        for a in range(0,L):
+            rowPos=m+a*M
+            matFullLength2Plt[rowPos,:]=2*matHfLength[m,a,:]
 
-matMkSize2Plt=np.zeros((M*L,vecLength),dtype=float)
-for m in range(0,M):
-    for a in range(0,L):
-        rowPos=m+a*M
-        matMkSize2Plt[rowPos,:]=matMkSize[m,a,:]
+    matMkSize2Plt=np.zeros((M*L,vecLength),dtype=float)
+    for m in range(0,M):
+        for a in range(0,L):
+            rowPos=m+a*M
+            matMkSize2Plt[rowPos,:]=matMkSize[m,a,:]
 
-plt.figure()
+    plt.figure()
 
-rowNum,colNum=matEMean2Plt.shape
-print(rowNum)
-plt.figure()
-for c in range(0,colNum):
-    EValsTmp=matEMean2Plt[:,c]
-    mkSizeTmp=matMkSize2Plt[:,c]
-    lengthTmp=matFullLength2Plt[:,c]
-    lengthTmpNew=[]
-    # plt.scatter(kPrimValsAll,EValsTmp,s=mkSizeTmp,color="red")
-    # plt.errorbar(kPrimValsAll,EValsTmp,yerr=lengthTmp,ls="None",color="red")
-    for i in range(0,len(lengthTmp)):
-        val=0 if mkSizeTmp[i]<1e-3 else lengthTmp[i]
-        lengthTmpNew.append(val)
-    # print(lengthTmpNew)
-    plt.errorbar(kPrimValsAll,EValsTmp,yerr=lengthTmpNew,ls="None",color="red",elinewidth=0.1)
-    plt.scatter(kPrimValsAll,EValsTmp,s=mkSizeTmp,color="blue")
+    rowNum,colNum=matEMean2Plt.shape
+    print(rowNum)
+    plt.figure()
+    for c in range(0,colNum):
+        EValsTmp=matEMean2Plt[:,c]
+        mkSizeTmp=matMkSize2Plt[:,c]
+        lengthTmp=matFullLength2Plt[:,c]
+        lengthTmpNew=[]
+        # plt.scatter(kPrimValsAll,EValsTmp,s=mkSizeTmp,color="red")
+        # plt.errorbar(kPrimValsAll,EValsTmp,yerr=lengthTmp,ls="None",color="red")
+        for i in range(0,len(lengthTmp)):
+            val=0 if mkSizeTmp[i]<1e-3 else lengthTmp[i]
+            lengthTmpNew.append(val)
+        # print(lengthTmpNew)
+        plt.errorbar(kPrimValsAll,EValsTmp,yerr=lengthTmpNew,ls="None",color="red",elinewidth=0.1)
+        plt.scatter(kPrimValsAll,EValsTmp,s=mkSizeTmp,color="blue")
 
 
-plt.xlabel("$k/\pi$")
-plt.ylabel("$\epsilon$")
-plt.title("$T=$"+str(TVals[ind]))
-plt.savefig(TD+"/band.png")
+    plt.xlabel("$k/\pi$")
+    plt.ylabel("$\epsilon$")
+    plt.title("$T=$"+str(TVals[ind]))
+    plt.savefig(TD+"/band.png")
+    plt.close()
 

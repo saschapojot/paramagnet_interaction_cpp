@@ -1,3 +1,10 @@
 1. ./mc to execute mc computations
 2. python readEAllAndsAll.py, to compute EAvg, sAvg and chi
-note that parameters L and M needs to be the the same as in dbExchangeModel.hpp
+parameters that need to change: L, M, pathPartNum
+3. python pltChi.py, to plot chi values against temperature
+parameter that needs to change: part
+4. python plt_s.py, to plot s
+parameter that needs to change: part
+5. ./band, to compute C and band unfolding, parameters that need to change:  part,L, M
+6. python pltC.py, to plot C, parameter that needs to change: part
+7. python pltBands.py, to plot bands, parameter that needs to change: part

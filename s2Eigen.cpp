@@ -20,6 +20,7 @@ void reader::searchFiles() {
     for (const auto &entry: fs::directory_iterator(sAllPath)) {
         this->sAllFilesAll.push_back(entry.path().string());
     }
+//    std::cout<<"finishing search files"<<std::endl;
 
 
 }

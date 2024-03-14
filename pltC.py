@@ -6,10 +6,10 @@ from pathlib import Path
 #this script plots C and confidence interval
 
 
-part=1
+part=2
 
 
-inCFilesDir="./part"+str(part)+"CAll"
+inCFilesDir="./part"+str(part)+"data/part"+str(part)+"CAll"
 inCFileNames=[]
 TVals=[]
 
@@ -54,7 +54,7 @@ plt.xlabel("$T$")
 plt.ylabel("$C$")
 xTicks=np.linspace(np.min(TSortedVals),np.max(TSortedVals),10)
 plt.xticks(xTicks)
-outDir="./part"+str(part)+"Observables"
+outDir="./part"+str(part)+"data/part"+str(part)+"Observables"
 Path(outDir).mkdir(exist_ok=True,parents=True)
 fileName="C.png"
 
