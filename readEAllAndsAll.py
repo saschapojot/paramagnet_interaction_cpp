@@ -390,7 +390,7 @@ def diagnosticsAndObservables(oneTFile):
 
     ##############paramagnetic case################################################################
     else:
-
+        # print("entering else")
         EPerSupercell=np.array(EVecValsCombined)/M
 
 
@@ -432,7 +432,7 @@ def diagnosticsAndObservables(oneTFile):
 
 
 
-
+        # print("finish block mean")
         halfLength=int(len(EPerSupercell)/2)
         #
         # #histogram of distribution of epsilon
@@ -495,7 +495,7 @@ def diagnosticsAndObservables(oneTFile):
         plt.savefig(oneTFile+"/"+EHistOut)
         plt.savefig(EHistAllDir+"/"+EHistOut)
         plt.close()
-
+        # print("diagnostics of E finished")
         # #diagnostics of s
         sSelectedFromPart0=sVecPart0[::lag]
         sSelectedFromPart1=sVecPart1[::lag]
@@ -535,7 +535,7 @@ def diagnosticsAndObservables(oneTFile):
         plt.savefig(oneTFile+"/"+sHistOut)
         plt.savefig(sHistAllDir+"/"+sHistOut)
         plt.close()
-
+        # print("diagnostics of s finished")
         #observavles
 
         #chi
@@ -548,6 +548,7 @@ def diagnosticsAndObservables(oneTFile):
     #     print(str(i2)+" th vec="+str(SVec[i2]))
     #
     #
+        # print("len(SVec)="+str(len(SVec)))
         chi_ps,hfInterval=JackknifeForChi(SVec,TTmp)
     #     # print(chi_ps)
     #     # print(hfInterval)
@@ -564,6 +565,7 @@ def diagnosticsAndObservables(oneTFile):
         fptr2=open(chiAllDir+"/"+chiOutFileName,"w+")
         fptr2.writelines(contents)
         fptr2.close()
+        # print("chi finished")
         #<|s|>, Jackknife
         ps_s=np.mean(sMeanAbsVecCombined)
         var_s=np.var(sMeanAbsVecCombined,ddof=1)
@@ -589,7 +591,8 @@ def diagnosticsAndObservables(oneTFile):
 
 
 
-# diagnosticsAndObservables(inTFileNamesSorted[1])
+# diagnosticsAndObservables(inTFileNamesSorted[0])
+
 tStart=datetime.now()
 # # procNum=48
 # # #parallel
