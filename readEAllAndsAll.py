@@ -365,7 +365,7 @@ def diagnosticsAndObservables(oneTFile):
         fptr1.writelines(contents)
         fptr1.close()
 
-        chiAllDir=outRoot+"chiAll"
+        chiAllDir=outRoot+"part"+str(partNum)+"chiAll"
         Path(chiAllDir).mkdir(exist_ok=True,parents=True)
         fptr2=open(chiAllDir+"/"+chiOutFileName,"w+")
         fptr2.writelines(contents)
