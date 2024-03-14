@@ -2,13 +2,13 @@
 
 
 int main(int argc, char **argv) {
-    if (argc != 2) {
+    if (argc != 3) {
         std::cout << "wrong arguments" << std::endl;
         std::exit(2);
     }
 
     double T = std::stod(argv[1]);
-    int part=2;
+    int part=std::stoi(argv[2]);
     auto model = dbExchangeModel(T,part);
     bool ferro = false;
     int lag = -1;

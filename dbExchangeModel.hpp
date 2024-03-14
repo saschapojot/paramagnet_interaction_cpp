@@ -145,7 +145,7 @@ public:
     double t = 0.4;// hopping coefficient
     double J = -1;// exchange interaction
 
-    double g = 0.01;// coupling coefficient
+    double g = 0.05;// coupling coefficient
 
     double T;// temperature
     int lastFileNum=0;
