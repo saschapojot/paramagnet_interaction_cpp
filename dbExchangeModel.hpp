@@ -114,10 +114,12 @@ public:
 
 class dbExchangeModel {
 public:
-    dbExchangeModel(double temperature,const int &partNum) {
+    dbExchangeModel(double temperature,const int &groupNum,const int& rowNum) {
         this->T = temperature;
         this->beta=1/temperature;
-        this->part=partNum;
+        this->group=groupNum;
+        this->row=rowNum;
+        this->parseCSV(groupNum,rowNum);
 
         //construct SBZ values
         for (int j = 0; j < this->M; j++) {
@@ -136,16 +138,17 @@ public:
 
 public:
 //    dataholder record;
-    int part = 0; // a group of computations
-    int L = 10;// length of a supercell
-    int M = 20;// number of supercells
+    int group = 0; // a group of computations
+    int row=0;//select a row in csv
+    int L = 0;// length of a supercell
+    int M = 0;// number of supercells
 
-    double Ne = static_cast<double>(M);// electron number
+    double Ne =0;// static_cast<double>(M);// electron number
 
-    double t = 0.4;// hopping coefficient
-    double J = -1;// exchange interaction
+    double t = 0;// hopping coefficient
+    double J = 0;// exchange interaction
 
-    double g = 0.05;// coupling coefficient
+    double g = 0;// coupling coefficient
 
     double T;// temperature
     int lastFileNum=0;
@@ -182,7 +185,10 @@ public:
     mat20c kron(const mat10c &, const mat2c &);// perform Kronecker product
     void constructhPart();// construct the precomputable part of Hamiltonian//executed in constructor
 
-
+    /// initialize parameters using  values from  csv
+    /// @param groupNum group number of csv
+    /// @param rowNum row number in csv
+    void parseCSV(const int groupNum,const int& rowNum);
     ///
 /// @param s spin values for a MC step
 /// @param j index of one SBZ value

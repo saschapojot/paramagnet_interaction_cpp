@@ -2,8 +2,9 @@ import numpy as np
 
 #this script generates MCMC computing scripts
 
-TAll=np.linspace(0.05,10,100)
-
+TAll=np.linspace(0.05,3,30)
+groupNum=0
+rowNum=0
 counter=0
 for T in TAll:
     bashContents = []
@@ -15,8 +16,8 @@ for T in TAll:
     bashContents.append("#SBATCH --mem=2GB\n")
     bashContents.append("#SBATCH -o outmc" + str(counter) + ".out\n")
     bashContents.append("#SBATCH -e outmc" + str(counter) + ".err\n")
-    bashContents.append("cd /home/cywanag/liuxi/Documents/cppCode/paramagnet_interaction_cpp\n")
-    command="./mc "+str(T)
+    bashContents.append("cd /home/cywanag/data/hpc/cywanag/liuxi/Document/cppCode/paramagnet_interaction_cpp\n")
+    command="./mc "+str(T)+" "+str(groupNum)+" "+str(rowNum)
     bashContents.append(command)
     bsFileName="./mcBash/mc"+str(counter)+".sh"
     fptrTmp=open(bsFileName,"w+")

@@ -238,7 +238,45 @@ double dbExchangeModel::chemicalPotential(const std::vector<double> &EVec) {
 
 
 }
+/// initialize parameters using  values from  csv
+/// @param groupNum group number of csv
+/// @param rowNum row number in csv
+void dbExchangeModel::parseCSV(const int groupNum,const int& rowNum) {
+    std::string commandToReadCSV = "python3 parseCSV.py " + std::to_string(groupNum) + " " + std::to_string(rowNum);
 
+    std::string result = this->execPython(commandToReadCSV.c_str());
+
+    std::regex patternL("L(\\d+)M");
+    std::smatch matchL;
+    if (std::regex_search(result, matchL, patternL)) {
+        this->L = std::stoi(matchL[1].str());
+    }
+
+    std::regex patternM("M(\\d+)t");
+    std::smatch matchM;
+    if (std::regex_search(result, matchM, patternM)) {
+        this->M = std::stoi(matchM[1].str());
+    }
+
+    std::regex pattern_t("t([+-]?\\d+(\\.\\d+)?)J");
+    std::smatch match_t;
+    if (std::regex_search(result, match_t, pattern_t)) {
+        this->t = std::stod(match_t[1].str());
+    }
+
+    std::regex patternJ("J([+-]?\\d+(\\.\\d+)?)g");
+    std::smatch  matchJ;
+    if(std::regex_search(result,matchJ,patternJ)){
+        this->J=std::stod(matchJ[1].str());
+    }
+
+    std::regex pattern_g("g([+-]?\\d+(\\.\\d+)?)");
+    std::smatch match_g;
+    if(std::regex_search(result,match_g,pattern_g)){
+        this->g=std::stod(match_g[1].str());
+    }
+
+}
 
 std::vector<double> dbExchangeModel::avgEnergy(const std::vector<double> &EVec) {
     double muVal = this->chemicalPotential(EVec);
@@ -286,7 +324,7 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
     namespace fs = boost::filesystem;
 
     //output directory
-    std::string outDir = "./part" + std::to_string(this->part)+"data"+"/part"+std::to_string(this->part)+ "/T" + std::to_string(this->T) + "/";
+    std::string outDir = "./group" + std::to_string(this->group)+"data"+"/row"+std::to_string(this->row)+ "/T" + std::to_string(this->T) + "/";
     std::string outEAllSubDir = outDir + "EAll/";
     std::string outMuAllSubDir = outDir + "muAll/";
     std::string outSAllSubDir = outDir + "sAll/";
@@ -406,10 +444,7 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
 
 //        record_ptr->flattenEigData();
         std::string filenameMiddle = "loopStart" + std::to_string(loopStart) +
-                                     "loopEnd" + std::to_string(loopEnd) + "T" + std::to_string(this->T) + "t" +
-                                     std::to_string(this->t) + "J" + std::to_string(this->J) + "g" +
-                                     std::to_string(this->g) + "part" + std::to_string(this->part) + "L" +
-                                     std::to_string(this->L) + "M" + std::to_string(this->M);
+                                     "loopEnd" + std::to_string(loopEnd) + "T" + std::to_string(this->T) ;
 
         std::string outEFileTmp = outEAllSubDir + filenameMiddle + ".EAll.xml";
 
@@ -576,7 +611,7 @@ void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
     namespace fs = boost::filesystem;
 
     //output directory
-    std::string outDir = "./part" + std::to_string(this->part)+"data"+"/part"+std::to_string(this->part) + "/T" + std::to_string(this->T) + "/";
+    std::string outDir = "./group" + std::to_string(this->group)+"data"+"/row"+std::to_string(this->row) + "/T" + std::to_string(this->T) + "/";
     std::string outEAllSubDir = outDir + "EAll/";
     std::string outMuAllSubDir = outDir + "muAll/";
     std::string outSAllSubDir = outDir + "sAll/";
@@ -644,10 +679,7 @@ void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
         int loopEnd = loopStart + this->sweepNumInOneFlush * this->L - 1;
 //        record_ptr->flattenEigData();
         std::string filenameMiddle = "loopStart" + std::to_string(loopStart) +
-                                     "loopEnd" + std::to_string(loopEnd) + "T" + std::to_string(this->T) + "t" +
-                                     std::to_string(this->t) + "J" + std::to_string(this->J) + "g" +
-                                     std::to_string(this->g) + "part" + std::to_string(this->part)
-                                     + "L" + std::to_string(this->L) + "M" + std::to_string(this->M) + "AfterEq";
+                                     "loopEnd" + std::to_string(loopEnd) + "T" + std::to_string(this->T)  + "AfterEq";
 
         std::string outEFileTmp = outEAllSubDir + filenameMiddle + ".EAll.xml";
 
