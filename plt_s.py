@@ -6,9 +6,10 @@ from pathlib import Path
 #this script plots s and confidence interval
 
 
-part=2
-
-in_sFileDir="./part"+str(part)+"data/part"+str(part)+"sAll"
+groupNum=0
+rowNum=0
+inDir="./group"+str(groupNum)+"data/row"+str(rowNum)+"/"
+in_sFileDir=inDir+"/sAll"+"/"
 in_sFileNames=[]
 
 TVals=[]
@@ -50,7 +51,7 @@ plt.xlabel("$T$")
 plt.ylabel("$s$")
 xTicks=np.linspace(np.min(TSortedVals),np.max(TSortedVals),10)
 plt.xticks(xTicks)
-outDir="./part"+str(part)+"data/part"+str(part)+"Observables"
+outDir=inDir+"Observables"
 Path(outDir).mkdir(exist_ok=True,parents=True)
 fileName="s.png"
 

@@ -18,11 +18,12 @@ M = 20#number of supercells
 #     print("wrong number of arguments")
 #     exit()
 sweepNumInOneFlush=3000
-pathPartNum=2
-pathPart="./part"+str(pathPartNum)+"data/part"+str(pathPartNum)+"/"
+groupNum=0
+rowNum=0
+pathGroupRow="./group"+str(groupNum)+"data/row"+str(rowNum)+"/"
 inTFileNames=[]
 TVals=[]
-for file in glob.glob(pathPart+"/*"):
+for file in glob.glob(pathGroupRow+"/T*"):
     # print(file)
     inTFileNames.append(file)
     matchT=re.search(r"T(\d+(\.\d+)?)",file)
@@ -274,7 +275,7 @@ def JackknifeForChi(SVec,T):
 
 
 
-outRoot="./part"+str(pathPartNum)+"data/"
+outRoot=pathGroupRow
 def diagnosticsAndObservables(oneTFile):
     """
 
@@ -289,12 +290,12 @@ def diagnosticsAndObservables(oneTFile):
     matchPartNum=re.search(r"part(\d+)",oneTFile)
     if matchPartNum:
         partNum=int(matchPartNum.group(1))
-    EHistAllDir=outRoot+"part"+str(partNum)+"EHistAll"
-    sHistAllDir=outRoot+"part"+str(partNum)+"sHistAll"
-    EBlkMeanDir=outRoot+"part"+str(partNum)+"EBlkMean"
-    Path(EHistAllDir).mkdir(parents=True, exist_ok=True)
-    Path(sHistAllDir).mkdir(parents=True, exist_ok=True)
-    Path(EBlkMeanDir).mkdir(parents=True,exist_ok=True)
+    # EHistAllDir=outRoot+"part"+str(partNum)+"EHistAll"
+    # sHistAllDir=outRoot+"part"+str(partNum)+"sHistAll"
+    # EBlkMeanDir=outRoot+"part"+str(partNum)+"EBlkMean"
+    # Path(EHistAllDir).mkdir(parents=True, exist_ok=True)
+    # Path(sHistAllDir).mkdir(parents=True, exist_ok=True)
+    # Path(EBlkMeanDir).mkdir(parents=True,exist_ok=True)
     if TTmpMatch:
         TTmp=float(TTmpMatch.group(1))
     ##############ferro case################################################################
@@ -312,7 +313,7 @@ def diagnosticsAndObservables(oneTFile):
         plt.xlabel("$E$")
         EHistOut="T"+str(TTmp)+"EHist.png"
         plt.savefig(oneTFile+"/"+EHistOut)
-        plt.savefig(EHistAllDir+"/"+EHistOut)
+        # plt.savefig(EHistAllDir+"/"+EHistOut)
         plt.close()
 
         plt.figure()
@@ -323,7 +324,7 @@ def diagnosticsAndObservables(oneTFile):
         plt.xlabel("$|s|$")
         sHistOut="T"+str(TTmp)+"sHist.png"
         plt.savefig(oneTFile+"/"+sHistOut)
-        plt.savefig(sHistAllDir+"/"+sHistOut)
+        # plt.savefig(sHistAllDir+"/"+sHistOut)
         plt.close()
 
         #block mean
@@ -354,7 +355,7 @@ def diagnosticsAndObservables(oneTFile):
             ax.text(xPosTextBlk,yPosTextBlk,"mean="+str(meanTmp)+", sd="+str(sdTmp))
         fig.suptitle("T="+str(TTmp)+", ferromagnetic")
         plt.savefig(oneTFile+"/T"+str(TTmp)+"EBlk.png")
-        plt.savefig(EBlkMeanDir+"/T"+str(TTmp)+"EBlk.png")
+        # plt.savefig(EBlkMeanDir+"/T"+str(TTmp)+"EBlk.png")
         plt.close()
         #observables
         chi_ps,hfInterval=JackknifeForChi(sMeanAbsVecCombined,TTmp)
@@ -365,7 +366,7 @@ def diagnosticsAndObservables(oneTFile):
         fptr1.writelines(contents)
         fptr1.close()
 
-        chiAllDir=outRoot+"part"+str(partNum)+"chiAll"
+        chiAllDir=outRoot+"chiAll"
         Path(chiAllDir).mkdir(exist_ok=True,parents=True)
         fptr2=open(chiAllDir+"/"+chiOutFileName,"w+")
         fptr2.writelines(contents)
@@ -381,7 +382,7 @@ def diagnosticsAndObservables(oneTFile):
         fptr3.writelines(contents)
         fptr3.close()
 
-        sAllDir=outRoot+"part"+str(partNum)+"sAll"
+        sAllDir=outRoot+"sAll"
         Path(sAllDir).mkdir(exist_ok=True,parents=True)
         fptr4=open(sAllDir+"/"+outSFileName,"w+")
         fptr4.writelines(contents)
@@ -423,7 +424,7 @@ def diagnosticsAndObservables(oneTFile):
             ax.text(xPosTextBlk,yPosTextBlk,"mean="+str(meanTmp)+", sd="+str(sdTmp))
         fig.suptitle("T="+str(TTmp))
         plt.savefig(oneTFile+"/T"+str(TTmp)+"EBlk.png")
-        plt.savefig(EBlkMeanDir+"/T"+str(TTmp)+"EBlk.png")
+        # plt.savefig(EBlkMeanDir+"/T"+str(TTmp)+"EBlk.png")
         plt.close()
 
 
@@ -493,7 +494,7 @@ def diagnosticsAndObservables(oneTFile):
         EHistOut="T"+str(TTmp)+"EHist.png"
 
         plt.savefig(oneTFile+"/"+EHistOut)
-        plt.savefig(EHistAllDir+"/"+EHistOut)
+        # plt.savefig(EHistAllDir+"/"+EHistOut)
         plt.close()
         # print("diagnostics of E finished")
         # #diagnostics of s
@@ -533,7 +534,7 @@ def diagnosticsAndObservables(oneTFile):
         axS1.text(xPosS1Text,yPosS1Text,"mean="+str(meanSPart1)+"\nhalfLength="+str(hfLengthSPart1)+"\nlag="+str(lag))
         sHistOut="T"+str(TTmp)+"sHist.png"
         plt.savefig(oneTFile+"/"+sHistOut)
-        plt.savefig(sHistAllDir+"/"+sHistOut)
+        # plt.savefig(sHistAllDir+"/"+sHistOut)
         plt.close()
         # print("diagnostics of s finished")
         #observavles
@@ -560,7 +561,7 @@ def diagnosticsAndObservables(oneTFile):
         fptr1.writelines(contents)
         fptr1.close()
 
-        chiAllDir=outRoot+"part"+str(pathPartNum)+"chiAll"
+        chiAllDir=outRoot+"chiAll"
         Path(chiAllDir).mkdir(exist_ok=True,parents=True)
         fptr2=open(chiAllDir+"/"+chiOutFileName,"w+")
         fptr2.writelines(contents)
@@ -577,7 +578,7 @@ def diagnosticsAndObservables(oneTFile):
         fptr3.writelines(contents)
         fptr3.close()
 
-        sAllDir=outRoot+"part"+str(partNum)+"sAll"
+        sAllDir=outRoot+"sAll"
         Path(sAllDir).mkdir(exist_ok=True,parents=True)
         fptr4=open(sAllDir+"/"+outSFileName,"w+")
         fptr4.writelines(contents)
