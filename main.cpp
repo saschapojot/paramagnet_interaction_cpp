@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
 
     double T = std::stod(argv[1]);
     int groupNum=std::stoi(argv[2]);
-    int rowNum=0;
+    int rowNum=std::stoi(argv[3]);
     auto model = dbExchangeModel(T,groupNum,rowNum);
     model.parseCSV(groupNum,rowNum);
     bool ferro = false;

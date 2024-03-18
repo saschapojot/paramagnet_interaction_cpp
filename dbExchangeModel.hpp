@@ -23,7 +23,7 @@
 #include <random>
 #include <chrono>
 #include <msgpack.hpp>
-#include <filesystem>
+
 #include <fstream>
 #include <boost/filesystem.hpp>
 
@@ -33,7 +33,7 @@
 #include <boost/serialization/complex.hpp>
 #include <cstdlib>
 #include <regex>
-
+#include <sstream>
 
 using namespace std::complex_literals;
 using mat10c = Eigen::Matrix<std::complex<double>, 10, 10>;
@@ -43,7 +43,7 @@ using vec20c=Eigen::Vector<std::complex<double>,20>;
 const auto PI=std::numbers::pi;
 using eigVal20=Eigen::SelfAdjointEigenSolver<mat20c>::RealVectorType;
 using vecVal20=Eigen::SelfAdjointEigenSolver<mat20c>::EigenvectorsType;
-
+namespace fs = boost::filesystem;
 class oneEigSolution{
 public:
     oneEigSolution(const int&ind,const std::vector<double>& vals, const std::vector<std::complex<double>> &vecs){

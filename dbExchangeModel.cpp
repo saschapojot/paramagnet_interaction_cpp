@@ -321,7 +321,7 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
     double muCurr = EAndMuCurr[1];
     int flipNum = 0;
     int noFlipNum = 0;
-    namespace fs = boost::filesystem;
+//    namespace fs = boost::filesystem;
 
     //output directory
     std::string outDir = "./group" + std::to_string(this->group)+"data"+"/row"+std::to_string(this->row)+ "/T" + std::to_string(this->T) + "/";
@@ -443,8 +443,13 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
         int loopEnd = loopStart + this->sweepNumInOneFlush * this->L - 1;
 
 //        record_ptr->flattenEigData();
+        std::ostringstream  sObjT;
+        sObjT<<std::fixed;
+        sObjT<<std::setprecision(10);
+        sObjT<<T;
+        std::string TStr=sObjT.str();
         std::string filenameMiddle = "loopStart" + std::to_string(loopStart) +
-                                     "loopEnd" + std::to_string(loopEnd) + "T" + std::to_string(this->T) ;
+                                     "loopEnd" + std::to_string(loopEnd) + "T" + TStr ;
 
         std::string outEFileTmp = outEAllSubDir + filenameMiddle + ".EAll.xml";
 
@@ -611,7 +616,12 @@ void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
     namespace fs = boost::filesystem;
 
     //output directory
-    std::string outDir = "./group" + std::to_string(this->group)+"data"+"/row"+std::to_string(this->row) + "/T" + std::to_string(this->T) + "/";
+    std::ostringstream  sObjT;
+    sObjT<<std::fixed;
+    sObjT<<std::setprecision(10);
+    sObjT<<T;
+    std::string TStr=sObjT.str();
+    std::string outDir = "./group" + std::to_string(this->group)+"data"+"/row"+std::to_string(this->row) + "/T" + TStr + "/";
     std::string outEAllSubDir = outDir + "EAll/";
     std::string outMuAllSubDir = outDir + "muAll/";
     std::string outSAllSubDir = outDir + "sAll/";
