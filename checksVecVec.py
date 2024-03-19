@@ -58,6 +58,8 @@ else:
     xmlFileToBeParsed=deepcopy(inXMLFileNames[2:])
 
 xmlFileToBeParsed=xmlFileToBeParsed[int(len(xmlFileToBeParsed)/3*2):]
+lastFileNum=12 if len(xmlFileToBeParsed)>12 else int(len(xmlFileToBeParsed)/3*2)
+xmlFileToBeParsed=xmlFileToBeParsed[-lastFileNum:]
 
 
 def parse1File(fileName):
@@ -152,8 +154,9 @@ def Jackknife(vec):
     hfLen=1.96*np.sqrt(psVar/n)
     return psMean,hfLen
 
-
-acfOfVec=sm.tsa.acf(vecValsCombined)
+#computation of auto-correlation
+NLags=int(np.ceil(len(vecValsCombined)*5/6))
+acfOfVec=sm.tsa.acf(vecValsCombined,nlags=NLags)
 # plt.figure()
 # plt.plot(acfOfVec,color="black")
 # plt.savefig("sAutc.png")
@@ -185,7 +188,7 @@ else:
     print("mean0="+str(mean0)+", mean1="+str(mean1))
     print("hf0="+str(hf0)+", hf1="+str(hf1))
     if np.abs(mean0-mean1)<=hf0 or np.abs(mean0-mean1)<=hf1:
-        print(sigEq+" "+str(lagVal))
+        print(sigEq+" "+str(lagVal)+", fileNum="+str(lastFileNum))
         exit()
     else:
         print(sigContinue)

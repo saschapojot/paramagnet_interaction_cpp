@@ -324,7 +324,13 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
 //    namespace fs = boost::filesystem;
 
     //output directory
-    std::string outDir = "./group" + std::to_string(this->group)+"data"+"/row"+std::to_string(this->row)+ "/T" + std::to_string(this->T) + "/";
+    std::ostringstream sObjT;
+    sObjT << std::fixed;
+    sObjT << std::setprecision(10);
+    sObjT << T;
+    std::string TStr = sObjT.str();
+    std::string outDir =
+            "./group" + std::to_string(this->group) + "data" + "/row" + std::to_string(this->row) + "/T" + TStr + "/";
     std::string outEAllSubDir = outDir + "EAll/";
     std::string outMuAllSubDir = outDir + "muAll/";
     std::string outSAllSubDir = outDir + "sAll/";
@@ -363,7 +369,7 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
     std::regex wrongRegex("wrong");
     std::regex ErrRegex("Err");
     std::regex lagRegex("lag=\\s*(\\d+)");
-    std::regex  fileNumRegex("fileNum=\\s*(\\d+)");
+    std::regex fileNumRegex("fileNum=\\s*(\\d+)");
     std::regex ferroRegex("ferro");
     std::regex eqRegex("equilibrium");
 
@@ -372,13 +378,14 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
     std::smatch matchEAvgWrong;
     std::smatch matchEAvgErr;
     std::smatch matchEAvgLag;
-    std::smatch  matchFileNum;
+    std::smatch matchFileNum;
     std::smatch matchEAvgFerro;
     std::smatch matchEAvgEq;
 
     std::smatch matchSAvgStop;
     std::smatch matchSAvgWrong;
     std::smatch matchSAvgErr;
+    std::smatch matchSAvgFileNum;
     std::smatch matchSAvgLag;
     std::smatch matchSAvgFerro;
     std::smatch matchSAvgEq;
@@ -443,13 +450,13 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
         int loopEnd = loopStart + this->sweepNumInOneFlush * this->L - 1;
 
 //        record_ptr->flattenEigData();
-        std::ostringstream  sObjT;
-        sObjT<<std::fixed;
-        sObjT<<std::setprecision(10);
-        sObjT<<T;
-        std::string TStr=sObjT.str();
+//        std::ostringstream  sObjT;
+//        sObjT<<std::fixed;
+//        sObjT<<std::setprecision(10);
+//        sObjT<<T;
+//        std::string TStr=sObjT.str();
         std::string filenameMiddle = "loopStart" + std::to_string(loopStart) +
-                                     "loopEnd" + std::to_string(loopEnd) + "T" + TStr ;
+                                     "loopEnd" + std::to_string(loopEnd) + "T" + TStr;
 
         std::string outEFileTmp = outEAllSubDir + filenameMiddle + ".EAll.xml";
 
@@ -480,13 +487,13 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
         //inquire equilibrium of EAvg
         std::string commandEAvg = "python3 checkVec.py " + outEAllSubDir;
         //inquire equilibrium of s
-        std::string commandSAvg="python3 checksVecVec.py "+outSAllSubDir;
+        std::string commandSAvg = "python3 checksVecVec.py " + outSAllSubDir;
         std::string resultEAvg;
         std::string resultSAvg;
         if (fls % 6 == 5) {
             try {
                 resultEAvg = this->execPython(commandEAvg.c_str());
-                resultSAvg=this->execPython(commandSAvg.c_str());
+                resultSAvg = this->execPython(commandSAvg.c_str());
 
                 std::cout << "EAvg message from python: " << resultEAvg << std::endl;
                 std::cout << "sAvg message from python: " << resultSAvg << std::endl;
@@ -507,55 +514,71 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
                 std::exit(12);
             }
 
-            if (std::regex_search(resultEAvg, matchEAvgWrong, wrongRegex) ) {
+            if (std::regex_search(resultEAvg, matchEAvgWrong, wrongRegex)) {
                 std::exit(13);
             }
 
 //        bool ferro= false;
 
-            if (std::regex_search(resultEAvg, matchEAvgStop, stopRegex)and std::regex_search(resultSAvg,matchSAvgStop,stopRegex) ) {
-                if (std::regex_search(resultEAvg, matchEAvgFerro, ferroRegex) and std::regex_search(resultSAvg,matchSAvgFerro,ferroRegex)) {
+            if (std::regex_search(resultEAvg, matchEAvgStop, stopRegex) and
+                std::regex_search(resultSAvg, matchSAvgStop, stopRegex)) {
+                if (std::regex_search(resultEAvg, matchEAvgFerro, ferroRegex) and
+                    std::regex_search(resultSAvg, matchSAvgFerro, ferroRegex)) {
                     active = false;
                     ferro = true;
-                    std::regex_search(resultEAvg,matchFileNum,fileNumRegex);
-                    std::string fileNumStr=matchFileNum.str(1);
+                    std::regex_search(resultEAvg, matchFileNum, fileNumRegex);
+                    std::string fileNumStr = matchFileNum.str(1);
 //                    std::cout<<"fileNumStr: "<<fileNumStr<<std::endl;
-                    this->lastFileNum=std::stoi(fileNumStr);
+                    this->lastFileNum = std::stoi(fileNumStr);
                 }
 
 
             }
 
 
-            if (std::regex_search(resultEAvg, matchEAvgEq, eqRegex) and std::regex_search(resultSAvg,matchSAvgEq,eqRegex)) {
-                if (std::regex_search(resultEAvg, matchEAvgLag, lagRegex)and std::regex_search(resultSAvg,matchSAvgLag,lagRegex)) {
+            if (std::regex_search(resultEAvg, matchEAvgEq, eqRegex) and
+                std::regex_search(resultSAvg, matchSAvgEq, eqRegex)) {
+                if (std::regex_search(resultEAvg, matchEAvgLag, lagRegex) and
+                    std::regex_search(resultSAvg, matchSAvgLag, lagRegex)) {
                     std::string lagStrEAvg = matchEAvgLag.str(1);
-                    std::string lagStr_s=matchSAvgLag.str(1);
-                    int lag_s=std::stoi(lagStr_s);
+                    std::string lagStr_s = matchSAvgLag.str(1);
+                    int lag_s = std::stoi(lagStr_s);
 
-                   int lagEAvg = std::stoi(lagStrEAvg);
+                    int lagEAvg = std::stoi(lagStrEAvg);
 
 
-                   lag=lag_s>lagEAvg?lag_s:lagEAvg;
-                    std::cout<<"lag_s="<<lag_s<<std::endl;
-                    std::cout<<"lagEAvg="<<lagEAvg<<std::endl;
-                    std::cout<<"lag="<<lag<<std::endl;
-                    std::regex_search(resultEAvg,matchFileNum,fileNumRegex);
-                    std::string fileNumStr=matchFileNum.str(1);
+                    lag = lag_s > lagEAvg ? lag_s : lagEAvg;
+                    std::cout << "lag_s=" << lag_s << std::endl;
+                    std::cout << "lagEAvg=" << lagEAvg << std::endl;
+                    std::cout << "lag=" << lag << std::endl;
+                    std::regex_search(resultEAvg, matchFileNum, fileNumRegex);
+                    std::string fileNumStr = matchFileNum.str(1);
 //                    std::cout<<"fileNumStr: "<<fileNumStr<<std::endl;
-                    this->lastFileNum=std::stoi(fileNumStr);
+                    this->lastFileNum = std::stoi(fileNumStr);
                     active = false;
                 }
 
             }
-        }
 
+            if (std::regex_search(resultEAvg, matchEAvgStop, stopRegex) and
+                std::regex_search(resultSAvg, matchSAvgEq, eqRegex)) {
+                std::regex_search(resultSAvg, matchSAvgLag, lagRegex);
+                std::string lagStr_s = matchSAvgLag.str(1);
+                int lag_s = std::stoi(lagStr_s);
+                lag = lag_s;
+                std::regex_search(resultSAvg, matchSAvgFileNum, fileNumRegex);
+                std::string fileNumStr = matchSAvgFileNum.str(1);
+                this->lastFileNum = std::stoi(fileNumStr);
+                active = false;
 
+            }
+
+        }//end if
         fls++;
-//        std::cout<<"output data is "<<sizeof(*record_ptr)/std::pow(1024,3)<<" GB"<<std::endl;
-
-
     }//end of while loop
+
+
+
 
     std::ofstream outSummary(outDir + "summary.txt");
     loopTotal = flipNum + noFlipNum;
@@ -569,14 +592,17 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
 
     outSummary << "flip number: " << flipNum << std::endl;
     outSummary << "no flip number: " << noFlipNum << std::endl;
-    outSummary<<"lastFileNum="<<lastFileNum<<std::endl;
+    outSummary << "lastFileNum=" << lastFileNum << std::endl;
     outSummary << "equilibrium reached: " << !active << std::endl;
-    outSummary<<"ferro: "<<ferro<<std::endl;
+    outSummary << "ferro: " << ferro << std::endl;
     outSummary << "lag=" << lag << std::endl;
     outSummary.close();
+}//end of function
 
 
-}
+
+
+
 
 ///
 /// @param lag decorrelation length

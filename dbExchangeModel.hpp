@@ -122,6 +122,7 @@ public:
         this->parseCSV(groupNum,rowNum);
         this->Ne=this->M;
 
+
         //construct SBZ values
         for (int j = 0; j < this->M; j++) {
             this->KSupValsAll.push_back(2 * PI * double(j) / (double(this->L * this->M)));
@@ -145,6 +146,7 @@ public:
     int row=0;//select a row in csv
     int L = 0;// length of a supercell
     int M = 0;// number of supercells
+//    std::string outDir;
 
     double Ne =0;// static_cast<double>(M);// electron number
 
