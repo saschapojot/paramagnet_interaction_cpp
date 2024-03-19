@@ -698,7 +698,7 @@ void reader::C2File() {
 //    std::cout<<"C="<<C_ps<<std::endl;
 //    std::cout<<"sd="<<sd<<std::endl;
 
-    std::string outCDir = "./part" + std::to_string(this->part) + "CAll/";
+    std::string outCDir = "./group" + std::to_string(this->groupNum)+"data/row"+std::to_string(rowNum) +"/"+ "CAll/";
     namespace fs = boost::filesystem;
     if (!fs::is_directory(outCDir) || !fs::exists(outCDir)) {
         fs::create_directories(outCDir);

@@ -1,12 +1,15 @@
 #include "s2Eigen.hpp"
 
 
-std::vector<std::string> scanFiles(const int &part){
-    std::string searchPath="./part"+std::to_string(part)+"data/part"+std::to_string(part);
+std::vector<std::string> scanFiles(const int &groupNum, const int& rowNum){
+    std::string searchPath="./group"+std::to_string(groupNum)+"data/row"+std::to_string(rowNum)+"/";
     std::vector<std::string> TDirs;
     if(fs::exists(searchPath) && fs::is_directory(searchPath)){
         for(const auto &entry:fs::directory_iterator(searchPath)){
-            TDirs.push_back(entry.path().filename());
+            if(entry.path().filename().string()[0]=='T'){
+                TDirs.push_back(entry.path().filename().string());
+            }
+
         }
     }
 //    for(const auto&s:TDirs)
@@ -20,16 +23,20 @@ std::vector<std::string> scanFiles(const int &part){
 
 
 int main(int argc, char **argv) {
-
-    int part = 2;
-    std::vector<std::string> TDirs = scanFiles(part);
+    if(argc!=3){
+        std::cerr<<"wrong number of arguments"<<std::endl;
+        exit(1);
+    }
+    int groupNum=std::stoi(argv[1]);
+    int rowNum=std::stoi(argv[2]);
+    std::vector<std::string> TDirs = scanFiles(groupNum,rowNum);
 //    reader::printVec(TDirs);
 //    reader::printVec(TDirs);
     for (const auto& s:TDirs) {
         const auto tCStart{std::chrono::steady_clock::now()};
-        auto rd = reader(part, s);
+        auto rd = reader(groupNum,rowNum, s);
 
-        auto model = dbExchangeModel(rd.T,part);
+        auto model = dbExchangeModel(rd.T,groupNum,rowNum);
 
 
         rd.searchFiles();

@@ -11,7 +11,7 @@
 #include <string>
 
 
-namespace fs = std::filesystem;
+
 //Read from the xml files and solve eigenvalue problem, then map the folded bands to unfolded bands
 //Also, compute specific heat
 //needs to read E, mu, and sAvg
@@ -19,9 +19,10 @@ namespace fs = std::filesystem;
 class reader {
 
 public:
-    reader(const int &p, const std::string &TDir) {
-        this->part = p;
-        this->TDir ="./part"+std::to_string(p)+"data/part"+std::to_string(p)+"/"+ TDir;
+    reader(const int &groupNum,const int& rowNum, const std::string &TDir) {
+        this->groupNum = groupNum;
+        this->rowNum=rowNum;
+        this->TDir ="./group"+std::to_string(groupNum)+"data/row"+std::to_string(rowNum)+"/"+ TDir;
 
         std::regex TPattern("T([+-]?\\d*(\\.\\d+)?)");
         std::smatch T_match;
@@ -177,7 +178,9 @@ public:
     std::vector <std::string> sortedEFilesAll;
     std::vector <std::string> sortedmuFilesAll;
     std::vector <std::string> sortedsAllFilesAll;
-    int part = 1;
+//    int part = 1;
+    int groupNum;
+    int rowNum;
 
     double T = 0;
     double beta = 0;
