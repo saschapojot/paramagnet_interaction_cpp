@@ -188,7 +188,7 @@ else:
     print("mean0="+str(mean0)+", mean1="+str(mean1))
     print("hf0="+str(hf0)+", hf1="+str(hf1))
     if np.abs(mean0-mean1)<=hf0 or np.abs(mean0-mean1)<=hf1:
-        print(sigEq+" "+str(lagVal)+", fileNum="+str(lastFileNum))
+        print(sigEq+", lag="+str(lagVal)+", fileNum="+str(lastFileNum))
         exit()
     else:
         print(sigContinue)
