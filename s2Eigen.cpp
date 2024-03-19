@@ -380,6 +380,7 @@ void reader::fillZeWeights(dbExchangeModel &model) {
                         vec20c zb = std::get<2>(tripleTmp[m]).col(b);
                         double cbja = std::abs(zb.dot(yEigen));
 //                        this->AMatsAll[p][m][a][rowCount]=std::vector<double>({ETmp,cbja});
+//                        std::cout<<"ETmp="<<ETmp<<", cbja="<<cbja<<std::endl;
                         oneATmp.push_back({ETmp, cbja});
                         rowCount++;
                     }
@@ -392,6 +393,7 @@ void reader::fillZeWeights(dbExchangeModel &model) {
                           });
 
                 this->AMatsAll[p][m][a] = oneATmp;
+//                std::cout<<"oneATmp:"<<oneATmp[0][1]<<std::endl;
             }//a end
         }//m end
 
@@ -401,6 +403,7 @@ void reader::fillZeWeights(dbExchangeModel &model) {
 
         double EAvgTmp = EAnd_muTmp[0];
         double muTmp = EAnd_muTmp[1];
+//        std::cout<<"EAvgTmp="<<EAvgTmp<<", muTmp="<<muTmp<<std::endl;
 //        if(ferro==true){
 //            std::cout<<"E="<<EAvgTmp<<std::endl;
 //            std::cout<<"mu="<<muTmp<<std::endl;
@@ -432,6 +435,7 @@ void reader::fillZeWeights(dbExchangeModel &model) {
 
         }//end of for all K
         this->ZeVals.push_back(sumForOne_s);
+//        std::cout<<"sumForOne_s"<<sumForOne_s<<std::endl;
 
         for (auto &vec: weightForOne_s) {
             for (auto &val: vec) {
@@ -546,6 +550,8 @@ void reader::computeAllWEAllWE2() {
     for (int i = 0; i < this->sSelected.size(); i++) {
         double tmp = this->computeWE(i);
         double tmp2 = this->computeWE2(i);
+//        std::cout<<"tmp="<<tmp<<std::endl;
+//        std::cout<<"tmp2="<<tmp2<<std::endl;
         this->WE.push_back(tmp);
         this->WE2.push_back(tmp2);
     }
@@ -694,10 +700,11 @@ void reader::C2File() {
 //        std::cout<<"C="<<C_ps<<std::endl;
 //        std::cout<<"sd="<<sd<<std::endl;
 //    }
-
+//std::cout<<"==================="<<std::endl;
+//    std::cout<<"T="<<T<<std::endl;
 //    std::cout<<"C="<<C_ps<<std::endl;
 //    std::cout<<"sd="<<sd<<std::endl;
-
+//    std::cout<<"==================================="<<std::endl;
     std::string outCDir = "./group" + std::to_string(this->groupNum)+"data/row"+std::to_string(rowNum) +"/"+ "CAll/";
     namespace fs = boost::filesystem;
     if (!fs::is_directory(outCDir) || !fs::exists(outCDir)) {
