@@ -566,6 +566,7 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
                 std::string lagStr_s = matchSAvgLag.str(1);
                 int lag_s = std::stoi(lagStr_s);
                 lag = lag_s;
+//                std::cout<<"lag is "<<lag<<std::endl;
                 std::regex_search(resultSAvg, matchSAvgFileNum, fileNumRegex);
                 std::string fileNumStr = matchSAvgFileNum.str(1);
                 this->lastFileNum = std::stoi(fileNumStr);
@@ -578,7 +579,7 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
     }//end of while loop
 
 
-
+//    std::cout<<"while ended"<<std::endl;
 
     std::ofstream outSummary(outDir + "summary.txt");
     loopTotal = flipNum + noFlipNum;
