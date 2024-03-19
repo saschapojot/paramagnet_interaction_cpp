@@ -6,5 +6,5 @@ parameter that needs to change: groupNum, rowNum
 4. python plt_s.py, to plot s
 parameter that needs to change: groupNum, rowNum
 5. ./band, to compute C and band unfolding, parameters that need to change:  part,L, M
-6. python pltC.py, to plot C, parameter that needs to change: part
+6. python pltC.py, to plot C, parameter that needs to change: groupNum, rowNum
 7. python pltBands.py, to plot bands, parameter that needs to change: part
