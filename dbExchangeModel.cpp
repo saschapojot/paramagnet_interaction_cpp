@@ -217,7 +217,7 @@ double dbExchangeModel::bisection_method(std::function<double(double)> func) {
 /// @param EVec a vector of all eigenvalues given one s
 /// @return chemical potential
 double dbExchangeModel::chemicalPotential(const std::vector<double> &EVec) {
-
+//    std::cout<<"Ne="<<Ne<<std::endl;
     // local function
     auto muf = [&EVec, this](double mu) -> double {
 
@@ -376,12 +376,12 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
     std::smatch matchEAvgFerro;
     std::smatch matchEAvgEq;
 
-//    std::smatch matchSAvgStop;
-//    std::smatch matchSAvgWrong;
-//    std::smatch matchSAvgErr;
-//    std::smatch matchSAvgLag;
-//    std::smatch matchSAvgFerro;
-//    std::smatch matchSAvgEq;
+    std::smatch matchSAvgStop;
+    std::smatch matchSAvgWrong;
+    std::smatch matchSAvgErr;
+    std::smatch matchSAvgLag;
+    std::smatch matchSAvgFerro;
+    std::smatch matchSAvgEq;
 
 
 
@@ -480,16 +480,16 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
         //inquire equilibrium of EAvg
         std::string commandEAvg = "python3 checkVec.py " + outEAllSubDir;
         //inquire equilibrium of s
-//        std::string commandSAvg="python3 checksVecVec.py "+outSAllSubDir;
+        std::string commandSAvg="python3 checksVecVec.py "+outSAllSubDir;
         std::string resultEAvg;
-//        std::string resultSAvg;
+        std::string resultSAvg;
         if (fls % 6 == 5) {
             try {
                 resultEAvg = this->execPython(commandEAvg.c_str());
-//                resultSAvg=this->execPython(commandSAvg.c_str());
+                resultSAvg=this->execPython(commandSAvg.c_str());
 
                 std::cout << "EAvg message from python: " << resultEAvg << std::endl;
-//                std::cout << "sAvg message from python: " << resultSAvg << std::endl;
+                std::cout << "sAvg message from python: " << resultSAvg << std::endl;
 
             } catch (const std::exception &e) {
                 std::cerr << "Error: " << e.what() << std::endl;
@@ -513,8 +513,8 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
 
 //        bool ferro= false;
 
-            if (std::regex_search(resultEAvg, matchEAvgStop, stopRegex) ) {
-                if (std::regex_search(resultEAvg, matchEAvgFerro, ferroRegex) ) {
+            if (std::regex_search(resultEAvg, matchEAvgStop, stopRegex)and std::regex_search(resultSAvg,matchSAvgStop,stopRegex) ) {
+                if (std::regex_search(resultEAvg, matchEAvgFerro, ferroRegex) and std::regex_search(resultSAvg,matchSAvgFerro,ferroRegex)) {
                     active = false;
                     ferro = true;
                     std::regex_search(resultEAvg,matchFileNum,fileNumRegex);
@@ -527,13 +527,19 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
             }
 
 
-            if (std::regex_search(resultEAvg, matchEAvgEq, eqRegex) ) {
-                if (std::regex_search(resultEAvg, matchEAvgLag, lagRegex)) {
+            if (std::regex_search(resultEAvg, matchEAvgEq, eqRegex) and std::regex_search(resultSAvg,matchSAvgEq,eqRegex)) {
+                if (std::regex_search(resultEAvg, matchEAvgLag, lagRegex)and std::regex_search(resultSAvg,matchSAvgLag,lagRegex)) {
                     std::string lagStrEAvg = matchEAvgLag.str(1);
+                    std::string lagStr_s=matchSAvgLag.str(1);
+                    int lag_s=std::stoi(lagStr_s);
 
                    int lagEAvg = std::stoi(lagStrEAvg);
 
-                   lag=lagEAvg;
+
+                   lag=lag_s>lagEAvg?lag_s:lagEAvg;
+                    std::cout<<"lag_s="<<lag_s<<std::endl;
+                    std::cout<<"lagEAvg="<<lagEAvg<<std::endl;
+                    std::cout<<"lag="<<lag<<std::endl;
                     std::regex_search(resultEAvg,matchFileNum,fileNumRegex);
                     std::string fileNumStr=matchFileNum.str(1);
 //                    std::cout<<"fileNumStr: "<<fileNumStr<<std::endl;

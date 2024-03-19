@@ -120,6 +120,7 @@ public:
         this->group=groupNum;
         this->row=rowNum;
         this->parseCSV(groupNum,rowNum);
+        this->Ne=this->M;
 
         //construct SBZ values
         for (int j = 0; j < this->M; j++) {
@@ -131,6 +132,8 @@ public:
 
         this->I10upup= this->kron(mat10c::Identity(),upup)*this->g;
         this->I10downdown=this->kron(mat10c::Identity(),downdown)*this->g;
+//        std::cout<<"L="<<L<<", M="<<M<<", Ne="<<Ne<<", t="<<t
+//        <<", J="<<J<<", g="<<g<<", T="<<T<<std::endl;
 
 
     }

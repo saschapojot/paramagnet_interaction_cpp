@@ -76,20 +76,20 @@ def parse1File(fileName):
     return np.array(vectors)
 
 
-def sAbsAvg(sVecVec):
+def sAbsSum(sVecVec):
     """
 
     :param sVecVec: an array of s values from mc steps
-    :return: abs of avg of each row
+    :return: abs of sum of each row
     """
-    sMeanTmp=np.mean(sVecVec,axis=1)
+    sMeanTmp=np.sum(sVecVec,axis=1)
     sAbs=np.abs(sMeanTmp)
     return sAbs
 
-vecValsCombined=sAbsAvg(parse1File(xmlFileToBeParsed[0]))
+vecValsCombined=sAbsSum(parse1File(xmlFileToBeParsed[0]))
 
 for file in xmlFileToBeParsed[1:]:
-    sAbsNext=sAbsAvg(parse1File(file))
+    sAbsNext=sAbsSum(parse1File(file))
     vecValsCombined=np.r_[vecValsCombined,sAbsNext]
 # print(len(vecValsCombined))
 #check if the whole vector has the same value
@@ -158,12 +158,12 @@ acfOfVec=sm.tsa.acf(vecValsCombined)
 # plt.plot(acfOfVec,color="black")
 # plt.savefig("sAutc.png")
 # plt.close()
-eps=(1e-2)*5
-pThreshHold=0.05
+eps=(1e-2)
+
 lagVal=0
 if np.min(np.abs(acfOfVec))>eps:
     print("high correlation")
-    print(np.min(np.abs(acfOfVec)))
+    # print(np.min(np.abs(acfOfVec)))
     print(sigContinue)
     exit()
 else:

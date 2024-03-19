@@ -173,8 +173,8 @@ acfOfVec=sm.tsa.acf(vecValsCombined,nlags=NLags)
 # plt.plot(acfOfVec,color="black")
 # plt.savefig("ECorr.png")
 # plt.close()
-eps=(1e-2)*5
-pThreshHold=0.05
+eps=(1e-2)
+
 lagVal=0
 if np.min(np.abs(acfOfVec))>eps:
     print("high correlation")
