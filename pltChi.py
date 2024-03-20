@@ -15,7 +15,7 @@ inChiFileNames=[]
 TVals=[]
 for file in glob.glob(inChiFilesDir+"/*.txt"):
     inChiFileNames.append(file)
-    matchT=re.search(r"T(\d+(\.\d+)?)chi",file)
+    matchT=re.search(r"T([-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?)chi",file)
     TVals.append(float(matchT.group(1)))
 
 T_inds=np.argsort(TVals)
@@ -55,6 +55,7 @@ plt.xlabel("$T$")
 plt.ylabel("$\chi$")
 xTicks=np.linspace(np.min(TSortedVals),np.max(TSortedVals),10)
 plt.xticks(xTicks)
+plt.xscale("log")
 outDir=inDir+"Observables"
 Path(outDir).mkdir(exist_ok=True,parents=True)
 fileName="chi.png"

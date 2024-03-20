@@ -9,6 +9,9 @@ void reader::searchFiles() {
     this->EPath = this->TDir + "/EAll/";
     this->muPath = this->TDir + "/muAll/";
     this->sAllPath = this->TDir + "/sAll/";
+//    std::cout<<EPath<<std::endl;
+//    std::cout<<muPath<<std::endl;
+//    std::cout<<sAllPath<<std::endl;
 
     for (const auto &entry: fs::directory_iterator(EPath)) {
         this->EFilesAll.push_back(entry.path().string());
@@ -59,6 +62,8 @@ void reader::sortFiles() {
     this->sortedmuFilesAll = this->sortOneDir(this->muFilesAll);
     this->sortedsAllFilesAll = this->sortOneDir(this->sAllFilesAll);
 
+//    std::cout<<"finish sorting files"<<std::endl;
+
 
 }
 
@@ -67,7 +72,7 @@ void reader::sortFiles() {
 void reader::parseCHiFile() {
     std::string chiFileName;
     //search chi file
-    std::regex chiFilePattern("T[+-]?\\d*(\\.\\d+)?chi");
+    std::regex chiFilePattern("T((-?)(?:(\\d+\\.\\d*|\\.\\d+)(?:[eE][-+]?\\d+)?|\\d+(?:[eE][-+]?\\d+)?))chi");
     std::smatch matchChi;
     for (const auto &entry: fs::directory_iterator(this->TDir)) {
         std::string fileName = entry.path().string();

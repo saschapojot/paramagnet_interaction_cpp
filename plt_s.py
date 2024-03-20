@@ -16,7 +16,7 @@ TVals=[]
 
 for file in glob.glob(in_sFileDir+"/*.txt"):
     in_sFileNames.append(file)
-    matchT=re.search(r"T(\d+(\.\d+)?)s",file)
+    matchT=re.search(r"T([-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?)s",file)
     TVals.append(float(matchT.group(1)))
 
 
@@ -49,6 +49,7 @@ plt.figure()
 plt.errorbar(TSortedVals,sValsAll,yerr=fullLengthAll,fmt="o",ecolor="red",color="black",markersize=2)
 plt.xlabel("$T$")
 plt.ylabel("$s$")
+
 xTicks=np.linspace(np.min(TSortedVals),np.max(TSortedVals),10)
 plt.xticks(xTicks)
 outDir=inDir+"Observables"

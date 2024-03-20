@@ -30,9 +30,10 @@ int main(int argc, char **argv) {
     int groupNum=std::stoi(argv[1]);
     int rowNum=std::stoi(argv[2]);
     std::vector<std::string> TDirs = scanFiles(groupNum,rowNum);
-//    reader::printVec(TDirs);
-//    reader::printVec(TDirs);
+    reader::printVec(TDirs);
+    reader::printVec(TDirs);
     for (const auto& s:TDirs) {
+        std::cout<<"file is "<<s<<std::endl;
         const auto tCStart{std::chrono::steady_clock::now()};
         auto rd = reader(groupNum,rowNum, s);
 
@@ -60,12 +61,12 @@ int main(int argc, char **argv) {
         const std::chrono::duration<double> elapsed_seconds{tCEnd - tCStart};
         std::cout << "time elapsed: " << elapsed_seconds.count() << " s" << std::endl;
     }
-//
+
 ////////////////////////one file
 //    const auto tCStart{std::chrono::steady_clock::now()};
-//    std::string name0 = "T3.100000";
-//    auto rd = reader(1, name0);
-//    auto model = dbExchangeModel(rd.T);
+//    std::string name0 = "T0.0000100000";
+//    auto rd = reader(groupNum,rowNum, name0);
+//    auto model = dbExchangeModel(rd.T,groupNum,rowNum);
 //
 //    rd.searchFiles();
 //    rd.sortFiles();
