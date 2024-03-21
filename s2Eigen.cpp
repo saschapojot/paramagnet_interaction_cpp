@@ -425,8 +425,10 @@ void reader::fillZeWeights(dbExchangeModel &model) {
 //            double KTmp=model.KSupValsAll[j];
             eigVal20 eigValsTmp = std::get<1>(tp);
             for (const double &e: eigValsTmp) {//for all eigenvalues in one K
-                double expVal = std::exp(beta * (e - muTmp));
-                double wtTmp = std::pow(1 / (expVal + 1), 2) * expVal;
+//                double expVal = std::exp(beta * (e - muTmp));
+//                std::cout<<"beta="<<beta<<", e="<<e<<", muTmp="<<muTmp<<std::endl;
+                double wtTmp = std::pow(1 / (std::exp(0.5*beta * (e - muTmp))+ std::exp(-0.5*beta * (e - muTmp))), 2);// * expVal;
+//                std::cout<<"wtTmp="<<wtTmp<<std::endl;
 //                if (ferro==true){
 //
 //                    std::cout<<"wtTmp="<<wtTmp<<std::endl;
@@ -434,6 +436,7 @@ void reader::fillZeWeights(dbExchangeModel &model) {
                 weightForOne_sOneK.push_back(wtTmp);
                 eigsForOne_sOneK.push_back(e);
             }
+//            std::cout<<"sumForOne_s="<<sumForOne_s<<std::endl;
             sumForOne_s += std::accumulate(weightForOne_sOneK.begin(), weightForOne_sOneK.end(), 0.0);
             weightForOne_s.push_back(weightForOne_sOneK);
             eigsForOne_s.push_back(eigsForOne_sOneK);
@@ -615,7 +618,7 @@ double reader::dbeta_epsilon(const int &i) {
     double part1 = std::accumulate(part1_vec.begin(), part1_vec.end(), 0.0);
     part1 /= static_cast<double >(part1_vec.size());
 
-
+//    std::cout<<"part1="<<part1<<std::endl;
 
 //compute part2
     double part2 = std::accumulate(epsilonDeleted.begin(), epsilonDeleted.end(), 0.0);

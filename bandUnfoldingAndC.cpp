@@ -30,8 +30,7 @@ int main(int argc, char **argv) {
     int groupNum=std::stoi(argv[1]);
     int rowNum=std::stoi(argv[2]);
     std::vector<std::string> TDirs = scanFiles(groupNum,rowNum);
-    reader::printVec(TDirs);
-    reader::printVec(TDirs);
+
     for (const auto& s:TDirs) {
         std::cout<<"file is "<<s<<std::endl;
         const auto tCStart{std::chrono::steady_clock::now()};

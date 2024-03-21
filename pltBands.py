@@ -8,9 +8,10 @@ from datetime import datetime
 #this script plots unfolded bands and confidence interval
 
 
-part=2
+groupNum=0
+rowNum=0
 
-inPartDir="./part"+str(part)+"data/part"+str(part)+"/"
+inPartDir="./group"+str(groupNum)+"data/row"+str(rowNum)+"/"
 inTDirs=[]
 TVals=[]
 
