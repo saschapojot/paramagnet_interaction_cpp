@@ -161,7 +161,7 @@ acfOfVec=sm.tsa.acf(vecValsCombined,nlags=NLags)
 # plt.plot(acfOfVec,color="black")
 # plt.savefig("sAutc.png")
 # plt.close()
-eps=(1e-2)
+eps=(1e-2)*0.5
 
 lagVal=0
 if np.min(np.abs(acfOfVec))>eps:
