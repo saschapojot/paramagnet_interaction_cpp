@@ -19,7 +19,7 @@ M = 20#number of supercells
 #     exit()
 sweepNumInOneFlush=3000
 groupNum=0
-rowNum=0
+rowNum=4
 pathGroupRow="./group"+str(groupNum)+"data/row"+str(rowNum)+"/"
 inTFileNames=[]
 TVals=[]

@@ -9,7 +9,7 @@ from datetime import datetime
 
 
 groupNum=0
-rowNum=0
+rowNum=4
 
 inPartDir="./group"+str(groupNum)+"data/row"+str(rowNum)+"/"
 inTDirs=[]

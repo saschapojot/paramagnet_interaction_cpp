@@ -6,7 +6,7 @@ from pathlib import Path
 #this script plots chi and confidence interval
 
 groupNum=0
-rowNum=0
+rowNum=4
 
 inDir="./group"+str(groupNum)+"data/row"+str(rowNum)+"/"
 inChiFilesDir=inDir+"chiAll"
@@ -55,7 +55,6 @@ plt.xlabel("$T$")
 plt.ylabel("$\chi$")
 xTicks=np.linspace(np.min(TSortedVals),np.max(TSortedVals),10)
 plt.xticks(xTicks)
-plt.xscale("log")
 outDir=inDir+"Observables"
 Path(outDir).mkdir(exist_ok=True,parents=True)
 fileName="chi.png"

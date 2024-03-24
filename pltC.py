@@ -46,9 +46,7 @@ for file in inCFileNamesSorted:
 
 
 fullLengthAll=[2*val for val in hfLengthAll]
-print(len(TSortedVals))
-print(len(CValsAll))
-print(len(fullLengthAll))
+
 plt.figure()
 plt.errorbar(TSortedVals,CValsAll,yerr=fullLengthAll,fmt="o",ecolor="red",color="black",markersize=2)
 plt.xlabel("$T$")
