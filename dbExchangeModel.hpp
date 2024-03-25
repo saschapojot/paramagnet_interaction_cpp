@@ -184,7 +184,7 @@ public:
              {0, 1}};
     mat2c upup{{1,0},{0,0}};
     mat2c downdown{{0,0},{0,1}};
-    mat20c I20=mat20c::Identity()*J;
+    mat20c I20=mat20c::Identity();
 //    using mat20c=Eigen::Matrix< std::complex<double>, 20, 20 >;
 public:
     mat20c kron(const mat10c &, const mat2c &);// perform Kronecker product

@@ -66,7 +66,7 @@ std::tuple<int, eigVal20, vecVal20> dbExchangeModel::hEig(const std::vector<doub
 
     }
 
-    part += this->I20 * sSum;
+    part += this->I20 * sSum*J;
 
 
     mat20c I10upupCopy = this->I10upup;
