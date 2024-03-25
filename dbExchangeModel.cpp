@@ -6,11 +6,13 @@
 
 ///
 /// @param LHS electron part of the matrix
-/// @param RHS spin part of the matrix
+/// @param RHS spin part of the matrix, RHS is 2 by 2
 /// @return Kronecker product of the 2 matrices
-mat20c dbExchangeModel::kron(const mat10c &LHS, const mat2c &RHS) {
-
-    mat20c retMat = mat20c::Zero();
+matc dbExchangeModel::kron(const matc &LHS, const matc &RHS) {
+    int sizeLHS=LHS.rows();
+    int sizeRHS=RHS.rows();
+    int sizeTot=sizeLHS*sizeRHS;
+    matc retMat = matc::Zero(sizeTot,sizeTot);
     for (int i = 0; i < LHS.rows(); i++) {
         for (int j = 0; j < LHS.cols(); j++) {
             retMat.block<2, 2>(i * RHS.rows(), j * RHS.rows()) = LHS(i, j) * RHS;
@@ -26,20 +28,20 @@ void dbExchangeModel::constructhPart() {
 
     for (int j = 0; j < this->M; j++) {
         double K = this->KSupValsAll[j];
-        mat20c retMat = mat20c::Zero();
+        matc retMat = matc::Zero(2*L,2*L);
 
-        mat10c tmp0 = mat10c::Zero();
+        matc tmp0 = matc::Zero(L,L);
         tmp0(this->L - 1, 0) = -t * std::exp(L * K * 1i);
 
         retMat += this->kron(tmp0, I2);
 
-        mat10c tmp1 = mat10c::Zero();
+        matc tmp1 = matc::Zero(L,L);
         tmp1(0, this->L - 1) = -t * std::exp(-L * K * 1i);
 
         retMat += this->kron(tmp1, I2);
 
         for (int l = 1; l <= this->L - 1; l++) {
-            mat10c tmp = mat10c::Zero();
+            matc tmp = matc::Zero(L,L);
             tmp(l - 1, l) = -t;
             tmp(l, l - 1) = -t;
             retMat += this->kron(tmp, I2);
@@ -58,34 +60,34 @@ void dbExchangeModel::constructhPart() {
 /// @param s spin values for a MC step
 /// @param j index of one SBZ value
 /// @return j, eigenvals, eigenvects
-std::tuple<int, eigVal20, vecVal20> dbExchangeModel::hEig(const std::vector<double> &s, const int &j) {
-    mat20c part = this->preComputedHamiltonianPart[j];
+std::tuple<int, eigVal, vecVal> dbExchangeModel::hEig(const std::vector<double> &s, const int &j) {
+    matc part = this->preComputedHamiltonianPart[j];
     double sSum = 0;
     for (int l = 0; l < L; l++) {
         sSum += s[l] * s[(l + 1) % L];
 
     }
 
-    part += this->I20 * sSum*J;
+    part += this->I2L * sSum*J;
 
 
-    mat20c I10upupCopy = this->I10upup;
+    matc I10upupCopy = this->I10upup;
     for (int j = 0; j < L; j++) {
         I10upupCopy(2 * j, 2 * j) *= s[j];
         I10upupCopy(2 * j + 1, 2 * j + 1) *= s[j];
     }
 
-    mat20c I10downdownCopy = this->I10downdown;
+    matc I10downdownCopy = this->I10downdown;
     for (int j = 0; j < L; j++) {
         I10downdownCopy(2 * j, 2 * j) *= s[j];
         I10downdownCopy(2 * j + 1, 2 * j + 1) *= s[j];
     }
 
 
-    mat20c wholeh = part + I10upupCopy - I10downdownCopy;// h(K,s)
+    matc wholeh = part + I10upupCopy - I10downdownCopy;// h(K,s)
     this->eigSolution.compute(wholeh);
-    eigVal20 vals = eigSolution.eigenvalues();
-    vecVal20 vecs = eigSolution.eigenvectors();
+    eigVal vals = eigSolution.eigenvalues();
+    vecVal vecs = eigSolution.eigenvectors();
 //
 //    int nm=11;
 //    double val=vals[nm];
@@ -126,9 +128,9 @@ std::tuple<int, eigVal20, vecVal20> dbExchangeModel::hEig(const std::vector<doub
 ///
 /// @param s spin values in a MC step
 /// @return eigenvalues and eigenvectors for all values in SBZ
-std::vector<std::tuple<int, eigVal20, vecVal20>> dbExchangeModel::s2EigSerial(const std::vector<double> &s) {
+std::vector<std::tuple<int, eigVal, vecVal>> dbExchangeModel::s2EigSerial(const std::vector<double> &s) {
 
-    std::vector<std::tuple<int, eigVal20, vecVal20>> retVec;
+    std::vector<std::tuple<int, eigVal, vecVal>> retVec;
 
     for (auto j: this->KSupIndsAll) {
         retVec.push_back(this->hEig(s, j));
@@ -144,12 +146,12 @@ std::vector<std::tuple<int, eigVal20, vecVal20>> dbExchangeModel::s2EigSerial(co
 /// @param eigResults eigenvalue results from s2EigSerial()
 /// @return all eigenvalues placed in a vector
 std::vector<double> dbExchangeModel::combineFromEig(
-        const std::vector<std::tuple<int, eigVal20, vecVal20>> &eigResults) {
+        const std::vector<std::tuple<int, eigVal, vecVal>> &eigResults) {
 
     std::vector<double> retEVec;
 
     for (auto elem: eigResults) {
-        eigVal20 oneVecTmp = std::get<1>(elem);
+        eigVal oneVecTmp = std::get<1>(elem);
         for (auto e: oneVecTmp) {
             retEVec.push_back(e);
         }
@@ -411,7 +413,7 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
             //decide if flip is accepted
             if (DeltaE <= 0) {
                 sCurr = std::vector<double>(sNext);
-                tripleCurr = std::vector<std::tuple<int, eigVal20, vecVal20>>(tripleNext);
+                tripleCurr = std::vector<std::tuple<int, eigVal, vecVal>>(tripleNext);
                 EAvgCurr = EAvgNext;
                 muCurr = muNext;
                 flipNum++;
@@ -420,7 +422,7 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
                 double r = distUnif01(e2);
                 if (r <= std::exp(-this->beta * DeltaE)) {
                     sCurr = std::vector<double>(sNext);
-                    tripleCurr = std::vector<std::tuple<int, eigVal20, vecVal20>>(tripleNext);
+                    tripleCurr = std::vector<std::tuple<int, eigVal, vecVal>>(tripleNext);
                     EAvgCurr = EAvgNext;
                     muCurr = muNext;
                     flipNum++;
@@ -680,7 +682,7 @@ void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
             //decide if flip is accepted
             if (DeltaE <= 0) {
                 sCurr = std::vector<double>(sNext);
-                tripleCurr = std::vector<std::tuple<int, eigVal20, vecVal20>>(tripleNext);
+                tripleCurr = std::vector<std::tuple<int, eigVal, vecVal>>(tripleNext);
                 EAvgCurr = EAvgNext;
                 muCurr = muNext;
                 flipNum++;
@@ -689,7 +691,7 @@ void dbExchangeModel::executionMC(const int &lag, const int &loopEq) {
                 double r = distUnif01(e2);
                 if (r <= std::exp(-this->beta * DeltaE)) {
                     sCurr = std::vector<double>(sNext);
-                    tripleCurr = std::vector<std::tuple<int, eigVal20, vecVal20>>(tripleNext);
+                    tripleCurr = std::vector<std::tuple<int, eigVal, vecVal>>(tripleNext);
                     EAvgCurr = EAvgNext;
                     muCurr = muNext;
                     flipNum++;

@@ -6,7 +6,8 @@
 #define PARAMAGNET_INTERACTION_CPP_DBEXCHANGEMODEL_HPP
 #include <iostream>
 #include <Eigen/Dense>
-#include <unsupported/Eigen/MatrixFunctions>
+//#include <unsupported/Eigen/KroneckerProduct>
+
 #include <Eigen/Eigenvalues>
 #include <numbers>
 #include<complex>
@@ -36,13 +37,17 @@
 #include <sstream>
 
 using namespace std::complex_literals;
-using mat10c = Eigen::Matrix<std::complex<double>, 10, 10>;
-using mat2c = Eigen::Matrix<std::complex<double>, 2, 2>;
-using mat20c = Eigen::Matrix<std::complex<double>, 20, 20>;
-using vec20c=Eigen::Vector<std::complex<double>,20>;
+//using mat10c = Eigen::Matrix<std::complex<double>, 10, 10>;
+//using mat2c = Eigen::Matrix<std::complex<double>, 2, 2>;
+//using mat20c = Eigen::Matrix<std::complex<double>, 20, 20>;
+//using vec20c=Eigen::Vector<std::complex<double>,20>;
 const auto PI=std::numbers::pi;
-using eigVal20=Eigen::SelfAdjointEigenSolver<mat20c>::RealVectorType;
-using vecVal20=Eigen::SelfAdjointEigenSolver<mat20c>::EigenvectorsType;
+//using eigVal20=Eigen::SelfAdjointEigenSolver<mat20c>::RealVectorType;
+//using vecVal20=Eigen::SelfAdjointEigenSolver<mat20c>::EigenvectorsType;
+using matc=Eigen::MatrixXcd;
+using eigVal=Eigen::SelfAdjointEigenSolver<matc>::RealVectorType;
+using vecVal=Eigen::SelfAdjointEigenSolver<matc>::EigenvectorsType;
+
 namespace fs = boost::filesystem;
 class oneEigSolution{
 public:
@@ -121,6 +126,7 @@ public:
         this->row=rowNum;
         this->parseCSV(groupNum,rowNum);
         this->Ne=this->M;
+        this->I2L=matc::Identity(2*L,2*L);
 
 
         //construct SBZ values
@@ -131,8 +137,8 @@ public:
 
         this->constructhPart();
 
-        this->I10upup= this->kron(mat10c::Identity(),upup)*this->g;
-        this->I10downdown=this->kron(mat10c::Identity(),downdown)*this->g;
+        this->I10upup= this->kron(matc::Identity(L,L),upup)*this->g;
+        this->I10downdown=this->kron(matc::Identity(L,L),downdown)*this->g;
 //        std::cout<<"L="<<L<<", M="<<M<<", Ne="<<Ne<<", t="<<t
 //        <<", J="<<J<<", g="<<g<<", T="<<T<<std::endl;
 
@@ -160,16 +166,16 @@ public:
     double beta;
     std::vector<double> KSupValsAll;//all the values in SBZ
     std::vector<int> KSupIndsAll;//[0,1,...,M-1]
-    std::vector<mat20c> preComputedHamiltonianPart;//part of the SBZ Hamiltonian that can be precomputed
-    mat20c I10upup; // electron spin interaction part
-    mat20c I10downdown;// electron spin interaction part
+    std::vector<matc> preComputedHamiltonianPart;//part of the SBZ Hamiltonian that can be precomputed
+    matc I10upup; // electron spin interaction part
+    matc I10downdown;// electron spin interaction part
 
 
     std::vector<double>sRange{-1,1};
     int sweepNumInOneFlush=3000;// flush the results to python every sweepNumInOneFlush*L iterations
     int flushMaxNum=700;
     int dataNumTotal=8000;
-    Eigen::SelfAdjointEigenSolver<mat20c> eigSolution;// solver for hermitian matrices
+    Eigen::SelfAdjointEigenSolver<matc> eigSolution;// solver for hermitian matrices
 //    std::vector<double>EAvgAll;//to be stored
 //    std::vector<std::vector<double>>sAll;//to be stored
 //    std::vector<double>chemPotAll;//to be stored
@@ -180,14 +186,14 @@ public:
 
 //    using mat10c= Eigen::Matrix< std::complex<double>, 10, 10 >;
 //    using mat2c=Eigen::Matrix< std::complex<double>, 2, 2 >;
-    mat2c I2{{1, 0},
+    matc I2{{1, 0},
              {0, 1}};
-    mat2c upup{{1,0},{0,0}};
-    mat2c downdown{{0,0},{0,1}};
-    mat20c I20=mat20c::Identity();
+    matc upup{{1,0},{0,0}};
+    matc downdown{{0,0},{0,1}};
+    matc I2L;
 //    using mat20c=Eigen::Matrix< std::complex<double>, 20, 20 >;
 public:
-    mat20c kron(const mat10c &, const mat2c &);// perform Kronecker product
+    matc kron(const matc &, const matc &);// perform Kronecker product, RHS is 2 by 2
     void constructhPart();// construct the precomputable part of Hamiltonian//executed in constructor
 
     /// initialize parameters using  values from  csv
@@ -199,25 +205,25 @@ public:
 /// @param j index of one SBZ value
 /// @return j, eigenvals, eigenvects
 
-   std::tuple<int,eigVal20 ,vecVal20>  hEig(const std::vector<double> &s, const int &j); //using s value from each MC step to construct SBZ Hamiltonian, and compute its eigenvalue problem
+   std::tuple<int,eigVal ,vecVal>  hEig(const std::vector<double> &s, const int &j); //using s value from each MC step to construct SBZ Hamiltonian, and compute its eigenvalue problem
 
 
 
     ///
 /// @param s spin values in a MC step
 /// @return eigenvalues and eigenvectors for all values in SBZ
-   std::vector<std::tuple<int,eigVal20 ,vecVal20>> s2Eig(const std::vector<double> &s);//(parallel version) using s value from each MC step to construct SBZ Hamiltonian,
+   std::vector<std::tuple<int,eigVal ,vecVal>> s2Eig(const std::vector<double> &s);//(parallel version) using s value from each MC step to construct SBZ Hamiltonian,
    // and compute its eigenvalue problem for each K in SBZ
    ///
    /// @param s spin values in a MC step
    /// @return eigenvalues and eigenvectors for all values in SBZ
 public:
-   std::vector<std::tuple<int,eigVal20 ,vecVal20>> s2EigSerial(const std::vector<double> &s);//serial version of s2Eig()
+   std::vector<std::tuple<int,eigVal ,vecVal>> s2EigSerial(const std::vector<double> &s);//serial version of s2Eig()
 
    ///
    /// @param eigResults eigenvalue results from s2EigSerial()
    /// @return all eigenvalues placed in a vector
-   std::vector<double> combineFromEig(const std::vector<std::tuple<int,eigVal20 ,vecVal20>>& eigResults);
+   std::vector<double> combineFromEig(const std::vector<std::tuple<int,eigVal ,vecVal>>& eigResults);
 
    ///
    /// @param func a monotonically increasing function
