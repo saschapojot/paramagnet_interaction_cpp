@@ -64,7 +64,6 @@ add_executable(band bandUnfoldingAndC.cpp s2Eigen.cpp dbExchangeModel.cpp)
 
 
 
-add_executable(band bandUnfoldingAndC.cpp s2Eigen.cpp dbExchangeModel.cpp)
 
 file(GLOB LIBS_A "${Boost_LIBRARY_DIR}/*serialization.a")
 file(GLOB LIBS_SO "${Boost_LIBRARY_DIR}/*serialization.so")
