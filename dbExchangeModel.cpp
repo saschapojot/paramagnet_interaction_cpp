@@ -403,10 +403,19 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
 
         for (int i = 0; i < this->sweepNumInOneFlush * this->L; i++) {
             //perform a flip
+            const auto tLoopStart{std::chrono::steady_clock::now()};
+
             auto sNext = std::vector<double>(sCurr);
             int flipTmpInd = flipInds(rd);
             sNext[flipTmpInd] *= -1;
+            const auto tEigStart{std::chrono::steady_clock::now()};
+
             auto tripleNext = this->s2EigSerial(sNext);
+
+            const auto tEigEnd{std::chrono::steady_clock::now()};
+            const std::chrono::duration<double> elapsed_Eigseconds{tEigEnd - tEigStart};
+
+            std::cout << "eig: " << elapsed_Eigseconds.count() << " s" << std::endl;
             auto EVecNext = this->combineFromEig(tripleNext);
             auto EAndMuNext = this->avgEnergy(EVecNext);
             double EAvgNext = EAndMuNext[0];
@@ -448,6 +457,11 @@ void dbExchangeModel::reachEqMC(bool &ferro, int &lag, int &loopTotal) {
 
 //            record_ptr->eigRstAll.push_back(tripleCurr);
             counter += 1;
+
+            const auto tLoopEnd{std::chrono::steady_clock::now()};
+            const std::chrono::duration<double> elapsed_Loopseconds{tLoopEnd - tLoopStart};
+
+            std::cout << "Loop "<<counter<<": " << elapsed_Loopseconds.count() << " s" << std::endl;
 
 
         }
