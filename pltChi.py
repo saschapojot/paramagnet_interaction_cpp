@@ -3,10 +3,13 @@ import matplotlib.pyplot as plt
 import re
 import glob
 from pathlib import Path
+import sys
 #this script plots chi and confidence interval
-
-groupNum=0
-rowNum=0
+if (len(sys.argv)!=3):
+    print("wrong number of arguments")
+    exit()
+groupNum=int(sys.argv[1])
+rowNum=int(sys.argv[2])
 
 inDir="./group"+str(groupNum)+"data/row"+str(rowNum)+"/"
 inChiFilesDir=inDir+"chiAll"
@@ -55,7 +58,6 @@ plt.xlabel("$T$")
 plt.ylabel("$\chi$")
 xTicks=np.linspace(np.min(TSortedVals),np.max(TSortedVals),10)
 plt.xticks(xTicks)
-plt.xscale("log")
 outDir=inDir+"Observables"
 Path(outDir).mkdir(exist_ok=True,parents=True)
 fileName="chi.png"

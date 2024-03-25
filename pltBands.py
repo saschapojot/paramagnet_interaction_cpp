@@ -5,11 +5,16 @@ import glob
 from pathlib import Path
 import xml.etree.ElementTree as ET
 from datetime import datetime
+import sys
 #this script plots unfolded bands and confidence interval
 
 
-groupNum=0
-rowNum=0
+if (len(sys.argv)!=3):
+    print("wrong number of arguments")
+    exit()
+groupNum=int(sys.argv[1])
+rowNum=int(sys.argv[2])
+
 
 inPartDir="./group"+str(groupNum)+"data/row"+str(rowNum)+"/"
 inTDirs=[]

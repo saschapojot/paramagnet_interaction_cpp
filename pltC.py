@@ -3,11 +3,15 @@ import matplotlib.pyplot as plt
 import re
 import glob
 from pathlib import Path
+import sys
 #this script plots C and confidence interval
 
 
-groupNum=0
-rowNum=0
+if (len(sys.argv)!=3):
+    print("wrong number of arguments")
+    exit()
+groupNum=int(sys.argv[1])
+rowNum=int(sys.argv[2])
 
 
 inCFilesDir="./group"+str(groupNum)+"data/row"+str(rowNum)+"/CAll"
@@ -46,9 +50,7 @@ for file in inCFileNamesSorted:
 
 
 fullLengthAll=[2*val for val in hfLengthAll]
-print(len(TSortedVals))
-print(len(CValsAll))
-print(len(fullLengthAll))
+
 plt.figure()
 plt.errorbar(TSortedVals,CValsAll,yerr=fullLengthAll,fmt="o",ecolor="red",color="black",markersize=2)
 plt.xlabel("$T$")

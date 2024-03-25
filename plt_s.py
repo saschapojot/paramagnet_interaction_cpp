@@ -3,11 +3,14 @@ import matplotlib.pyplot as plt
 import re
 import glob
 from pathlib import Path
+import sys
 #this script plots s and confidence interval
 
-
-groupNum=0
-rowNum=0
+if (len(sys.argv)!=3):
+    print("wrong number of arguments")
+    exit()
+groupNum=int(sys.argv[1])
+rowNum=int(sys.argv[2])
 inDir="./group"+str(groupNum)+"data/row"+str(rowNum)+"/"
 in_sFileDir=inDir+"/sAll"+"/"
 in_sFileNames=[]
