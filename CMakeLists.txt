@@ -52,13 +52,16 @@ set_source_files_properties(
 set_source_files_properties(
         s2Eigen.cpp
         PROPERTIES
-        COMPILE_OPTIONS "-Ofast"
+
+        COMPILE_OPTIONS "-O3"
 )
+
 add_executable(mc main.cpp dbExchangeModel.cpp)
+add_executable(band bandUnfoldingAndC.cpp s2Eigen.cpp dbExchangeModel.cpp)
 
 
 
-add_executable(reader reader.cpp sAvg.cpp)
+
 
 
 add_executable(band bandUnfoldingAndC.cpp s2Eigen.cpp dbExchangeModel.cpp)
