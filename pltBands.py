@@ -6,6 +6,8 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 from datetime import datetime
 import sys
+import pandas as pd
+
 #this script plots unfolded bands and confidence interval
 
 
@@ -15,8 +17,15 @@ if (len(sys.argv)!=3):
     exit()
 groupNum=int(sys.argv[1])
 rowNum=int(sys.argv[2])
+inParamFileName="./group"+str(groupNum)+".csv"
+df=pd.read_csv(inParamFileName)
+oneRow=df.iloc[rowNum,:]
 
-
+L=int(oneRow.loc["L"])
+M=int(oneRow.loc["M"])
+t=float(oneRow.loc["t"])
+J=float(oneRow.loc["J"])
+g=float(oneRow.loc["g"])
 inPartDir="./group"+str(groupNum)+"data/row"+str(rowNum)+"/"
 inTDirs=[]
 TVals=[]
@@ -138,7 +147,7 @@ for ind in range(0,len(inTDirs)):
             rowPos=m+a*M
             matMkSize2Plt[rowPos,:]=matMkSize[m,a,:]
 
-    plt.figure()
+
 
     rowNum,colNum=matEMean2Plt.shape
     print(rowNum)
@@ -160,7 +169,7 @@ for ind in range(0,len(inTDirs)):
 
     plt.xlabel("$k/\pi$")
     plt.ylabel("$\epsilon$")
-    plt.title("$T=$"+str(TVals[ind]))
-    plt.savefig(TD+"/band.png")
+    plt.title("$T=$"+str(TVals[ind])+", $g=$"+str(g))
+    plt.savefig(TD+"/bandT"+str(TVals[ind])+"g"+str(g)+".png")
     plt.close()
 

@@ -274,12 +274,16 @@ void dbExchangeModel::parseCSV(const int groupNum,const int& rowNum) {
         this->J=std::stod(matchJ[1].str());
     }
 
-    std::regex pattern_g("g([+-]?\\d+(\\.\\d+)?)");
+    std::regex pattern_g("g([+-]?\\d+(\\.\\d+)?)f");
     std::smatch match_g;
     if(std::regex_search(result,match_g,pattern_g)){
         this->g=std::stod(match_g[1].str());
     }
-
+    std::regex pattern_f("f([+-]?\\d+(\\.\\d+)?)");
+    std::smatch match_f;
+    if(std::regex_search(result,match_f,pattern_f)){
+        this->f=std::stod(match_f[1].str());
+    }
 }
 
 std::vector<double> dbExchangeModel::avgEnergy(const std::vector<double> &EVec) {

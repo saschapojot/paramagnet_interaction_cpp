@@ -20,5 +20,5 @@ M=int(oneRow.loc["M"])
 t=float(oneRow.loc["t"])
 J=float(oneRow.loc["J"])
 g=float(oneRow.loc["g"])
-
-print("L"+str(L)+"M"+str(M)+"t"+str(t)+"J"+str(J)+"g"+str(g))
+f=float(oneRow.loc["f"])
+print("L"+str(L)+"M"+str(M)+"t"+str(t)+"J"+str(J)+"g"+str(g)+"f"+str(f))

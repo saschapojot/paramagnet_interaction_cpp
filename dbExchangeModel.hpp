@@ -125,7 +125,7 @@ public:
         this->group=groupNum;
         this->row=rowNum;
         this->parseCSV(groupNum,rowNum);
-        this->Ne=this->M;
+        this->Ne=static_cast<double >(this->M)*2*L*f;
         this->I2L=matc::Identity(2*L,2*L);
 
 
@@ -141,7 +141,7 @@ public:
         this->I10upup= this->kron(matc::Identity(L,L),upup)*this->g;
         this->I10downdown=this->kron(matc::Identity(L,L),downdown)*this->g;
 //        std::cout<<"L="<<L<<", M="<<M<<", Ne="<<Ne<<", t="<<t
-//        <<", J="<<J<<", g="<<g<<", T="<<T<<std::endl;
+//        <<", J="<<J<<", g="<<g<<", T="<<T<<", f="<<f<<", Ne="<<Ne<<std::endl;
 
 
 
@@ -162,7 +162,7 @@ public:
     double J = 0;// exchange interaction
 
     double g = 0;// coupling coefficient
-
+    double f=0;//filling ratio
     double T;// temperature
     int lastFileNum=0;
     double beta;
