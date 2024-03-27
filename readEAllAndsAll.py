@@ -14,12 +14,13 @@ from datetime import datetime
 L = 10# length of a supercell
 M = 20#number of supercells
 
-# if (len(sys.argv)!=2):
-#     print("wrong number of arguments")
-#     exit()
+if (len(sys.argv)!=3):
+    print("wrong number of arguments")
+    exit()
 sweepNumInOneFlush=3000
-groupNum=0
-rowNum=4
+groupNum=int(sys.argv[1])
+rowNum=int(sys.argv[2])
+
 pathGroupRow="./group"+str(groupNum)+"data/row"+str(rowNum)+"/"
 inTFileNames=[]
 TVals=[]
