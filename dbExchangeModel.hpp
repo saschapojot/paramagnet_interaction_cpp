@@ -40,11 +40,12 @@ using namespace std::complex_literals;
 //using mat10c = Eigen::Matrix<std::complex<double>, 10, 10>;
 //using mat2c = Eigen::Matrix<std::complex<double>, 2, 2>;
 //using mat20c = Eigen::Matrix<std::complex<double>, 20, 20>;
-//using vec20c=Eigen::Vector<std::complex<double>,20>;
+using vec20c=Eigen::Vector<std::complex<double>,20>;
 const auto PI=std::numbers::pi;
 //using eigVal20=Eigen::SelfAdjointEigenSolver<mat20c>::RealVectorType;
 //using vecVal20=Eigen::SelfAdjointEigenSolver<mat20c>::EigenvectorsType;
 using matc=Eigen::MatrixXcd;
+//using vecc=Eigen::VectorXcd;
 using eigVal=Eigen::SelfAdjointEigenSolver<matc>::RealVectorType;
 using vecVal=Eigen::SelfAdjointEigenSolver<matc>::EigenvectorsType;
 

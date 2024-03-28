@@ -423,7 +423,7 @@ void reader::fillZeWeights(dbExchangeModel &model) {
             std::vector<double> eigsForOne_sOneK;
 //            int j=std::get<0>(tp);
 //            double KTmp=model.KSupValsAll[j];
-            eigVal20 eigValsTmp = std::get<1>(tp);
+            eigVal eigValsTmp = std::get<1>(tp);
             for (const double &e: eigValsTmp) {//for all eigenvalues in one K
 //                double expVal = std::exp(beta * (e - muTmp));
 //                std::cout<<"beta="<<beta<<", e="<<e<<", muTmp="<<muTmp<<std::endl;
